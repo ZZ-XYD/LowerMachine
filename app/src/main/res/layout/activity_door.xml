@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/item_camera"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开摄像头补光灯" />
+
+        <Button
+            android:id="@+id/closeBtn_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭摄像头补光灯" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_lock_1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_camera"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_lock_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开电压控制电磁锁(1)" />
+
+        <Button
+            android:id="@+id/closeBtn_lock_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭电压控制电磁锁(1)" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_lock_2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_lock_1"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_lock_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开电压控制电磁锁(2)" />
+
+        <Button
+            android:id="@+id/closeBtn_lock_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭电压控制电磁锁(2)" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_backlight"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_lock_2"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_backlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开按键板背光灯" />
+
+        <Button
+            android:id="@+id/closeBtn_backlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭按键板背光灯" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_4G"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_backlight"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_4G"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开4G供电" />
+
+        <Button
+            android:id="@+id/closeBtn_4G"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭4G供电" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_externalLight"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_4G"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_externalLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开检测外部光线" />
+
+        <Button
+            android:id="@+id/closeBtn_externalLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭检测外部光线" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_lockStatus"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_externalLight"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_lockStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开检测电磁锁状态" />
+
+        <Button
+            android:id="@+id/closeBtn_lockStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭检测电磁锁状态" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_safeStatus"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_lockStatus"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <Button
+            android:id="@+id/openBtn_safeStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="打开检测拆机报警" />
+
+        <Button
+            android:id="@+id/closeBtn_safeStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭检测拆机报警" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_text1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_safeStatus"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <EditText
+            android:id="@+id/msgOutPut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:textColor="#FF6600" />
+
+        <EditText
+            android:id="@+id/rfidOutPut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:inputType="textMultiLine"
+            android:textColor="#FF6600" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/item_text2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/item_text1"
+        android:gravity="center"
+        app:layout_heightPercent="10%">
+
+        <EditText
+            android:id="@+id/cd4051OutPut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:inputType="textMultiLine"
+            android:textColor="#FF6600" />
+
+        <EditText
+            android:id="@+id/keyOutPut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:textColor="#FF6600" />
+    </LinearLayout>
+
+</android.support.percent.PercentRelativeLayout>
