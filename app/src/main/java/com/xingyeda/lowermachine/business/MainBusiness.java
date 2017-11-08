@@ -21,7 +21,7 @@ public class MainBusiness {
     /*
     获取设备SN码
      */
-    public void getSN(Context context, String macAddress) {
+    public static void getSN(Context context, String macAddress) {
         Map map = new HashMap();
         map.put("mac", macAddress);
         HttpUtils.doPost(ConnectPath.ADDSHEBEIFORAPP, map, new Callback() {
