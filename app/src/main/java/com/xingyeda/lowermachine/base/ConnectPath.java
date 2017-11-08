@@ -1,11 +1,11 @@
 package com.xingyeda.lowermachine.base;
 
 /*
-接口类
+HTTP请求接口类
  */
 public class ConnectPath {
 
-    //    public static String HOST = "http://service.xyd999.com:8080/";
+//    public static String HOST = "http://service.xyd999.com:8080/";
 //    public static final String HOST = "http://192.168.10.200:8080/";
     public static final String HOST = "http://192.168.10.250:8080/";
 
