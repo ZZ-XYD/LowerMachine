@@ -1,6 +1,7 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -11,10 +12,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.hurray.plugins.rkctrl;
 import com.hurray.plugins.serial;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.business.MainBusiness;
+import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -24,6 +27,7 @@ import static com.hurray.plugins.serial.byte2HexString;
 
 public class MainActivity extends BaseActivity {
 
+    private rkctrl mRkctrl = new rkctrl();
     private serial mSerial = new serial();
     private String arg = "/dev/ttyS1,9600,N,1,8";
     private int iRead = 0;
@@ -38,6 +42,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
 
         initSerial();
 
@@ -54,6 +59,10 @@ public class MainActivity extends BaseActivity {
             }
         });
         MainBusiness.getSN(this, wifiInfo.getMacAddress());
+
+        SharedPreferencesUtils preferencesUtils = new SharedPreferencesUtils(this);
+
+        mTextView.setText((String) preferencesUtils.get("sncode", ""));
     }
 
     @Override
