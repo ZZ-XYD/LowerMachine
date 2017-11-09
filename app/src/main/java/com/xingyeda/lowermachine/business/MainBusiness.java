@@ -1,12 +1,12 @@
 package com.xingyeda.lowermachine.business;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.SNCode;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
+import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class MainBusiness {
     /*
     获取设备SN码
      */
-    public static void getSN(Context context, String macAddress) {
+    public static void getSN(final Context context, String macAddress) {
         Map map = new HashMap();
         map.put("mac", macAddress);
         HttpUtils.doPost(ConnectPath.ADDSHEBEIFORAPP, map, new Callback() {
@@ -33,9 +33,8 @@ public class MainBusiness {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 SNCode snCode = JsonUtils.getGson().fromJson(response.body().string(), SNCode.class);
-                Log.e("SNCode", snCode.getObj());
-                Log.e("SNCode", snCode.getStatus());
-                Log.e("SNCode", snCode.getMsg());
+                SharedPreferencesUtils preferencesUtils = new SharedPreferencesUtils(context);
+                preferencesUtils.put("sncode", snCode.getObj());
             }
         });
     }
