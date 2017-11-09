@@ -14,4 +14,12 @@
         app:layout_heightPercent="10%"
         app:layout_widthPercent="40%" />
 
+    <TextView
+        android:id="@+id/mainTxt"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center|top"
+        app:layout_heightPercent="20%"
+        app:layout_widthPercent="50%" />
+
 </android.support.percent.PercentFrameLayout>
