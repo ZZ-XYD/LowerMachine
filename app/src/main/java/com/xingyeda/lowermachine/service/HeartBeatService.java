@@ -89,7 +89,7 @@ public class HeartBeatService extends Service {
     private void initSocket() {
         if (mSocket == null) {
             try {
-                mSocket = new Socket("192.168.10.86", 5888);
+                mSocket = new Socket("192.168.10.200", 5888);
                 if (out == null) {
                     out = mSocket.getOutputStream();
                 }
