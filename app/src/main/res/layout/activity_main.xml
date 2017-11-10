@@ -1,25 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/mainBtn1"
+    <android.support.percent.PercentRelativeLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="门禁测试"
-        app:layout_heightPercent="10%"
-        app:layout_widthPercent="40%" />
+        android:layout_height="match_parent"
+        app:layout_widthPercent="70%">
+        <com.youth.banner.Banner
+            android:id="@+id/banner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:delay_time="10000"
+            />
+        <TextView
+            android:id="@+id/sn_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_marginLeftPercent="5%"
+            app:layout_marginTopPercent="5%"/>
+    </android.support.percent.PercentRelativeLayout>
 
-    <TextView
-        android:id="@+id/mainTxt"
+
+
+    <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_gravity="center|top"
-        app:layout_heightPercent="20%"
-        app:layout_widthPercent="50%" />
+        android:layout_height="match_parent"
+        app:layout_widthPercent="30%"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/main_time"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"/>
+        <TextView
+            android:id="@+id/equipment_id"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"/>
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="请输入门牌号"/>
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
-</android.support.percent.PercentFrameLayout>
+    </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+</com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
