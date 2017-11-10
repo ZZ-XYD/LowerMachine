@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <!--<FrameLayout-->
+        <!--android:id="@+id/remote_video_view_container"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@android:color/white" />-->
+
+    <FrameLayout
+        android:id="@+id/local_video_view_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+
+    <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+        android:id="@+id/test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_heightPercent="80%"
+        app:layout_widthPercent="40%"
+        android:layout_centerInParent="true"
+        android:background="#797B7A"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_heightPercent="20%"
+            app:layout_marginTopPercent="10%"
+            android:gravity="center"
+            android:text="请输入门牌号"
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_heightPercent="20%"
+            app:layout_marginTopPercent="5%"
+            android:text="0806"
+            android:textColor="@color/white"
+            android:gravity="center"
+           android:layout_gravity="center_horizontal"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_marginTopPercent="5%"
+            android:text="呼叫管理中心请输入0000 \n呼叫住户请输入房号 \n确认请按#，返回请按*"
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"/>
+    </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+
+
+</android.support.percent.PercentRelativeLayout>
