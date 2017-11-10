@@ -32,4 +32,10 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile 'com.squareup.okio:okio:1.13.0'
     compile files('libs/hurraylibs.jar')
+    compile 'com.jakewharton:butterknife:8.8.1'
+    compile 'com.jakewharton:butterknife-compiler:8.8.1'
+    compile 'com.youth.banner:banner:1.4.8'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile files('libs/agora-rtc-sdk.jar')
+    compile project(':okhttp')
 }
