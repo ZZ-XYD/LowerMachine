@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -17,16 +18,16 @@ import okhttp3.Response;
 
 public class HttpUtils {
 
-    private static OkHttpClient mOkHttpClient;
+    private static OkHttpClient.Builder mOkHttpClient;
 
     private HttpUtils() {
     }
 
-    public static OkHttpClient getInstance() {
+    public static OkHttpClient.Builder getInstance() {
         if (mOkHttpClient == null) {
             //同步锁
             synchronized (HttpUtils.class) {
-                mOkHttpClient = new OkHttpClient();
+                mOkHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS);
             }
         }
         return mOkHttpClient;
@@ -36,7 +37,7 @@ public class HttpUtils {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Call call = getInstance().newCall(request);
+        Call call = getInstance().build().newCall(request);
         call.enqueue(callback);
     }
 
@@ -49,7 +50,7 @@ public class HttpUtils {
                 .url(url)
                 .post(builder.build())
                 .build();
-        Call call = getInstance().newCall(request);
+        Call call = getInstance().build().newCall(request);
         call.enqueue(callback);
     }
 
@@ -60,7 +61,7 @@ public class HttpUtils {
                 .url(url)
                 .post(body)
                 .build();
-        Call call = getInstance().newCall(request);
+        Call call = getInstance().build().newCall(request);
         call.enqueue(callback);
     }
 
@@ -68,7 +69,7 @@ public class HttpUtils {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Call call = getInstance().newCall(request);
+        Call call = getInstance().build().newCall(request);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
