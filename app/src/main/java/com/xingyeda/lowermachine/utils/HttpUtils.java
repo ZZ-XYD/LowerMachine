@@ -27,7 +27,7 @@ public class HttpUtils {
         if (mOkHttpClient == null) {
             //同步锁
             synchronized (HttpUtils.class) {
-                mOkHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS);
+                mOkHttpClient = new OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS);
             }
         }
         return mOkHttpClient;
