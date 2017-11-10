@@ -3,9 +3,11 @@ package com.xingyeda.lowermachine.base;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 
 
 import com.ldl.okhttp.OkHttpUtils;
+import com.xingyeda.lowermachine.service.DoorService;
 import com.youth.banner.loader.ImageLoader;
 
 import java.util.Stack;
@@ -23,6 +25,9 @@ public class MainApplication extends Application {
         activityStack = new Stack<Activity>();
         mContext = getApplicationContext();
         OkHttpUtils.getInstance().setConnectTimeout(100000, TimeUnit.MILLISECONDS);
+
+        initDoorService();
+        initHeartBeatService();
     }
     public static Context getmContext() {
         return mContext;
@@ -100,4 +105,17 @@ public class MainApplication extends Application {
         }
         activityStack.clear();
     }
+
+    private void initDoorService(){
+        Intent intent =new Intent();
+        intent.setClass(this, DoorService.class);
+        startService(intent);
+    }
+
+    private void initHeartBeatService(){
+        Intent intent =new Intent();
+        intent.setClass(this, DoorService.class);
+        startService(intent);
+    }
+
 }
