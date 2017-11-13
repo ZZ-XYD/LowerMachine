@@ -122,8 +122,9 @@ public class HeartBeatService extends Service {
                 System.out.println("-" + info + "-");
                 Message message = JsonUtils.getGson().fromJson(info, Message.class);
                 if (message.getCommond() != null) {
-                    if (message.getCommond().equals("M001")) {
-//                        m_rkctrl.exec_io_cmd(6, 1);//打开
+                    String str = message.getCommond().split(",")[0];
+                    if (str.equals("M001")) {
+                        m_rkctrl.exec_io_cmd(6, 1);//打开
                     }
                 }
 

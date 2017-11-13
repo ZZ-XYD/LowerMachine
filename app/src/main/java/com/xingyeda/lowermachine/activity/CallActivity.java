@@ -4,17 +4,19 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.base.ConnectPath;
@@ -22,15 +24,11 @@ import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
-import com.xingyeda.lowermachine.utils.BaseUtils;
-import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,9 +39,6 @@ import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class CallActivity extends BaseActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -52,6 +47,11 @@ public class CallActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
     @BindView(R.id.test)
     PercentLinearLayout test;
+    @BindView(R.id.door_number)
+    TextView doorNumber;
+
+    private rkctrl m_rkctrl = new rkctrl();
+    private String mDoorNumber = new String();
 
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
@@ -325,7 +325,7 @@ public class CallActivity extends BaseActivity {
         params.put("eid", MainBusiness.getMacAddress(mContext));
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
-        OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+        OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -347,4 +347,66 @@ public class CallActivity extends BaseActivity {
     public void onViewClicked() {
         callOut("8888");
     }
+
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_0) {//0
+            mDoorNumber += "0";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_1) {//1
+            mDoorNumber += "1";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_2) {//2
+            mDoorNumber += "2";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_3) {//3
+            mDoorNumber += "3";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_4) {//4
+            mDoorNumber += "4";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_5) {//5
+            mDoorNumber += "5";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_6) {//6
+            mDoorNumber += "6";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_7) {//7
+            mDoorNumber += "7";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_8) {//8
+            mDoorNumber += "8";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_9) {//9
+            mDoorNumber += "9";
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
+            mDoorNumber += "*";
+            return false;
+        } else {//#
+            if (mDoorNumber != null) {
+                callOut(mDoorNumber);
+            }
+        }
+        doorNumber.setText(mDoorNumber);
+//        else if(keyCode == KeyEvent.KEYCODE_POUND) {
+////            edittext_keyoutput.setText("");
+//            return false;
+//        }else if(keyCode == KeyEvent.KEYCODE_F4) {
+////            edittext_keyoutput.setText("️");
+//            return false;
+//        }else if(keyCode == KeyEvent.KEYCODE_F3) {
+////            edittext_keyoutput.setText("");
+//            return false;
+//        }else if(keyCode == KeyEvent.KEYCODE_F2) {
+////            edittext_keyoutput.setText("管理处");
+//            return false;
+//        }else if(keyCode == KeyEvent.KEYCODE_F1) {
+////            edittext_keyoutput.setText("帮助");
+//            return false;
+//        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
 }
