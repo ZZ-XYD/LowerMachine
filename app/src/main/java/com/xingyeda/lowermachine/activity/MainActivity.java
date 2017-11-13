@@ -2,14 +2,9 @@ package com.xingyeda.lowermachine.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.hurray.plugins.rkctrl;
-import com.hurray.plugins.serial;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
 import com.xingyeda.lowermachine.base.BaseActivity;
@@ -40,19 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.hurray.plugins.serial.byte2HexString;
-
 public class MainActivity extends BaseActivity {
-
-
-    private rkctrl mRkctrl = new rkctrl();
-    private serial mSerial = new serial();
-    private String arg = "/dev/ttyS1,9600,N,1,8";
-    private int iRead = 0;
-    private Thread mThread = null;
-    private String cardId = "";
-    private Button mButton;
-    private TextView mTextView;
 
     @BindView(R.id.banner)
     Banner banner;
@@ -72,8 +55,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         MainBusiness.getSN(mContext);
-
-//        initSerial();
 
         updateTime();//时间更新
 
@@ -138,14 +119,6 @@ public class MainActivity extends BaseActivity {
         }));
     }
 
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-        }
-    };
-
     private void setEquipmentName() {
         if (!SharedPreUtil.getString(mContext, "sncode").equals("")) {
             if (snText != null) {
@@ -209,7 +182,6 @@ public class MainActivity extends BaseActivity {
 
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -224,70 +196,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
-
-    /*
-    初始化串口
-     */
-    private void initSerial() {
-        int iret = mSerial.open(arg);
-        if (iret > 0) {
-            iRead = iret;
-            showToast(String.format("打开串口成功 (port = %s,fd=%d)", arg, iret));
-            runReadSerial(iRead);
-        } else {
-            showToast(String.format("打开串口失败 (fd=%d)", iret));
-        }
-    }
-
-    /*
-    读取串口数据线程
-     */
-    public void runReadSerial(final int fd) {
-        Runnable run = new Runnable() {
-            public void run() {
-                while (true) {
-                    int r = mSerial.select(fd, 1, 0);
-                    if (r == 1) {
-                        //测试 普通读串口数据
-                        byte[] buf = new byte[50];
-                        buf = mSerial.read(fd, 100);
-
-                        if (buf == null) break;
-
-                        if (buf.length <= 0) break;
-
-                        String strData = byte2HexString(buf);
-
-                        Message msgpwd = new Message();
-                        msgpwd.what = 1;
-                        Bundle data = new Bundle();
-                        data.putString("data", strData);
-                        msgpwd.setData(data);
-                        mHandler.sendMessage(msgpwd);
-
-                    }
-                }
-                onThreadEnd();
-            }
-        };
-        mThread = new Thread(run);
-        mThread.start();
-    }
-
-
-    public void onThreadEnd() {
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                showToast(String.format("%s", "监听串口线程结束"));
-                Log.v("MainActivity", String.format("%s", "监听串口线程结束"));
-            }
-        });
-    }
-
-
-
-
 
     private void updateTime() {
         Runnable runnable = new Runnable() {
