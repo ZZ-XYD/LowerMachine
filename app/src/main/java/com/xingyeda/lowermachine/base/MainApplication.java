@@ -7,7 +7,9 @@ import android.content.Intent;
 
 
 import com.ldl.okhttp.OkHttpUtils;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.xingyeda.lowermachine.service.DoorService;
+import com.xingyeda.lowermachine.service.HeartBeatService;
 import com.youth.banner.loader.ImageLoader;
 
 import java.util.Stack;
@@ -18,17 +20,20 @@ public class MainApplication extends Application {
     private static Stack<Activity> activityStack;
     private static MainApplication singleton;
     private static Context mContext;
+
     @Override
     public void onCreate() {
         super.onCreate();
         singleton = this;
         activityStack = new Stack<Activity>();
         mContext = getApplicationContext();
+        CrashReport.initCrashReport(getApplicationContext(), "6e8ad93526", true);
         OkHttpUtils.getInstance().setConnectTimeout(100000, TimeUnit.MILLISECONDS);
 
         initDoorService();
         initHeartBeatService();
     }
+
     public static Context getmContext() {
         return mContext;
     }
@@ -106,15 +111,15 @@ public class MainApplication extends Application {
         activityStack.clear();
     }
 
-    private void initDoorService(){
-        Intent intent =new Intent();
+    private void initDoorService() {
+        Intent intent = new Intent();
         intent.setClass(this, DoorService.class);
         startService(intent);
     }
 
-    private void initHeartBeatService(){
-        Intent intent =new Intent();
-        intent.setClass(this, DoorService.class);
+    private void initHeartBeatService() {
+        Intent intent = new Intent();
+        intent.setClass(this, HeartBeatService.class);
         startService(intent);
     }
 
