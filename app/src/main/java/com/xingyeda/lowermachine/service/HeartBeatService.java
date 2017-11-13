@@ -3,25 +3,23 @@ package com.xingyeda.lowermachine.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.hurray.plugins.rkctrl;
+import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.bean.Message;
+import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.utils.JsonUtils;
-import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class HeartBeatService extends Service {
 
     private Socket mSocket = null;
     private InputStream in = null;
     private OutputStream out = null;
-    private SharedPreferencesUtils utils;
     private rkctrl m_rkctrl = new rkctrl();
 
     public HeartBeatService() {
@@ -30,8 +28,6 @@ public class HeartBeatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        utils = new SharedPreferencesUtils(HeartBeatService.this);
-
         /*
         发送消息线程
          */
@@ -60,8 +56,7 @@ public class HeartBeatService extends Service {
                 while (true) {
                     getMessage();
                     try {
-                        sleep(1000 * 3);
-//                        m_rkctrl.exec_io_cmd(6, 0);//关闭
+                        sleep(1000 * 1);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -123,16 +118,14 @@ public class HeartBeatService extends Service {
                 Message message = JsonUtils.getGson().fromJson(info, Message.class);
                 if (message.getCommond() != null) {
                     String str = message.getCommond().split(",")[0];
-                    if (str.equals("M001")) {
-                        m_rkctrl.exec_io_cmd(6, 1);//打开
+                    if (str.equals(Commond.REMOTE_OPEN)) {//开门
+                        m_rkctrl.exec_io_cmd(6, 1);
+                    } else if (str.equals(Commond.REMOTE_CLOSE)) {//关门
+                        m_rkctrl.exec_io_cmd(6, 0);
                     }
                 }
 
             }
-//            if (responseInfo.contains("M001")) {
-//                m_rkctrl.exec_io_cmd(6, 1);//打开
-//            }
-//            Log.e("Message", aaa);
         } catch (Exception e) {
             exitForReConnect();
             initSocket();
@@ -146,16 +139,14 @@ public class HeartBeatService extends Service {
         Message msg = new Message();
         msg.setConverType("Object");
         msg.setContent("KeepLive");
-        msg.setCommond("M001");
-        msg.setmId((String) utils.get("sncode", ""));
+        msg.setCommond(Commond.REMOTE_OPEN);
+        msg.setmId(MainBusiness.getMacAddress(this));
 
         String jsonObject = JsonUtils.getGson().toJson(msg);
 
         byte[] objByte = jsonObject.getBytes();
         byte[] intByte = intToBytes(objByte.length);
         byte[] bytes = addBytes(intByte, objByte);
-
-        Log.e("HeartBeatService", String.valueOf(intByte.length));
 
         try {
             out.write(bytes);
@@ -198,18 +189,6 @@ public class HeartBeatService extends Service {
     }
 
     /*
-    byte[]转int
-     */
-    public static int bytesToInt(byte[] src, int offset) {
-        int value;
-        value = (int) (((src[offset] & 0xFF) << 24)
-                | ((src[offset + 1] & 0xFF) << 16)
-                | ((src[offset + 2] & 0xFF) << 8)
-                | (src[offset + 3] & 0xFF));
-        return value;
-    }
-
-    /*
     合并byte[]数组
      */
     private byte[] addBytes(byte[] data1, byte[] data2) {
@@ -217,11 +196,5 @@ public class HeartBeatService extends Service {
         System.arraycopy(data1, 0, data3, 0, data1.length);
         System.arraycopy(data2, 0, data3, data1.length, data2.length);
         return data3;
-    }
-
-    public static byte[] subBytes(byte[] src, int begin, int count) {
-        byte[] bs = new byte[count];
-        for (int i = begin; i < begin + count; i++) bs[i - begin] = src[i];
-        return bs;
     }
 }
