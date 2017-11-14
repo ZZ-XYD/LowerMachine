@@ -1,7 +1,6 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -38,6 +37,8 @@ public class SetActivity extends BaseActivity {
     Switch isTest;
     @BindView(R.id.is_elevator)
     Switch isElevator;
+    @BindView(R.id.mac_address)
+    TextView macAddress;
     private boolean mIsCellGate;
     private boolean mIsWaitTime;
     private boolean mIsTest;
@@ -49,13 +50,14 @@ public class SetActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set);
         ButterKnife.bind(this);
+        macAddress.setText(MainBusiness.getMacAddress(mContext));
 
         mHostIp = "http://192.168.10.250:8080/";
 
-        mIsCellGate = SharedPreUtil.getBoolean(mContext,"isCellGate");
-        mIsWaitTime = SharedPreUtil.getBoolean(mContext,"isWaitTime");
-        mIsTest = SharedPreUtil.getBoolean(mContext,"isTest");
-        mIsElevator = SharedPreUtil.getBoolean(mContext,"isElevator");
+        mIsCellGate = SharedPreUtil.getBoolean(mContext, "isCellGate");
+        mIsWaitTime = SharedPreUtil.getBoolean(mContext, "isWaitTime");
+        mIsTest = SharedPreUtil.getBoolean(mContext, "isTest");
+        mIsElevator = SharedPreUtil.getBoolean(mContext, "isElevator");
 
         isCellGate.setChecked(mIsCellGate);
         isWaitTime.setChecked(mIsWaitTime);
@@ -90,7 +92,7 @@ public class SetActivity extends BaseActivity {
     }
 
 
-    @OnClick({R.id.ip_address, R.id.is_cell_gate, R.id.is_wait_time, R.id.is_test, R.id.is_elevator,R.id.set_text})
+    @OnClick({R.id.ip_address, R.id.is_cell_gate, R.id.is_wait_time, R.id.is_test, R.id.is_elevator, R.id.set_text})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ip_address:
@@ -100,6 +102,7 @@ public class SetActivity extends BaseActivity {
                 break;
         }
     }
+
     public String getHrefByMap(Map<String, String> map) {
         if (map == null) {
             map = new HashMap<>();
@@ -113,23 +116,24 @@ public class SetActivity extends BaseActivity {
         }
         return href;
     }
-    private void setSubmit(){
-        Map<String,String> params = new HashMap<>();
-        params.put("hostIp",mHostIp);
-        params.put("isCellGate",mIsCellGate+"");
-        params.put("isWaitTime",mIsWaitTime+"");
-        params.put("isTest",mIsTest+"");
-        params.put("isElevator",mIsElevator+"");
-        String path = ConnectPath.USERSET_PATH(mContext)+"?"+getHrefByMap(params)+"&eid="+MainBusiness.getMacAddress(mContext)+"&type=add";
-        OkHttp.get(path,new BaseStringCallback(mContext, new CallbackHandler<String>() {
+
+    private void setSubmit() {
+        Map<String, String> params = new HashMap<>();
+        params.put("hostIp", mHostIp);
+        params.put("isCellGate", mIsCellGate + "");
+        params.put("isWaitTime", mIsWaitTime + "");
+        params.put("isTest", mIsTest + "");
+        params.put("isElevator", mIsElevator + "");
+        String path = ConnectPath.USERSET_PATH(mContext) + "?" + getHrefByMap(params) + "&eid=" + MainBusiness.getMacAddress(mContext) + "&type=add";
+        OkHttp.get(path, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
-                SharedPreUtil.put(mContext,"ip",mHostIp);
-                SharedPreUtil.put(mContext,"isCellGate",mIsCellGate);
-                SharedPreUtil.put(mContext,"isWaitTime",mIsWaitTime);
-                SharedPreUtil.put(mContext,"isTest",mIsTest);
-                SharedPreUtil.put(mContext,"isElevator",mIsElevator);
-                BaseUtils.showShortToast(mContext,"设置成功");
+                SharedPreUtil.put(mContext, "ip", mHostIp);
+                SharedPreUtil.put(mContext, "isCellGate", mIsCellGate);
+                SharedPreUtil.put(mContext, "isWaitTime", mIsWaitTime);
+                SharedPreUtil.put(mContext, "isTest", mIsTest);
+                SharedPreUtil.put(mContext, "isElevator", mIsElevator);
+                BaseUtils.showShortToast(mContext, "设置成功");
             }
 
             @Override
