@@ -136,6 +136,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:background="@color/black"/>
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_heightPercent="15%"
+                >
+                <TextView
+                    android:id="@+id/mac_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="服务器地址"
+                    android:gravity="center"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1sp"
+                android:background="@color/black"/>
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
         <TextView
             android:layout_width="1sp"

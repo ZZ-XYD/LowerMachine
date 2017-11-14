@@ -263,7 +263,8 @@ public class CallActivity extends BaseActivity {
          * 房间信息：也就是通道信息
          * 用户id ：会在onJoinChannelSuccess返回
          */
-        mRtcEngine.joinChannel(null, "demoChannel1", "Extra Optional Data", 0); // 如果你不指定uid,我们会为您生成的uid
+        mRtcEngine.joinChannel(null, MainBusiness.getMacAddress(mContext), "equipmentId", 0); // 如果你不指定uid,我们会为您生成的uid
+//        mRtcEngine.joinChannel(null, MainBusiness.getMacAddress(mContext), "equipmentId", 0); // 如果你不指定uid,我们会为您生成的uid
 
     }
 
@@ -389,6 +390,7 @@ public class CallActivity extends BaseActivity {
             }
         }
         doorNumber.setText(mDoorNumber);
+        doorNumber.postInvalidate();
 //        else if(keyCode == KeyEvent.KEYCODE_POUND) {
 ////            edittext_keyoutput.setText("");
 //            return false;
