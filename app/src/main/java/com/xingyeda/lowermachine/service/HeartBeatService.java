@@ -85,6 +85,9 @@ public class HeartBeatService extends Service {
         if (mSocket == null) {
             try {
                 mSocket = new Socket("192.168.10.200", 5888);
+                Intent intent = new Intent();
+                intent.setAction("HeartBeatSocketConnected");
+                HeartBeatService.this.sendBroadcast(intent);
                 if (out == null) {
                     out = mSocket.getOutputStream();
                 }
