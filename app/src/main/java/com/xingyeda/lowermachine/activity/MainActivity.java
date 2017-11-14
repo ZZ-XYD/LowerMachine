@@ -1,9 +1,14 @@
 package com.xingyeda.lowermachine.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
@@ -46,7 +51,7 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.sn_text)
     TextView snText;
     private List<String> mList = new ArrayList<>();
-
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +68,18 @@ public class MainActivity extends BaseActivity {
         getBindMsg();//绑定数据获取
 
         setEquipmentName();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("HeartBeatSocketConnected")) {
+//                    BaseUtils.showShortToast(mContext, "HeartBeatSocketConnected");
+                    Toast.makeText(mContext, "HeartBeatSocketConnected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        registerReceiver(broadcastReceiver, new IntentFilter("HeartBeatSocketConnected"));
     }
 
 
@@ -195,6 +212,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
     }
 
     private void updateTime() {
@@ -226,4 +244,6 @@ public class MainActivity extends BaseActivity {
                 break;
         }
     }
+
+
 }
