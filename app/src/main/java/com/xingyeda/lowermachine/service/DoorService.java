@@ -55,7 +55,8 @@ public class DoorService extends Service {
         Runnable run = new Runnable() {
             public void run() {
                 String cardId = "";
-                String idData = "";
+                String idData28 = "";
+                String idData8 = "";
                 while (true) {
                     int r = mSerial.select(fd, 1, 0);
                     if (r == 1) {
@@ -63,11 +64,13 @@ public class DoorService extends Service {
                         buf = mSerial.read(fd, 100);
                         cardId += byte2HexString(buf);
                         if (cardId.length() >= 28) {
-                            idData = cardId.substring(0, 28);
-                            if (idData.equals("57434441000000002e320d160023")) {
+                            idData28 = cardId.substring(0, 28);
+                            idData8 = idData28.substring(16, 24);
+                            if (idData8.equals("2e320d16")) {
                                 mRkctrl.exec_io_cmd(6, 1);//开门
                                 cardId = "";
-                                idData = "";
+                                idData28 = "";
+                                idData8 = "";
                                 try {
                                     pthread.sleep(1000 * 3);
                                     mRkctrl.exec_io_cmd(6, 0);//关门
