@@ -122,9 +122,19 @@ public class HeartBeatService extends Service {
                 if (message.getCommond() != null) {
                     String str = message.getCommond().split(",")[0];
                     if (str.equals(Commond.REMOTE_OPEN)) {//开门
-                        m_rkctrl.exec_io_cmd(6, 1);
-                    } else if (str.equals(Commond.REMOTE_CLOSE)) {//关门
-                        m_rkctrl.exec_io_cmd(6, 0);
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                m_rkctrl.exec_io_cmd(6, 1);
+                                try {
+                                    sleep(1000 * 3);
+                                    m_rkctrl.exec_io_cmd(6, 0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }.start();
+
                     }
                 }
 
