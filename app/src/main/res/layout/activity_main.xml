@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
+    <FrameLayout
+        android:id="@+id/main_local_video_view_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+
     <android.support.percent.PercentRelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
