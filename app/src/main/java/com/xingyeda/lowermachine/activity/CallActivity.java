@@ -1,9 +1,12 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,12 +24,16 @@ import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.business.MainBusiness;
+import com.xingyeda.lowermachine.http.BaseStringCallback;
+import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
+import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -40,8 +47,10 @@ import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
 
+import static android.R.string.cancel;
+
 public class CallActivity extends BaseActivity {
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = CallActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
@@ -52,6 +61,12 @@ public class CallActivity extends BaseActivity {
 
     private rkctrl m_rkctrl = new rkctrl();
     private String mDoorNumber = new String();
+
+    private String mCallId = "";
+    private String mHousenum = "";
+    private String mPhone = "";
+
+    private boolean mIsCall = false;
 
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
@@ -161,6 +176,8 @@ public class CallActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        ReleasePlayer();
 
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例
@@ -318,30 +335,79 @@ public class CallActivity extends BaseActivity {
     }
 
 
+
     private void callOut(String callinfo) {
+        mIsCall = true;
+        mHousenum=callinfo;
         Map<String, String> params = new HashMap<>();
         params.put("randomCode", getRandom());
         params.put("callinfo", callinfo);
         params.put("eid", MainBusiness.getMacAddress(mContext));
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
-        OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+//        BaseUtils.showLongToast(mContext,ConnectPath.CALLUSER_PATH(mContext)+params);
+        OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(JSONObject response) {//成功
+                try {
+                    mCallId=response.has("userId")?response.getString("userId"):"";
+                    mPhone=response.has("phone")?response.getString("phone"):"";
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
 
+            @Override
+            public void parameterError(JSONObject response) {//失败
+                mIsCall = false;
+            }
+
+            @Override
+            public void onFailure() {//接口问题
+                mIsCall = false;
             }
         }));
 
 
     }
 
-    private String getRandom() {
-        String strRand = "";
-        for (int i = 0; i < 8; i++) {
-            strRand += String.valueOf((int) (Math.random() * 10));
-        }
-        return strRand;
+    //挂断
+    private void cancel(){
+        Map<String, String> params = new HashMap<>();
+        params.put("eid", MainBusiness.getMacAddress(mContext));
+        params.put("uid", mCallId);
+        params.put("housenum", mHousenum);
+        params.put("dongshu", SharedPreUtil.getString(mContext, "DongShuId"));
+        OkHttp.get(ConnectPath.CANCEL_PATH(mContext),params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                mIsCall = false;
+            }
+        }));
     }
+
+    //本地电话查询
+    private void checkPhone(String phone){
+        Map<String, String> params = new HashMap<>();
+        params.put("tel",phone);
+        OkHttp.get(ConnectPath.CHECKPHONE_PATH(mContext),params,new BaseStringCallback(mContext, new CallbackHandler<String>() {
+            @Override
+            public void onResponse(JSONObject response) {//本地
+
+            }
+
+            @Override
+            public void parameterError(JSONObject response) {//外地
+
+            }
+
+            @Override
+            public void onFailure() {//出错
+
+            }
+        }));
+    }
+
 
     @OnClick(R.id.test)
     public void onViewClicked() {
@@ -350,6 +416,12 @@ public class CallActivity extends BaseActivity {
 
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (mIsCall) {
+            if (keyCode == KeyEvent.KEYCODE_STAR) {//*
+                cancel();
+                return false;
+            }
+        }else{
         if (keyCode == KeyEvent.KEYCODE_0) {//0
             mDoorNumber += "0";
             return false;
@@ -383,7 +455,7 @@ public class CallActivity extends BaseActivity {
         } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
             mDoorNumber += "*";
             return false;
-        } else {//#
+        } else { //#
             if (mDoorNumber != null) {
                 callOut(mDoorNumber);
             }
@@ -405,7 +477,45 @@ public class CallActivity extends BaseActivity {
 ////            edittext_keyoutput.setText("帮助");
 //            return false;
 //        }
+        }
         return super.onKeyDown(keyCode, event);
+    }
+
+private MediaPlayer mMediaPlayer;
+    private void promptTone(int resId) {
+            // 开始播放音乐
+            if (mMediaPlayer != null) {
+                mMediaPlayer.start();
+            }
+            mMediaPlayer = MediaPlayer.create(mContext,resId);
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.start();
+            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                ReleasePlayer();
+            }
+        });
+
+    }
+
+    //释放提示音播放资源
+    private void ReleasePlayer() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+
+    }
+    //随机呼叫数
+    private String getRandom() {
+        String strRand = "";
+        for (int i = 0; i < 8; i++) {
+            strRand += String.valueOf((int) (Math.random() * 10));
+        }
+        return strRand;
     }
 
 

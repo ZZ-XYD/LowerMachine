@@ -28,6 +28,10 @@ public class ConnectPath {
     private static final String USERSET_PATH = HOST_PATH + "econfig";
     //刷卡
     private static final String CARD = HOST_PATH + "card";
+    //挂断
+    private static final String CANCEL_PATH = HOST_PATH + "cancel";
+    //电话号码本地查询
+    private static final String CHECKPHONE_PATH = HOST_PATH + "checkPhone";
 
 
     //传送MAC地址添加设备
@@ -76,6 +80,20 @@ public class ConnectPath {
             return HOST + CARD;
         }
         return SharedPreUtil.getString(context, "ip") + CARD;
+    }
+    //挂断
+    public static String CANCEL_PATH(Context context) {
+        if (SharedPreUtil.getString(context, "ip").equals("")) {
+            return HOST + CANCEL_PATH;
+        }
+        return SharedPreUtil.getString(context, "ip") + CANCEL_PATH;
+    }
+    //电话号码本地查询
+    public static String CHECKPHONE_PATH(Context context) {
+        if (SharedPreUtil.getString(context, "ip").equals("")) {
+            return HOST + CHECKPHONE_PATH;
+        }
+        return SharedPreUtil.getString(context, "ip") + CHECKPHONE_PATH;
     }
 
 }
