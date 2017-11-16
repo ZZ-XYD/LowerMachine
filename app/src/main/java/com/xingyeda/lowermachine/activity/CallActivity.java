@@ -61,7 +61,9 @@ public class CallActivity extends BaseActivity {
 
     private rkctrl m_rkctrl = new rkctrl();
     private String mDoorNumber = new String();
+    private MediaPlayer mMediaPlayer;
 
+    private String mUserId = "";
     private String mCallId = "";
     private String mHousenum = "";
     private String mPhone = "";
@@ -350,8 +352,9 @@ public class CallActivity extends BaseActivity {
             @Override
             public void onResponse(JSONObject response) {//成功
                 try {
-                    mCallId=response.has("userId")?response.getString("userId"):"";
+                    mUserId=response.has("userId")?response.getString("userId"):"";
                     mPhone=response.has("phone")?response.getString("phone"):"";
+                    mCallId=response.has("callId")?response.getString("callId "):"";
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -375,7 +378,7 @@ public class CallActivity extends BaseActivity {
     private void cancel(){
         Map<String, String> params = new HashMap<>();
         params.put("eid", MainBusiness.getMacAddress(mContext));
-        params.put("uid", mCallId);
+        params.put("uid", mUserId);
         params.put("housenum", mHousenum);
         params.put("dongshu", SharedPreUtil.getString(mContext, "DongShuId"));
         OkHttp.get(ConnectPath.CANCEL_PATH(mContext),params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
@@ -481,7 +484,7 @@ public class CallActivity extends BaseActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-private MediaPlayer mMediaPlayer;
+
     private void promptTone(int resId) {
             // 开始播放音乐
             if (mMediaPlayer != null) {
