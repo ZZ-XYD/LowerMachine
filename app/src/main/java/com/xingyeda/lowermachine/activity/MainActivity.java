@@ -1,20 +1,9 @@
 package com.xingyeda.lowermachine.activity;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
@@ -99,7 +88,7 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.sn_text)
     TextView snText;
     private List<String> mList = new ArrayList<>();
-
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +105,18 @@ public class MainActivity extends BaseActivity {
         getBindMsg();//绑定数据获取
 
         setEquipmentName();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("HeartBeatSocketConnected")) {
+//                    BaseUtils.showShortToast(mContext, "HeartBeatSocketConnected");
+                    Toast.makeText(mContext, "HeartBeatSocketConnected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        registerReceiver(broadcastReceiver, new IntentFilter("HeartBeatSocketConnected"));
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
             initAgoraEngineAndJoinChannel();
@@ -249,6 +250,10 @@ public class MainActivity extends BaseActivity {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     private void updateTime() {
         Runnable runnable = new Runnable() {
@@ -279,6 +284,8 @@ public class MainActivity extends BaseActivity {
                 break;
         }
     }
+
+
 
 
     //初始化声网引擎和加入频道
@@ -345,7 +352,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        unregisterReceiver(broadcastReceiver);
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例
         mRtcEngine = null;

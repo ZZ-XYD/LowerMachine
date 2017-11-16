@@ -85,6 +85,9 @@ public class HeartBeatService extends Service {
         if (mSocket == null) {
             try {
                 mSocket = new Socket("192.168.10.200", 5888);
+                Intent intent = new Intent();
+                intent.setAction("HeartBeatSocketConnected");
+                HeartBeatService.this.sendBroadcast(intent);
                 if (out == null) {
                     out = mSocket.getOutputStream();
                 }
@@ -119,9 +122,19 @@ public class HeartBeatService extends Service {
                 if (message.getCommond() != null) {
                     String str = message.getCommond().split(",")[0];
                     if (str.equals(Commond.REMOTE_OPEN)) {//开门
-                        m_rkctrl.exec_io_cmd(6, 1);
-                    } else if (str.equals(Commond.REMOTE_CLOSE)) {//关门
-                        m_rkctrl.exec_io_cmd(6, 0);
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                m_rkctrl.exec_io_cmd(6, 1);
+                                try {
+                                    sleep(1000 * 3);
+                                    m_rkctrl.exec_io_cmd(6, 0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }.start();
+
                     }
                 }
 

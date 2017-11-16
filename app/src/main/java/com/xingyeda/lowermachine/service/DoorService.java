@@ -62,20 +62,22 @@ public class DoorService extends Service {
                     if (r == 1) {
                         byte[] buf = new byte[50];
                         buf = mSerial.read(fd, 100);
-                        cardId += byte2HexString(buf);
-                        if (cardId.length() >= 28) {
-                            idData28 = cardId.substring(0, 28);
-                            idData8 = idData28.substring(16, 24);
-                            if (idData8.equals("2e320d16")) {
-                                mRkctrl.exec_io_cmd(6, 1);//开门
-                                cardId = "";
-                                idData28 = "";
-                                idData8 = "";
-                                try {
-                                    pthread.sleep(1000 * 3);
-                                    mRkctrl.exec_io_cmd(6, 0);//关门
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                        if (buf != null && buf.length > 0) {
+                            cardId += byte2HexString(buf);
+                            if (cardId.length() >= 28) {
+                                idData28 = cardId.substring(0, 28);
+                                idData8 = idData28.substring(16, 24);
+                                if (idData8.equals("2e320d16")) {
+                                    mRkctrl.exec_io_cmd(6, 1);//开门
+                                    cardId = "";
+                                    idData28 = "";
+                                    idData8 = "";
+                                    try {
+                                        pthread.sleep(1000 * 3);
+                                        mRkctrl.exec_io_cmd(6, 0);//关门
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         }
