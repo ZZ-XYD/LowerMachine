@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -20,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
 import com.xingyeda.lowermachine.base.BaseActivity;
@@ -103,7 +107,10 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.sn_text)
     TextView snText;
     private List<String> mList = new ArrayList<>();
-    private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiver, networkReceiver;
+    private rkctrl mRkctrl = new rkctrl();
+    private boolean flag = true;
+    private String str = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,13 +132,29 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals("HeartBeatSocketConnected")) {
-//                    BaseUtils.showShortToast(mContext, "HeartBeatSocketConnected");
                     Toast.makeText(mContext, "HeartBeatSocketConnected", Toast.LENGTH_SHORT).show();
                 }
             }
         };
-
         registerReceiver(broadcastReceiver, new IntentFilter("HeartBeatSocketConnected"));
+
+        networkReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+                if (wifiNetworkInfo.isConnected() && !mobileNetworkInfo.isConnected()) {
+                    flag = true;
+                } else if (!wifiNetworkInfo.isConnected() && mobileNetworkInfo.isConnected()) {
+                    flag = true;
+                } else {
+                    flag = false;
+                }
+            }
+        };
+        registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
             initAgoraEngineAndJoinChannel();
@@ -297,8 +320,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
     //初始化声网引擎和加入频道
     private void initAgoraEngineAndJoinChannel() {
         initializeAgoraEngine();     //  教程步骤 1
@@ -364,9 +385,88 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(networkReceiver);
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例
         mRtcEngine = null;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_0) {
+            if (flag == false) {
+                str += "0";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_1) {
+            if (flag == false) {
+                str += "1";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_2) {
+            if (flag == false) {
+                str += "2";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_3) {
+            if (flag == false) {
+                str += "3";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_4) {
+            if (flag == false) {
+                str += "4";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_5) {
+            if (flag == false) {
+                str += "5";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_6) {
+            if (flag == false) {
+                str += "6";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_7) {
+            if (flag == false) {
+                str += "7";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_8) {
+            if (flag == false) {
+                str += "8";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_9) {
+            if (flag == false) {
+                str += "9";
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_STAR) {
+            if (!str.equals("")) {
+                if (str.equals("1234")) {
+                    str = "";
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            mRkctrl.exec_io_cmd(6, 1);//开门
+                            try {
+                                sleep(1000 * 3);
+                                mRkctrl.exec_io_cmd(6, 0);//关门
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
+                } else {
+                    str = "";
+                    BaseUtils.showShortToast(mContext, "密码错误");
+                }
+            }
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     // 教程步骤 10   本地视频开关
