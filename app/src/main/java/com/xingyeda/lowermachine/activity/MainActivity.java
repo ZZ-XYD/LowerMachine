@@ -61,6 +61,7 @@ public class MainActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
+
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
         @Override
@@ -102,6 +103,8 @@ public class MainActivity extends BaseActivity {
     TextView equipmentId;
     @BindView(R.id.sn_text)
     TextView snText;
+    @BindView(R.id.no_network)
+    ImageView noNetwork;
     private List<String> mList = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
 
@@ -295,8 +298,6 @@ public class MainActivity extends BaseActivity {
                 break;
         }
     }
-
-
 
 
     //初始化声网引擎和加入频道

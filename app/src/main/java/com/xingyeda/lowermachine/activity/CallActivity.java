@@ -38,6 +38,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,6 +69,8 @@ public class CallActivity extends BaseActivity {
     private String mCallId = "";
     private String mHousenum = "";
     private String mPhone = "";
+    private Timer mTimer = new Timer();
+    private Timer mCallTimer = new Timer();
 
     private boolean mIsCall = false;
 
@@ -180,6 +184,7 @@ public class CallActivity extends BaseActivity {
         super.onDestroy();
 
         ReleasePlayer();
+        clearAll();
 
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例
@@ -339,6 +344,7 @@ public class CallActivity extends BaseActivity {
 
 
     private void callOut(String callinfo) {
+        callTime(30000);
         mIsCall = true;
         mHousenum=callinfo;
         Map<String, String> params = new HashMap<>();
@@ -384,7 +390,7 @@ public class CallActivity extends BaseActivity {
         OkHttp.get(ConnectPath.CANCEL_PATH(mContext),params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
-                mIsCall = false;
+                clearAll();
             }
         }));
     }
@@ -415,6 +421,37 @@ public class CallActivity extends BaseActivity {
     @OnClick(R.id.test)
     public void onViewClicked() {
         callOut("8888");
+    }
+
+    private void clearAll(){
+        mUserId = "";
+        mCallId = "";
+        mHousenum = "";
+        mPhone = "";
+        mIsCall = false;
+        if (mTimer!=null) {
+            mTimer.cancel();
+        }
+
+    }
+
+    //接通计时  默认60秒----收到接通信息时调用
+    private void connectTime(int time){
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                finish();
+             }
+        }, time);
+    }
+    //接通计时  默认60秒
+    private void callTime(int time){
+        mCallTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {//呼叫电话
+
+            }
+        }, time);
     }
 
 
@@ -500,7 +537,6 @@ public class CallActivity extends BaseActivity {
                 ReleasePlayer();
             }
         });
-
     }
 
     //释放提示音播放资源
