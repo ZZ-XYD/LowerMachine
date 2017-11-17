@@ -9,10 +9,7 @@ public class Commond {
     //远程开门
     public static String REMOTE_OPEN = "M001";
 
-    //远程关门
-    public static String REMOTE_CLOSE = "M003";
-
-    //远程查看监控
+    //APP监控
     public static String REMOTE_LINSTEN = "M007";
 
     //远程接通物业
@@ -21,19 +18,19 @@ public class Commond {
     //远程推送配置
     public static String REMOTE_CONFIG = "M004";
 
-    //远程挂断通话
+    //APP挂断
     public static String REMOTE_RELEASE = "M009";
 
     //手机接通视频通话
     public static String MOBILE_ANSWER = "M555";
 
-    //通知到了手机
+    //手机收到呼入
     public static String MOBILE_RECEIVE = "M918";
 
     //物业接到了呼入
     public static String WUYE_RECEIVE = "M486";
 
-    //PC_RESTART
+    //重启
     public static String PC_RESTART = "M9527";
 
     //推流重启
@@ -42,7 +39,7 @@ public class Commond {
     //无应答
     public static String NO_ANSWER = "M333";
 
-    //用户忙
+    //用户通话中
     public static String BUSY = "M147";
 
     //更新广告机

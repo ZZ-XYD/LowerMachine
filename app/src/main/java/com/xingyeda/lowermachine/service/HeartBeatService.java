@@ -2,9 +2,12 @@ package com.xingyeda.lowermachine.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.IBinder;
 
 import com.hurray.plugins.rkctrl;
+import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.bean.Message;
 import com.xingyeda.lowermachine.business.MainBusiness;
@@ -14,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HeartBeatService extends Service {
 
@@ -21,6 +26,7 @@ public class HeartBeatService extends Service {
     private InputStream in = null;
     private OutputStream out = null;
     private rkctrl m_rkctrl = new rkctrl();
+    private SoundPool mSoundPool;
 
     public HeartBeatService() {
     }
@@ -28,6 +34,8 @@ public class HeartBeatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        initSP();
         /*
         发送消息线程
          */
@@ -68,12 +76,17 @@ public class HeartBeatService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        flags = START_STICKY;
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        Intent intent = new Intent();
+        intent.setAction("HeartBeatService.onDestroy");
+        HeartBeatService.this.sendBroadcast(intent);
     }
 
     @Override
@@ -118,7 +131,7 @@ public class HeartBeatService extends Service {
                 System.out.println("-" + responseInfo + "-");
                 String info = responseInfo.substring(4);
                 System.out.println("-" + info + "-");
-                Message message = JsonUtils.getGson().fromJson(info, Message.class);
+                final Message message = JsonUtils.getGson().fromJson(info, Message.class);
                 if (message.getCommond() != null) {
                     String str = message.getCommond().split(",")[0];
                     if (str.equals(Commond.REMOTE_OPEN)) {//开门
@@ -126,6 +139,7 @@ public class HeartBeatService extends Service {
                             @Override
                             public void run() {
                                 m_rkctrl.exec_io_cmd(6, 1);
+                                mSoundPool.play(1, 1, 1, 0, 0, 1);
                                 try {
                                     sleep(1000 * 3);
                                     m_rkctrl.exec_io_cmd(6, 0);
@@ -134,10 +148,38 @@ public class HeartBeatService extends Service {
                                 }
                             }
                         }.start();
+                    } else if (str.equals(Commond.HANG_UP)) {//直接挂断
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.HANG_UP");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.REMOTE_RELEASE)) {//接通后挂断
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.REMOTE_RELEASE");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.REMOTE_LINSTEN)) {//远程监控
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.REMOTE_LINSTEN");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.MOBILE_ANSWER");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.MOBILE_RECEIVE)) {//手机收到呼入
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.MOBILE_RECEIVE");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.PC_RESTART)) {//重启
 
+                    } else if (str.equals(Commond.NO_ANSWER)) {//无应答
+                        mSoundPool.play(2, 1, 1, 0, 0, 1);
+                    } else if (str.equals(Commond.BUSY)) {//用户通话中
+                        mSoundPool.play(3, 1, 1, 0, 0, 1);
+                    } else if (str.equals(Commond.RELOADIMG)) {//更新广告
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.RELOADIMG");
+                        HeartBeatService.this.sendBroadcast(intent);
                     }
                 }
-
             }
         } catch (Exception e) {
             exitForReConnect();
@@ -209,5 +251,14 @@ public class HeartBeatService extends Service {
         System.arraycopy(data1, 0, data3, 0, data1.length);
         System.arraycopy(data2, 0, data3, data1.length, data2.length);
         return data3;
+    }
+
+    private void initSP() {
+        if (mSoundPool == null) {
+            mSoundPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 5);
+            mSoundPool.load(HeartBeatService.this, R.raw.opendoor, 1);
+            mSoundPool.load(HeartBeatService.this, R.raw.bujie, 1);
+            mSoundPool.load(HeartBeatService.this, R.raw.busy, 1);
+        }
     }
 }
