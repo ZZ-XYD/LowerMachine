@@ -138,20 +138,17 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mNetworkInfo = connectivityManager.getActiveNetworkInfo();
                 NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-                if (wifiNetworkInfo.isConnected() && !mobileNetworkInfo.isConnected()) {
+                if (mNetworkInfo.isConnected() || wifiNetworkInfo.isConnected() || mobileNetworkInfo.isConnected()) {
                     flag = true;
                     ininImage();//图片获取
                     getBindMsg();//绑定数据获取
-                } else if (!wifiNetworkInfo.isConnected() && mobileNetworkInfo.isConnected()) {
-//                    flag = true;
-//                    ininImage();//图片获取
-//                    getBindMsg();//绑定数据获取
                 } else {
                     flag = false;
-                    if (noNetwork!=null) {
+                    if (noNetwork != null) {
                         noNetwork.setVisibility(View.VISIBLE);
                     }
                 }
