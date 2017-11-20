@@ -145,9 +145,9 @@ public class MainActivity extends BaseActivity {
                     ininImage();//图片获取
                     getBindMsg();//绑定数据获取
                 } else if (!wifiNetworkInfo.isConnected() && mobileNetworkInfo.isConnected()) {
-                    flag = true;
-                    ininImage();//图片获取
-                    getBindMsg();//绑定数据获取
+//                    flag = true;
+//                    ininImage();//图片获取
+//                    getBindMsg();//绑定数据获取
                 } else {
                     flag = false;
                     if (noNetwork!=null) {
