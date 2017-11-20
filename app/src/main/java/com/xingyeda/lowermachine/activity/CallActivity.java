@@ -1,7 +1,10 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
@@ -50,6 +53,7 @@ import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
 
 import static android.R.string.cancel;
+import static com.tencent.bugly.crashreport.crash.c.i;
 
 public class CallActivity extends BaseActivity {
     private static final String LOG_TAG = CallActivity.class.getSimpleName();
@@ -112,6 +116,8 @@ public class CallActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
         ButterKnife.bind(this);
+
+        registerBoradcastReceiver();
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
             initAgoraEngineAndJoinChannel();
@@ -183,6 +189,7 @@ public class CallActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        mContext.unregisterReceiver(mBroadcastReceiver);
         ReleasePlayer();
         clearAll();
 
@@ -344,6 +351,7 @@ public class CallActivity extends BaseActivity {
 
 
     private void callOut(String callinfo) {
+        promptTone(R.raw.ringback,true);
         callTime(30000);
         mIsCall = true;
         mHousenum=callinfo;
@@ -353,6 +361,7 @@ public class CallActivity extends BaseActivity {
         params.put("eid", MainBusiness.getMacAddress(mContext));
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
+        params.put("paizhao", "false");
 //        BaseUtils.showLongToast(mContext,ConnectPath.CALLUSER_PATH(mContext)+params);
         OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
@@ -369,11 +378,15 @@ public class CallActivity extends BaseActivity {
             @Override
             public void parameterError(JSONObject response) {//失败
                 mIsCall = false;
+                ReleasePlayer();
+                promptTone(R.raw.busy,false);
             }
 
             @Override
             public void onFailure() {//接口问题
                 mIsCall = false;
+                ReleasePlayer();
+                promptTone(R.raw.wurenjieting,false);
             }
         }));
 
@@ -417,6 +430,36 @@ public class CallActivity extends BaseActivity {
         }));
     }
 
+    public void registerBoradcastReceiver() {
+        IntentFilter intent = new IntentFilter();
+        intent.addAction("HeartBeatService.HANG_UP");//手机直接挂断
+        intent.addAction("HeartBeatService.REMOTE_RELEASE");//手机接通后挂断
+        intent.addAction("HeartBeatService.MOBILE_ANSWER");//手机接通视频通话
+        intent.addAction("HeartBeatService.MOBILE_RECEIVE");//手机收到呼入
+        // 注册广播
+        mContext.registerReceiver(mBroadcastReceiver, intent);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
+                finish();
+            }else if (action.equals("HeartBeatService.REMOTE_RELEASE")){//手机接通后挂断
+                finish();
+            }else if (action.equals("HeartBeatService.MOBILE_ANSWER")){//手机接通视频通话
+                ReleasePlayer();
+                connectTime(60000);
+            }else if (action.equals("HeartBeatService.MOBILE_RECEIVE")){//手机收到呼入
+                if (mCallTimer!=null) {
+                    mCallTimer.cancel();
+                }
+            }
+        }
+
+    };
+
 
     @OnClick(R.id.test)
     public void onViewClicked() {
@@ -432,6 +475,9 @@ public class CallActivity extends BaseActivity {
         if (mTimer!=null) {
             mTimer.cancel();
         }
+        if (mCallTimer!=null) {
+            mTimer.cancel();
+        }
 
     }
 
@@ -444,12 +490,13 @@ public class CallActivity extends BaseActivity {
              }
         }, time);
     }
-    //接通计时  默认60秒
+    //电话呼叫计时  默认60秒
     private void callTime(int time){
         mCallTimer.schedule(new TimerTask() {
             @Override
             public void run() {//呼叫电话
-
+                ReleasePlayer();
+                promptTone(R.raw.record,false);
             }
         }, time);
     }
@@ -522,21 +569,24 @@ public class CallActivity extends BaseActivity {
     }
 
 
-    private void promptTone(int resId) {
+    private void promptTone(int resId,boolean isCirculation) {
             // 开始播放音乐
             if (mMediaPlayer != null) {
                 mMediaPlayer.start();
             }
             mMediaPlayer = MediaPlayer.create(mContext,resId);
-            mMediaPlayer.setLooping(true);
+            mMediaPlayer.setLooping(isCirculation);
             mMediaPlayer.start();
+        if (!isCirculation) {
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                ReleasePlayer();
-            }
-        });
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    ReleasePlayer();
+                }
+            });
+        }
+
     }
 
     //释放提示音播放资源

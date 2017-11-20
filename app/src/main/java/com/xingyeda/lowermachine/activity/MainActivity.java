@@ -129,6 +129,8 @@ public class MainActivity extends BaseActivity {
 
         getBindMsg();//绑定数据获取
 
+        registerBoradcastReceiver();//返回监控
+
         setEquipmentName();
 
         networkReceiver = new BroadcastReceiver() {
@@ -140,10 +142,18 @@ public class MainActivity extends BaseActivity {
 
                 if (wifiNetworkInfo.isConnected() && !mobileNetworkInfo.isConnected()) {
                     flag = true;
+                    ininImage();//图片获取
+                    getBindMsg();//绑定数据获取
                 } else if (!wifiNetworkInfo.isConnected() && mobileNetworkInfo.isConnected()) {
                     flag = true;
+                    ininImage();//图片获取
+                    getBindMsg();//绑定数据获取
                 } else {
                     flag = false;
+                    if (noNetwork!=null) {
+                        noNetwork.setVisibility(View.VISIBLE);
+                        noNetwork.setBackgroundResource(R.mipmap.p);
+                    }
                 }
             }
         };
@@ -271,6 +281,24 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    public void registerBoradcastReceiver() {
+        IntentFilter intent = new IntentFilter();
+        intent.addAction("HeartBeatService.RELOADIMG");//更新广告
+        // 注册广播
+        mContext.registerReceiver(mBroadcastReceiver, intent);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals("HeartBeatService.RELOADIMG")) {//更新广告
+                ininImage();//图片更新
+            }
+        }
+
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -377,6 +405,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mContext.unregisterReceiver(mBroadcastReceiver);
         unregisterReceiver(networkReceiver);
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例

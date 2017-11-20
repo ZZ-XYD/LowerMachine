@@ -46,7 +46,7 @@ public class MainBusiness {
     public static String getMacAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getMacAddress();
+        return wifiInfo.getMacAddress().replaceAll(":","");
     }
 
 

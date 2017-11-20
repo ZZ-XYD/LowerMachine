@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_marginTopPercent="5%"
-            android:text="呼叫管理中心请输入0000 \n呼叫住户请输入房号 \n确认请按#，返回请按*"
+            android:text="★呼叫管理中心请输入0000 \n★呼叫住户请输入房号 \n★确认请按#，返回请按*"
             android:textColor="@color/white"
             android:layout_gravity="center_horizontal"/>
     </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
