@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.xingyeda.lowermachine.activity.MainActivity;
 import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
 
@@ -21,6 +22,10 @@ public class BootReceiver extends BroadcastReceiver {
             Intent serviceIntent2 = new Intent();
             serviceIntent2.setClass(context, DoorService.class);
             context.startService(serviceIntent2);
+        } else if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+            Intent intent1 = new Intent();
+            intent1.setClass(context, MainActivity.class);
+            context.startActivity(intent1);
         }
     }
 }

@@ -334,9 +334,6 @@ public class MainActivity extends BaseActivity {
             case R.id.equipment_id:
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
-            case R.id.main_time:
-                BaseUtils.startActivity(mContext, CallActivity.class);
-                break;
         }
     }
 
@@ -417,51 +414,71 @@ public class MainActivity extends BaseActivity {
         if (keyCode == KeyEvent.KEYCODE_0) {
             if (flag == false) {
                 str += "0";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
             if (flag == false) {
                 str += "1";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
             if (flag == false) {
                 str += "2";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
             if (flag == false) {
                 str += "3";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_4) {
             if (flag == false) {
                 str += "4";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
             if (flag == false) {
                 str += "5";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
             if (flag == false) {
                 str += "6";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
             if (flag == false) {
                 str += "7";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
             if (flag == false) {
                 str += "8";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_9) {
             if (flag == false) {
                 str += "9";
+            } else {
+                BaseUtils.startActivity(mContext, CallActivity.class);
             }
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_STAR) {

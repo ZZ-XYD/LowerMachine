@@ -180,7 +180,7 @@ public class HeartBeatService extends Service {
                         intent.putExtra("nowait", 1);
                         intent.putExtra("interval", 1);
                         intent.putExtra("window", 0);
-                        sendBroadcast(intent);
+                        HeartBeatService.this.sendBroadcast(intent);
                     } else if (str.equals(Commond.NO_ANSWER)) {//无应答
                         mSoundPool.play(2, 1, 1, 0, 0, 1);
                     } else if (str.equals(Commond.BUSY)) {//用户通话中
