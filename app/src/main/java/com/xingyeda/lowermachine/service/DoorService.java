@@ -2,11 +2,29 @@ package com.xingyeda.lowermachine.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Handler;
 import android.os.IBinder;
 
 import com.hurray.plugins.rkctrl;
 import com.hurray.plugins.serial;
+import com.xingyeda.lowermachine.R;
+import com.xingyeda.lowermachine.base.ConnectPath;
+import com.xingyeda.lowermachine.bean.CardResult;
+import com.xingyeda.lowermachine.utils.BaseUtils;
+import com.xingyeda.lowermachine.utils.HttpUtils;
+import com.xingyeda.lowermachine.utils.JsonUtils;
+import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class DoorService extends Service {
 
@@ -16,6 +34,8 @@ public class DoorService extends Service {
     private Thread pthread = null;
     private int iRead = 0;
     private SharedPreferencesUtils preferencesUtils;
+    private Handler mHandler = new Handler();
+    private SoundPool mSoundPool;
 
     public DoorService() {
     }
@@ -23,18 +43,24 @@ public class DoorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        initSP();
         preferencesUtils = new SharedPreferencesUtils(this);
         initSerial();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        flags = START_STICKY;
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        Intent intent = new Intent();
+        intent.setAction("DoorService.onDestroy");
+        DoorService.this.sendBroadcast(intent);
     }
 
     @Override
@@ -67,18 +93,61 @@ public class DoorService extends Service {
                             if (cardId.length() >= 28) {
                                 idData28 = cardId.substring(0, 28);
                                 idData8 = idData28.substring(16, 24);
-                                if (idData8.equals("2e320d16")) {
-                                    mRkctrl.exec_io_cmd(6, 1);//开门
-                                    cardId = "";
-                                    idData28 = "";
-                                    idData8 = "";
-                                    try {
-                                        pthread.sleep(1000 * 3);
-                                        mRkctrl.exec_io_cmd(6, 0);//关门
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
+
+                                Map map = new HashMap();
+                                map.put("searchType", "getByCode");
+                                map.put("snCode", idData8);
+                                map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
+
+                                HttpUtils.doPost(ConnectPath.CARD(DoorService.this), map, new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+
                                     }
-                                }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final CardResult cardResult = JsonUtils.getGson().fromJson(response.body().string(), CardResult.class);
+                                        if (cardResult.getStatus().equals("200")) {
+                                            mRkctrl.exec_io_cmd(6, 1);//开门
+                                            mSoundPool.play(1, 1, 1, 0, 0, 1);
+                                            mHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
+                                                }
+                                            });
+                                            try {
+                                                pthread.sleep(1000 * 3);
+                                                mRkctrl.exec_io_cmd(6, 0);//关门
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            mHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                cardId = "";
+                                idData28 = "";
+                                idData8 = "";
+//                                if (idData8.equals("2e320d16")) {
+//                                    mRkctrl.exec_io_cmd(6, 1);//开门
+//                                    cardId = "";
+//                                    idData28 = "";
+//                                    idData8 = "";
+//                                    try {
+//                                        pthread.sleep(1000 * 3);
+//                                        mRkctrl.exec_io_cmd(6, 0);//关门
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
                             }
                         }
                     }
@@ -106,5 +175,14 @@ public class DoorService extends Service {
                 sb.append(stmp);
         }
         return sb.toString();
+    }
+
+    private void initSP() {
+        if (mSoundPool == null) {
+            mSoundPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 5);
+            mSoundPool.load(DoorService.this, R.raw.opendoor, 1);
+            mSoundPool.load(DoorService.this, R.raw.bujie, 1);
+            mSoundPool.load(DoorService.this, R.raw.busy, 1);
+        }
     }
 }
