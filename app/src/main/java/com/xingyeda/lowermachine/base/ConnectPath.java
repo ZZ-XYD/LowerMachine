@@ -32,6 +32,8 @@ public class ConnectPath {
     private static final String CANCEL_PATH = HOST_PATH + "cancel";
     //电话号码本地查询
     private static final String CHECKPHONE_PATH = HOST_PATH + "checkPhone";
+    //获取通告
+    private static final String INFORM_PATH = HOST_PATH + "getEquipmentAnnouncement";
 
 
     //传送MAC地址添加设备
@@ -94,6 +96,13 @@ public class ConnectPath {
             return HOST + CHECKPHONE_PATH;
         }
         return SharedPreUtil.getString(context, "ip") + CHECKPHONE_PATH;
+    }
+    //获取通告
+    public static String INFORM_PATH(Context context) {
+        if (SharedPreUtil.getString(context, "ip").equals("")) {
+            return HOST + INFORM_PATH;
+        }
+        return SharedPreUtil.getString(context, "ip") + INFORM_PATH;
     }
 
 }

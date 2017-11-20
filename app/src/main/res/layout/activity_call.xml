@@ -37,13 +37,13 @@
             android:text="请输入门牌号"
             android:textColor="@color/white"
             android:layout_gravity="center_horizontal"/>
+
         <TextView
             android:id="@+id/door_number"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_heightPercent="20%"
             app:layout_marginTopPercent="5%"
-            android:text="0806"
             android:textColor="@color/white"
             android:gravity="center"
            android:layout_gravity="center_horizontal"

@@ -66,6 +66,7 @@ public class MainActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
 
+
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
         @Override
@@ -109,6 +110,8 @@ public class MainActivity extends BaseActivity {
     TextView snText;
     @BindView(R.id.no_network)
     ImageView noNetwork;
+    @BindView(R.id.notification)
+    TextView notificationText;
     private List<String> mList = new ArrayList<>();
     private BroadcastReceiver networkReceiver;
     private rkctrl mRkctrl = new rkctrl();
@@ -122,13 +125,15 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        MainBusiness.getSN(mContext);
+        MainBusiness.getSN(mContext);//获取sn
 
         updateTime();//时间更新
 
         ininImage();//图片获取
 
         getBindMsg();//绑定数据获取
+
+        getInform();//获取通告
 
         registerBoradcastReceiver();//返回监控
 
@@ -140,17 +145,12 @@ public class MainActivity extends BaseActivity {
                 ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo mNetworkInfo = connectivityManager.getActiveNetworkInfo();
                 NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+//                NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-                if (mNetworkInfo.isConnected() || wifiNetworkInfo.isConnected() || mobileNetworkInfo.isConnected()) {
+                if (mNetworkInfo.isConnected() ||wifiNetworkInfo.isConnected()) {
                     flag = true;
-                    ininImage();//图片获取
-                    getBindMsg();//绑定数据获取
                 } else {
                     flag = false;
-                    if (noNetwork != null) {
-                        noNetwork.setVisibility(View.VISIBLE);
-                    }
                 }
             }
         };
@@ -276,6 +276,71 @@ public class MainActivity extends BaseActivity {
             }
         }));
 
+    }
+
+    private List<String> notificationList = new ArrayList<>();
+    private int notification = 0;
+
+    private void getInform() {
+        Map<String, String> params = new HashMap<>();
+        params.put("eid", MainBusiness.getMacAddress(mContext));
+        OkHttp.get(ConnectPath.INFORM_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                if (response.has("obj")) {
+                    try {
+                        JSONArray jobj = (JSONArray) response.get("obj");
+                        if (jobj != null && jobj.length() != 0) {
+                            for (int i = 0; i < jobj.length(); i++) {
+                                JSONObject jobjBean = jobj.getJSONObject(i);
+                                if (jobjBean.has("content")) {
+                                    notificationList.add(jobjBean.getString("content"));
+                                }
+                            }
+                            if (notificationList != null && !notificationList.isEmpty()) {
+                                carouselMsg(notificationList);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void parameterError(JSONObject response) {
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        }));
+    }
+
+    private void carouselMsg(final List<String> list) {
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (list != null && !list.isEmpty()) {
+                    if (notification + 1 <= list.size()) {
+                        if (notificationText!=null) {
+                            notificationText.setText(list.get(notification));
+                        }
+                        if (notification + 1 == list.size()) {
+                            notification = 0;
+                        }else{
+                            notification++;
+                        }
+                    }
+                    if (notificationList != null && !notificationList.isEmpty()) {
+                        carouselMsg(notificationList);
+                    }
+                }
+
+            }
+        };
+        new Handler().postDelayed(runnable, 1000);
     }
 
     public void registerBoradcastReceiver() {
