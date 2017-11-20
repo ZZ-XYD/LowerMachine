@@ -121,6 +121,7 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         MainBusiness.getSN(mContext);
 
         updateTime();//时间更新
@@ -152,7 +153,6 @@ public class MainActivity extends BaseActivity {
                     flag = false;
                     if (noNetwork!=null) {
                         noNetwork.setVisibility(View.VISIBLE);
-                        noNetwork.setBackgroundResource(R.mipmap.p);
                     }
                 }
             }
@@ -326,6 +326,18 @@ public class MainActivity extends BaseActivity {
             }
         };
         new Handler().postDelayed(runnable, 1000);
+    }
+
+    @OnClick({R.id.equipment_id, R.id.main_time})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.equipment_id:
+                BaseUtils.startActivity(mContext, SetActivity.class);
+                break;
+            case R.id.main_time:
+                BaseUtils.startActivity(mContext, CallActivity.class);
+                break;
+        }
     }
 
     //初始化声网引擎和加入频道

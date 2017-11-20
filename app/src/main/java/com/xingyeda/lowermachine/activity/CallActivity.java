@@ -352,6 +352,7 @@ public class CallActivity extends BaseActivity {
         params.put("eid", MainBusiness.getMacAddress(mContext));
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
+        params.put("paizhao","false");
 //        BaseUtils.showLongToast(mContext,ConnectPath.CALLUSER_PATH(mContext)+params);
         OkHttp.get(ConnectPath.CALLUSER_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
@@ -499,7 +500,7 @@ public class CallActivity extends BaseActivity {
                 return false;
             } else { //#
                 if (mDoorNumber != null) {
-                    if (mDoorNumber.equals("8888")) {
+                    if (mDoorNumber.equals("9999")) {
                         BaseUtils.startActivity(mContext, SetActivity.class);
                         mDoorNumber = "";
                         finish();
