@@ -328,16 +328,6 @@ public class MainActivity extends BaseActivity {
         new Handler().postDelayed(runnable, 1000);
     }
 
-    @OnClick({R.id.equipment_id, R.id.main_time})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.equipment_id:
-                BaseUtils.startActivity(mContext, SetActivity.class);
-                break;
-        }
-    }
-
-
     //初始化声网引擎和加入频道
     private void initAgoraEngineAndJoinChannel() {
         initializeAgoraEngine();     //  教程步骤 1
