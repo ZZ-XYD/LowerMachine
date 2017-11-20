@@ -34,6 +34,8 @@ public class ConnectPath {
     private static final String CHECKPHONE_PATH = HOST_PATH + "checkPhone";
     //获取通告
     private static final String INFORM_PATH = HOST_PATH + "getEquipmentAnnouncement";
+    //天气
+    private static final String WEATHER_PATH = HOST_PATH + "getTianqi";
 
 
     //传送MAC地址添加设备
@@ -103,6 +105,13 @@ public class ConnectPath {
             return HOST + INFORM_PATH;
         }
         return SharedPreUtil.getString(context, "ip") + INFORM_PATH;
+    }
+    //获取通告
+    public static String WEATHER_PATH(Context context) {
+        if (SharedPreUtil.getString(context, "ip").equals("")) {
+            return HOST + WEATHER_PATH;
+        }
+        return SharedPreUtil.getString(context, "ip") + WEATHER_PATH;
     }
 
 }

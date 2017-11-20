@@ -112,6 +112,8 @@ public class MainActivity extends BaseActivity {
     ImageView noNetwork;
     @BindView(R.id.notification)
     TextView notificationText;
+    @BindView(R.id.weather_text)
+    TextView weatherText;
     private List<String> mList = new ArrayList<>();
     private BroadcastReceiver networkReceiver;
     private rkctrl mRkctrl = new rkctrl();
@@ -135,6 +137,8 @@ public class MainActivity extends BaseActivity {
 
         getInform();//获取通告
 
+        getWeather(1000);//获取天气
+
         registerBoradcastReceiver();//返回监控
 
         setEquipmentName();
@@ -147,7 +151,7 @@ public class MainActivity extends BaseActivity {
                 NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 //                NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-                if (mNetworkInfo.isConnected() ||wifiNetworkInfo.isConnected()) {
+                if (mNetworkInfo.isConnected() || wifiNetworkInfo.isConnected()) {
                     flag = true;
                 } else {
                     flag = false;
@@ -324,12 +328,12 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 if (list != null && !list.isEmpty()) {
                     if (notification + 1 <= list.size()) {
-                        if (notificationText!=null) {
+                        if (notificationText != null) {
                             notificationText.setText(list.get(notification));
                         }
                         if (notification + 1 == list.size()) {
                             notification = 0;
-                        }else{
+                        } else {
                             notification++;
                         }
                     }
@@ -376,18 +380,61 @@ public class MainActivity extends BaseActivity {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
-                Calendar calendar = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd \n  HH:mm:ss");
                 String str = sdf.format(new Date());
                 if (time != null) {
-                    time.setText(str + "\n" + weekDays[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
+                    time.setText(str);
                 }
                 updateTime();
 
             }
         };
         new Handler().postDelayed(runnable, 1000);
+    }
+
+    private void getWeather(int time) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+                Calendar calendar = Calendar.getInstance();
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd \n  HH:mm:ss");
+//                String str = sdf.format(new Date());
+                if (weatherText != null) {
+                    weatherText.setText(weekDays[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
+                }
+                OkHttp.get(ConnectPath.WEATHER_PATH(mContext), new BaseStringCallback(mContext, new CallbackHandler<String>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response.has("obj")) {
+                            try {
+                                JSONObject jobj = (JSONObject) response.get("obj");
+                                if (jobj.has("temp")) {
+                                    weatherText.append("/"+jobj.getString("temp"));
+                                }
+//                                if (jobj.has("img")) {
+//                                    weatherText.append(jobj.getString("temp")+"/");
+//                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void parameterError(JSONObject response) {
+                        weatherText.append("/暂无天气");
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        weatherText.append("/暂无天气");
+                    }
+                }));
+                getWeather(60*60*1000);
+            }
+        };
+        new Handler().postDelayed(runnable, time);
     }
 
     @OnClick({R.id.equipment_id, R.id.main_time})

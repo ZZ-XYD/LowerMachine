@@ -45,7 +45,7 @@ public class DoorService extends Service {
         super.onCreate();
         initSP();
         preferencesUtils = new SharedPreferencesUtils(this);
-        initSerial();
+//        initSerial();
     }
 
     @Override

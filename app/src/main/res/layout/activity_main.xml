@@ -45,12 +45,26 @@
         android:orientation="vertical"
         app:layout_widthPercent="30%">
 
-        <TextView
-            android:id="@+id/main_time"
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center" />
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/main_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/weather_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                />
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
 
         <TextView
             android:id="@+id/equipment_id"
@@ -70,7 +84,7 @@
                 android:id="@+id/notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="请输入门牌号" />
+                android:text="暂没通告" />
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
     </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>

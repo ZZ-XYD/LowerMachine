@@ -353,7 +353,7 @@ public class CallActivity extends BaseActivity {
 
     private void callOut(String callinfo) {
         promptTone(R.raw.ringback,true);
-        callTime(30000);
+        callTime(10000);
         mIsCall = true;
         mDoorNumber = "";
         mHousenum=callinfo;
@@ -382,6 +382,9 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 promptTone(R.raw.busy,false);
+                if (mCallTimer!=null) {
+                    mCallTimer.cancel();
+                }
             }
 
             @Override
@@ -389,6 +392,9 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 promptTone(R.raw.wurenjieting,false);
+                if (mCallTimer!=null) {
+                    mCallTimer.cancel();
+                }
             }
         }));
 
