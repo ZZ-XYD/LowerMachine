@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.no_network)
     ImageView noNetwork;
     private List<String> mList = new ArrayList<>();
-    private BroadcastReceiver broadcastReceiver, networkReceiver;
+    private BroadcastReceiver networkReceiver;
     private rkctrl mRkctrl = new rkctrl();
     private boolean flag = true;
     private String str = "";
@@ -130,16 +130,6 @@ public class MainActivity extends BaseActivity {
         getBindMsg();//绑定数据获取
 
         setEquipmentName();
-
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals("HeartBeatSocketConnected")) {
-                    Toast.makeText(mContext, "HeartBeatSocketConnected", Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-        registerReceiver(broadcastReceiver, new IntentFilter("HeartBeatSocketConnected"));
 
         networkReceiver = new BroadcastReceiver() {
             @Override
@@ -387,7 +377,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
         unregisterReceiver(networkReceiver);
         leaveChannel();
         RtcEngine.destroy();//销毁引擎实例
