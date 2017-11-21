@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -410,11 +411,23 @@ public class MainActivity extends BaseActivity {
                             try {
                                 JSONObject jobj = (JSONObject) response.get("obj");
                                 if (jobj.has("temp")) {
-                                    weatherText.append("/"+jobj.getString("temp"));
+                                    if (weatherText!=null) {
+                                        weatherText.append(" / "+jobj.getString("temp")+"℃ ");
+                                    }
                                 }
-//                                if (jobj.has("img")) {
-//                                    weatherText.append(jobj.getString("temp")+"/");
-//                                }
+                                String weatherCode = "";
+                                if (jobj.has("img")) {
+                                    weatherCode = "w_"+jobj.getString("img");
+                                }
+                                int resId = getResources().getIdentifier(weatherCode, "mipmap", mContext.getPackageName());
+                                if (weatherText!=null) {
+                                    if (resId != 0) {
+                                        weatherText.append("/ ");
+                                        Drawable drawable = getResources().getDrawable(resId);
+                                        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                                        weatherText.setCompoundDrawables(null, null, drawable, null);
+                                    }
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -423,12 +436,16 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void parameterError(JSONObject response) {
-                        weatherText.append("/暂无天气");
+                        if (weatherText!=null) {
+                            weatherText.append("/暂无天气");
+                        }
                     }
 
                     @Override
                     public void onFailure() {
-                        weatherText.append("/暂无天气");
+                        if (weatherText!=null) {
+                            weatherText.append("/暂无天气");
+                        }
                     }
                 }));
                 getWeather(60*60*1000);
