@@ -23,7 +23,7 @@ public class BaseStringCallback extends StringCallback {
     }
     @Override
     public void onError(Call call, Exception e,int id) {
-        BaseUtils.showShortToast(mContext, "连接超时");
+//        BaseUtils.showShortToast(mContext, "连接超时");
 //		MyLog.i("连接超时");
 		mCallbackHandler.onFailure();
 //        mHandler.sendEmptyMessage(TIMEOUT);
@@ -37,7 +37,7 @@ public class BaseStringCallback extends StringCallback {
 	    JSONObject jobj= new JSONObject(response);
 	    if (!jobj.get("status").equals("200")) {
 		if (jobj.has("msg")) {
-			BaseUtils.showShortToast(mContext, jobj.getString("msg"));
+//			BaseUtils.showShortToast(mContext, jobj.getString("msg"));
 		}
 			mCallbackHandler.parameterError(jobj);
 		return;
