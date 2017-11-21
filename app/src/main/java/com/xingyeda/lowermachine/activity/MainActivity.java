@@ -66,7 +66,6 @@ public class MainActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
 
-
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
         @Override
@@ -410,7 +409,7 @@ public class MainActivity extends BaseActivity {
                             try {
                                 JSONObject jobj = (JSONObject) response.get("obj");
                                 if (jobj.has("temp")) {
-                                    weatherText.append("/"+jobj.getString("temp"));
+                                    weatherText.append("/" + jobj.getString("temp"));
                                 }
 //                                if (jobj.has("img")) {
 //                                    weatherText.append(jobj.getString("temp")+"/");
@@ -431,7 +430,7 @@ public class MainActivity extends BaseActivity {
                         weatherText.append("/暂无天气");
                     }
                 }));
-                getWeather(60*60*1000);
+                getWeather(60 * 60 * 1000);
             }
         };
         new Handler().postDelayed(runnable, time);
@@ -594,7 +593,7 @@ public class MainActivity extends BaseActivity {
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_STAR) {
             if (!str.equals("")) {
-                if (str.equals("1234")) {
+                if (str.equals("3818")) {
                     str = "";
                     new Thread() {
                         @Override
