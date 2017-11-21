@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -38,6 +39,7 @@ import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -566,11 +568,11 @@ public class CallActivity extends BaseActivity {
             } else { //#
                 if (mDoorNumber != null) {
                     if (mDoorNumber.equals("9999")) {//跳转设置
-                        mDoorNumber = "";
                         BaseUtils.startActivity(mContext, SetActivity.class);
                         finish();
                     } else if (mDoorNumber.equals("3818")) {//密码开门
                         mDoorNumber = "";
+                        doorNumber.setText("");
                         new Thread() {
                             @Override
                             public void run() {
@@ -584,38 +586,15 @@ public class CallActivity extends BaseActivity {
                             }
                         }.start();
                     } else if (mDoorNumber.equals("3819")) {//重启设备
-                        mDoorNumber = "";
-//                        Intent intent = new Intent();
-//                        intent.setAction(Intent.ACTION_REBOOT);
-//                        intent.putExtra("nowait", 1);
-//                        intent.putExtra("interval", 1);
-//                        intent.putExtra("window", 0);
-//                        sendBroadcast(intent);
+                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        powerManager.reboot("");
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
-                        mDoorNumber = "";
                     } else if (mDoorNumber.equals("3821")) {//设备更新
-                        mDoorNumber = "";
                     } else {
                         callOut(mDoorNumber);
                     }
                 }
             }
-//        else if(keyCode == KeyEvent.KEYCODE_POUND) {
-////            edittext_keyoutput.setText("");
-//            return false;
-//        }else if(keyCode == KeyEvent.KEYCODE_F4) {
-////            edittext_keyoutput.setText("️");
-//            return false;
-//        }else if(keyCode == KeyEvent.KEYCODE_F3) {
-////            edittext_keyoutput.setText("");
-//            return false;
-//        }else if(keyCode == KeyEvent.KEYCODE_F2) {
-////            edittext_keyoutput.setText("管理处");
-//            return false;
-//        }else if(keyCode == KeyEvent.KEYCODE_F1) {
-////            edittext_keyoutput.setText("帮助");
-//            return false;
-//        }
         }
         return super.onKeyDown(keyCode, event);
     }

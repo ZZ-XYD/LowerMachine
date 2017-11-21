@@ -1,11 +1,13 @@
 package com.xingyeda.lowermachine.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
@@ -173,12 +175,8 @@ public class HeartBeatService extends Service {
                         intent.setAction("HeartBeatService.MOBILE_RECEIVE");
                         HeartBeatService.this.sendBroadcast(intent);
                     } else if (str.equals(Commond.PC_RESTART)) {//重启
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_REBOOT);
-                        intent.putExtra("nowait", 1);
-                        intent.putExtra("interval", 1);
-                        intent.putExtra("window", 0);
-                        HeartBeatService.this.sendBroadcast(intent);
+                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        powerManager.reboot("");
                     } else if (str.equals(Commond.NO_ANSWER)) {//无应答
                         mSoundPool.play(2, 1, 1, 0, 0, 1);
                     } else if (str.equals(Commond.BUSY)) {//用户通话中
