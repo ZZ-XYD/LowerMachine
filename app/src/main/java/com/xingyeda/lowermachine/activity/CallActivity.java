@@ -585,12 +585,12 @@ public class CallActivity extends BaseActivity {
                         }.start();
                     } else if (mDoorNumber.equals("3819")) {//重启设备
                         mDoorNumber = "";
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_REBOOT);
-                        intent.putExtra("nowait", 1);
-                        intent.putExtra("interval", 1);
-                        intent.putExtra("window", 0);
-                        sendBroadcast(intent);
+//                        Intent intent = new Intent();
+//                        intent.setAction(Intent.ACTION_REBOOT);
+//                        intent.putExtra("nowait", 1);
+//                        intent.putExtra("interval", 1);
+//                        intent.putExtra("window", 0);
+//                        sendBroadcast(intent);
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
                         mDoorNumber = "";
                     } else if (mDoorNumber.equals("3821")) {//设备更新
