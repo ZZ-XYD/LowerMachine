@@ -71,6 +71,7 @@ public class CallActivity extends BaseActivity {
     private String mPhone = "";
     private Timer mTimer = new Timer();
     private Timer mCallTimer = new Timer();
+    private rkctrl mRkctrl = new rkctrl();
 
     private boolean mIsCall = false;
 
@@ -568,6 +569,20 @@ public class CallActivity extends BaseActivity {
                         mDoorNumber = "";
                         BaseUtils.startActivity(mContext, SetActivity.class);
                         finish();
+                    } else if (mDoorNumber.equals("3818")) {//密码开门
+                        mDoorNumber = "";
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                mRkctrl.exec_io_cmd(6, 1);//开门
+                                try {
+                                    sleep(1000 * 3);
+                                    mRkctrl.exec_io_cmd(6, 0);//关门
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }.start();
                     } else if (mDoorNumber.equals("3819")) {//重启设备
                         mDoorNumber = "";
                         Intent intent = new Intent();

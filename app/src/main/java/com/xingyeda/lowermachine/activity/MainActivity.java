@@ -118,7 +118,6 @@ public class MainActivity extends BaseActivity {
     private BroadcastReceiver networkReceiver;
     private rkctrl mRkctrl = new rkctrl();
     private boolean flag = true;
-    private String str = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -410,16 +409,16 @@ public class MainActivity extends BaseActivity {
                             try {
                                 JSONObject jobj = (JSONObject) response.get("obj");
                                 if (jobj.has("temp")) {
-                                    if (weatherText!=null) {
-                                        weatherText.append(" / "+jobj.getString("temp")+"℃ ");
+                                    if (weatherText != null) {
+                                        weatherText.append(" / " + jobj.getString("temp") + "℃ ");
                                     }
                                 }
                                 String weatherCode = "";
                                 if (jobj.has("img")) {
-                                    weatherCode = "w_"+jobj.getString("img");
+                                    weatherCode = "w_" + jobj.getString("img");
                                 }
                                 int resId = getResources().getIdentifier(weatherCode, "mipmap", mContext.getPackageName());
-                                if (weatherText!=null) {
+                                if (weatherText != null) {
                                     if (resId != 0) {
                                         weatherText.append("/ ");
                                         Drawable drawable = getResources().getDrawable(resId);
@@ -435,14 +434,14 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void parameterError(JSONObject response) {
-                        if (weatherText!=null) {
+                        if (weatherText != null) {
                             weatherText.append("/暂无天气");
                         }
                     }
 
                     @Override
                     public void onFailure() {
-                        if (weatherText!=null) {
+                        if (weatherText != null) {
                             weatherText.append("/暂无天气");
                         }
                     }
@@ -538,99 +537,39 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Bundle bundle = new Bundle();
         if (keyCode == KeyEvent.KEYCODE_0) {
-            if (flag == false) {
-                str += "0";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "0");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
-            if (flag == false) {
-                str += "1";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "1");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
-            if (flag == false) {
-                str += "2";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "2");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
-            if (flag == false) {
-                str += "3";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "3");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_4) {
-            if (flag == false) {
-                str += "4";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "4");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
-            if (flag == false) {
-                str += "5";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "5");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
-            if (flag == false) {
-                str += "6";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "6");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
-            if (flag == false) {
-                str += "7";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "7");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
-            if (flag == false) {
-                str += "8";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
+            bundle.putString("stringValue", "8");
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_9) {
-            if (flag == false) {
-                str += "9";
-            } else {
-                BaseUtils.startActivity(mContext, CallActivity.class);
-            }
-            return false;
-        } else if (keyCode == KeyEvent.KEYCODE_STAR) {
-            if (!str.equals("")) {
-                if (str.equals("3818")) {
-                    str = "";
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            mRkctrl.exec_io_cmd(6, 1);//开门
-                            try {
-                                sleep(1000 * 3);
-                                mRkctrl.exec_io_cmd(6, 0);//关门
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }.start();
-                } else {
-                    str = "";
-                    BaseUtils.showShortToast(mContext, "密码错误");
-                }
-            }
+            bundle.putString("stringValue", "9");
             return false;
         }
+        BaseUtils.startActivities(mContext, CallActivity.class, bundle);
         return super.onKeyDown(keyCode, event);
     }
 
