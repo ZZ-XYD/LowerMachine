@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -51,10 +50,6 @@ import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
-
-import static android.R.string.cancel;
-import static com.tencent.bugly.crashreport.crash.c.f;
-import static com.tencent.bugly.crashreport.crash.c.i;
 
 public class CallActivity extends BaseActivity {
     private static final String LOG_TAG = CallActivity.class.getSimpleName();
@@ -350,13 +345,12 @@ public class CallActivity extends BaseActivity {
     }
 
 
-
     private void callOut(String callinfo) {
-        promptTone(R.raw.ringback,true);
+        promptTone(R.raw.ringback, true);
         callTime(10000);
         mIsCall = true;
         mDoorNumber = "";
-        mHousenum=callinfo;
+        mHousenum = callinfo;
         Map<String, String> params = new HashMap<>();
         params.put("randomCode", getRandom());
         params.put("callinfo", callinfo);
@@ -369,9 +363,9 @@ public class CallActivity extends BaseActivity {
             @Override
             public void onResponse(JSONObject response) {//成功
                 try {
-                    mUserId=response.has("userId")?response.getString("userId"):"";
-                    mPhone=response.has("phone")?response.getString("phone"):"";
-                    mCallId=response.has("callId")?response.getString("callId "):"";
+                    mUserId = response.has("userId") ? response.getString("userId") : "";
+                    mPhone = response.has("phone") ? response.getString("phone") : "";
+                    mCallId = response.has("callId") ? response.getString("callId ") : "";
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -381,8 +375,8 @@ public class CallActivity extends BaseActivity {
             public void parameterError(JSONObject response) {//失败
                 mIsCall = false;
                 ReleasePlayer();
-                promptTone(R.raw.busy,false);
-                if (mCallTimer!=null) {
+                promptTone(R.raw.busy, false);
+                if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
             }
@@ -391,8 +385,8 @@ public class CallActivity extends BaseActivity {
             public void onFailure() {//接口问题
                 mIsCall = false;
                 ReleasePlayer();
-                promptTone(R.raw.wurenjieting,false);
-                if (mCallTimer!=null) {
+                promptTone(R.raw.wurenjieting, false);
+                if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
             }
@@ -402,13 +396,13 @@ public class CallActivity extends BaseActivity {
     }
 
     //挂断
-    private void cancel(){
+    private void cancel() {
         Map<String, String> params = new HashMap<>();
         params.put("eid", MainBusiness.getMacAddress(mContext));
         params.put("uid", mUserId);
         params.put("housenum", mHousenum);
         params.put("dongshu", SharedPreUtil.getString(mContext, "DongShuId"));
-        OkHttp.get(ConnectPath.CANCEL_PATH(mContext),params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+        OkHttp.get(ConnectPath.CANCEL_PATH(mContext), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 finish();
@@ -417,10 +411,10 @@ public class CallActivity extends BaseActivity {
     }
 
     //本地电话查询
-    private void checkPhone(String phone){
+    private void checkPhone(String phone) {
         Map<String, String> params = new HashMap<>();
-        params.put("tel",phone);
-        OkHttp.get(ConnectPath.CHECKPHONE_PATH(mContext),params,new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        params.put("tel", phone);
+        OkHttp.get(ConnectPath.CHECKPHONE_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//本地
 
@@ -454,14 +448,14 @@ public class CallActivity extends BaseActivity {
             String action = intent.getAction();
             if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
                 finish();
-            }else if (action.equals("HeartBeatService.REMOTE_RELEASE")){//手机接通后挂断
+            } else if (action.equals("HeartBeatService.REMOTE_RELEASE")) {//手机接通后挂断
                 finish();
-            }else if (action.equals("HeartBeatService.MOBILE_ANSWER")){//手机接通视频通话
+            } else if (action.equals("HeartBeatService.MOBILE_ANSWER")) {//手机接通视频通话
 //                mIsCall = false;
                 ReleasePlayer();
                 connectTime(60000);
-            }else if (action.equals("HeartBeatService.MOBILE_RECEIVE")){//手机收到呼入
-                if (mCallTimer!=null) {
+            } else if (action.equals("HeartBeatService.MOBILE_RECEIVE")) {//手机收到呼入
+                if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
             }
@@ -475,23 +469,23 @@ public class CallActivity extends BaseActivity {
         callOut("8888");
     }
 
-    private void clearAll(){
+    private void clearAll() {
         mUserId = "";
         mCallId = "";
         mHousenum = "";
         mPhone = "";
         mIsCall = false;
-        if (mTimer!=null) {
+        if (mTimer != null) {
             mTimer.cancel();
         }
-        if (mCallTimer!=null) {
+        if (mCallTimer != null) {
             mCallTimer.cancel();
         }
 
     }
 
     //接通计时  默认60秒----收到接通信息时调用
-    private void connectTime(int time){
+    private void connectTime(int time) {
         mTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -499,13 +493,14 @@ public class CallActivity extends BaseActivity {
             }
         }, time);
     }
+
     //电话呼叫计时  默认60秒
-    private void callTime(int time){
+    private void callTime(int time) {
         mCallTimer.schedule(new TimerTask() {
             @Override
             public void run() {//呼叫电话
                 ReleasePlayer();
-                promptTone(R.raw.record,false);
+                promptTone(R.raw.record, false);
             }
         }, time);
     }
@@ -517,7 +512,7 @@ public class CallActivity extends BaseActivity {
                 cancel();
                 return false;
             }
-        }else{
+        } else {
             if (keyCode == KeyEvent.KEYCODE_0) {//0
                 mDoorNumber += "0";
                 doorNumber.append("0");
@@ -562,16 +557,29 @@ public class CallActivity extends BaseActivity {
                 if (!mDoorNumber.equals("")) {
                     mDoorNumber = "";
                     doorNumber.setText("");
-                }else{
+                } else {
                     finish();
                 }
 //                mDoorNumber += "*";
                 return false;
             } else { //#
                 if (mDoorNumber != null) {
-                    if (mDoorNumber.equals("9999")) {
+                    if (mDoorNumber.equals("9999")) {//跳转设置
+                        mDoorNumber = "";
                         BaseUtils.startActivity(mContext, SetActivity.class);
                         finish();
+                    } else if (mDoorNumber.equals("3819")) {//重启设备
+                        mDoorNumber = "";
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_REBOOT);
+                        intent.putExtra("nowait", 1);
+                        intent.putExtra("interval", 1);
+                        intent.putExtra("window", 0);
+                        sendBroadcast(intent);
+                    } else if (mDoorNumber.equals("3820")) {//关闭设备
+                        mDoorNumber = "";
+                    } else if (mDoorNumber.equals("3821")) {//设备更新
+                        mDoorNumber = "";
                     } else {
                         callOut(mDoorNumber);
                     }
@@ -598,12 +606,12 @@ public class CallActivity extends BaseActivity {
     }
 
 
-    private void promptTone(int resId,boolean isCirculation) {
+    private void promptTone(int resId, boolean isCirculation) {
         // 开始播放音乐
         if (mMediaPlayer != null) {
             mMediaPlayer.start();
         }
-        mMediaPlayer = MediaPlayer.create(mContext,resId);
+        mMediaPlayer = MediaPlayer.create(mContext, resId);
         mMediaPlayer.setLooping(isCirculation);
         mMediaPlayer.start();
         if (!isCirculation) {
@@ -627,6 +635,7 @@ public class CallActivity extends BaseActivity {
         }
 
     }
+
     //随机呼叫数
     private String getRandom() {
         String strRand = "";
