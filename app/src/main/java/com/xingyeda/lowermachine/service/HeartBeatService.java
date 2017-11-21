@@ -10,6 +10,7 @@ import android.os.IBinder;
 import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.Commond;
+import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.Message;
 import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.utils.BaseUtils;
@@ -100,13 +101,10 @@ public class HeartBeatService extends Service {
     private void initSocket() {
         if (mSocket == null) {
             try {
-                mSocket = new Socket("192.168.10.200", 5888);
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        BaseUtils.showShortToast(getApplicationContext(), "SocketConnected");
-                    }
-                });
+                mSocket = new Socket(ConnectPath.SOCKET_HOST, ConnectPath.SOCKET_PORT);
+                Intent intent = new Intent();
+                intent.setAction("HeartBeatService.SocketConnected");
+                HeartBeatService.this.sendBroadcast(intent);
                 if (out == null) {
                     out = mSocket.getOutputStream();
                 }
