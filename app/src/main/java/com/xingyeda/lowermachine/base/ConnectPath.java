@@ -13,6 +13,15 @@ public class ConnectPath {
     private static final String HOST = "http://192.168.10.200:8080/";
 //    public static final String HOST = "http://192.168.10.250:8080/";
 
+
+    /*
+    Socket地址
+     */
+    public static final String SOCKET_HOST = "192.168.10.200";
+//    public static final String SOCKET_HOST="192.168.10.250";
+
+    public static final int SOCKET_PORT = 5888;
+
     //    public static final String HOST_PATH = HOST + "xydServer/servlet/";
     private static final String HOST_PATH = "xydServer/servlet/";
 
@@ -85,6 +94,7 @@ public class ConnectPath {
         }
         return SharedPreUtil.getString(context, "ip") + CARD;
     }
+
     //挂断
     public static String CANCEL_PATH(Context context) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
@@ -92,6 +102,7 @@ public class ConnectPath {
         }
         return SharedPreUtil.getString(context, "ip") + CANCEL_PATH;
     }
+
     //电话号码本地查询
     public static String CHECKPHONE_PATH(Context context) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
@@ -99,6 +110,7 @@ public class ConnectPath {
         }
         return SharedPreUtil.getString(context, "ip") + CHECKPHONE_PATH;
     }
+
     //获取通告
     public static String INFORM_PATH(Context context) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
@@ -106,6 +118,7 @@ public class ConnectPath {
         }
         return SharedPreUtil.getString(context, "ip") + INFORM_PATH;
     }
+
     //获取通告
     public static String WEATHER_PATH(Context context) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
