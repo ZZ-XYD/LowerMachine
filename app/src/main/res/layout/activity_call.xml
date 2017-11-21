@@ -4,6 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/call_iamge"
+    android:background="@mipmap/timg"
     >
     <!--<FrameLayout-->
         <!--android:id="@+id/remote_video_view_container"-->
@@ -25,13 +27,12 @@
         app:layout_heightPercent="80%"
         app:layout_widthPercent="40%"
         android:layout_centerInParent="true"
-        android:background="#797B7A"
+        android:background="@drawable/lucency_layout"
         android:orientation="vertical"
         >
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            app:layout_heightPercent="20%"
+            android:layout_height="wrap_content"
             app:layout_marginTopPercent="10%"
             android:gravity="center"
             android:text="请输入门牌号"
@@ -40,14 +41,43 @@
 
         <TextView
             android:id="@+id/door_number"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            app:layout_widthPercent="35%"
             android:layout_height="0dp"
-            app:layout_heightPercent="20%"
+            app:layout_heightPercent="15%"
             app:layout_marginTopPercent="5%"
             android:textColor="@color/white"
             android:gravity="center"
            android:layout_gravity="center_horizontal"
+            android:background="@drawable/white_layout"
             />
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="0dp"
+            app:layout_widthPercent="40%"
+            android:layout_height="wrap_content"
+            app:layout_marginTopPercent="2%"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/w_0"
+                android:layout_weight="1"
+                android:gravity="center"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="呼叫中"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:gravity="center"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/w_0"
+                android:layout_weight="1"
+                android:gravity="center"/>
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
