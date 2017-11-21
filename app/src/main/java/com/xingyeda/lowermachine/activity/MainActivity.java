@@ -540,36 +540,45 @@ public class MainActivity extends BaseActivity {
         Bundle bundle = new Bundle();
         if (keyCode == KeyEvent.KEYCODE_0) {
             bundle.putString("stringValue", "0");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
             bundle.putString("stringValue", "1");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
             bundle.putString("stringValue", "2");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
             bundle.putString("stringValue", "3");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_4) {
             bundle.putString("stringValue", "4");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
             bundle.putString("stringValue", "5");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
             bundle.putString("stringValue", "6");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
             bundle.putString("stringValue", "7");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
             bundle.putString("stringValue", "8");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_9) {
             bundle.putString("stringValue", "9");
+            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             return false;
         }
-        BaseUtils.startActivities(mContext, CallActivity.class, bundle);
         return super.onKeyDown(keyCode, event);
     }
 
