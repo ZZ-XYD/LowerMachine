@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -65,7 +64,6 @@ public class MainActivity extends BaseActivity {
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
-
 
 
     private RtcEngine mRtcEngine;//  教程步骤 1
@@ -448,7 +446,7 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 }));
-                getWeather(60*60*1000);
+                getWeather(60 * 60 * 1000);
             }
         };
         new Handler().postDelayed(runnable, time);
@@ -611,7 +609,7 @@ public class MainActivity extends BaseActivity {
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_STAR) {
             if (!str.equals("")) {
-                if (str.equals("1234")) {
+                if (str.equals("3818")) {
                     str = "";
                     new Thread() {
                         @Override
