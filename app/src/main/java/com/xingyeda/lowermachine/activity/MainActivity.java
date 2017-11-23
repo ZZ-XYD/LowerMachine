@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.OkHttp;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
+import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
@@ -65,6 +67,7 @@ public class MainActivity extends BaseActivity {
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
+
 
 
     private RtcEngine mRtcEngine;//  教程步骤 1
@@ -110,10 +113,11 @@ public class MainActivity extends BaseActivity {
     TextView snText;
     @BindView(R.id.no_network)
     ImageView noNetwork;
-    @BindView(R.id.notification)
-    TextView notificationText;
+    //    @BindView(R.id.notification)
+//    TextView notificationText;
     @BindView(R.id.weather_text)
     TextView weatherText;
+
     private List<String> mList = new ArrayList<>();
     private BroadcastReceiver networkReceiver;
     private rkctrl mRkctrl = new rkctrl();
@@ -134,7 +138,7 @@ public class MainActivity extends BaseActivity {
 
         getBindMsg();//绑定数据获取
 
-        getInform();//获取通告
+//        getInform();//获取通告
 
         getWeather(1000);//获取天气
 
@@ -164,11 +168,10 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
     public void getBindMsg() {
         Map<String, String> params = new HashMap<>();
         params.put("mac", MainBusiness.getMacAddress(mContext));
-        OkHttp.get(ConnectPath.BINDMSG_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.BINDMSG_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
@@ -240,7 +243,7 @@ public class MainActivity extends BaseActivity {
     private void ininImage() {
         Map<String, String> params = new HashMap<>();
         params.put("xiaoId", MainBusiness.getMacAddress(mContext));
-        OkHttp.get(ConnectPath.IMAGE_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.IMAGE_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.has("obj")) {
@@ -252,6 +255,7 @@ public class MainActivity extends BaseActivity {
                         if (jobj.has("files")) {
                             JSONArray jan = (JSONArray) jobj.get("files");
                             if (jan != null && jan.length() != 0) {
+                                mList.clear();
                                 for (int i = 0; i < jan.length(); i++) {
                                     JSONObject jobjBean = jan.getJSONObject(i);
                                     if (jobjBean.has("path")) {
@@ -284,71 +288,72 @@ public class MainActivity extends BaseActivity {
     private List<String> notificationList = new ArrayList<>();
     private int notification = 0;
 
-    private void getInform() {
-        Map<String, String> params = new HashMap<>();
-        params.put("eid", MainBusiness.getMacAddress(mContext));
-        OkHttp.get(ConnectPath.INFORM_PATH(mContext), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if (response.has("obj")) {
-                    try {
-                        JSONArray jobj = (JSONArray) response.get("obj");
-                        if (jobj != null && jobj.length() != 0) {
-                            for (int i = 0; i < jobj.length(); i++) {
-                                JSONObject jobjBean = jobj.getJSONObject(i);
-                                if (jobjBean.has("content")) {
-                                    notificationList.add(jobjBean.getString("content"));
-                                }
-                            }
-                            if (notificationList != null && !notificationList.isEmpty()) {
-                                carouselMsg(notificationList);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+//    private void getInform() {
+//        Map<String, String> params = new HashMap<>();
+//        params.put("eid", MainBusiness.getMacAddress(mContext));
+//        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.INFORM_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+//            @Override
+//            public void onResponse(JSONObject response) {
+//                if (response.has("obj")) {
+//                    try {
+//                        JSONArray jobj = (JSONArray) response.get("obj");
+//                        if (jobj != null && jobj.length() != 0) {
+//                            for (int i = 0; i < jobj.length(); i++) {
+//                                JSONObject jobjBean = jobj.getJSONObject(i);
+//                                if (jobjBean.has("content")) {
+//                                    notificationList.add(jobjBean.getString("content"));
+//                                }
+//                            }
+//                            if (notificationList != null && !notificationList.isEmpty()) {
+//                                carouselMsg(notificationList);
+//                            }
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void parameterError(JSONObject response) {
+//            }
+//
+//            @Override
+//            public void onFailure() {
+//
+//            }
+//        }));
+//    }
 
-            @Override
-            public void parameterError(JSONObject response) {
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-        }));
-    }
-
-    private void carouselMsg(final List<String> list) {
-        final Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (list != null && !list.isEmpty()) {
-                    if (notification + 1 <= list.size()) {
-                        if (notificationText != null) {
-                            notificationText.setText(list.get(notification));
-                        }
-                        if (notification + 1 == list.size()) {
-                            notification = 0;
-                        } else {
-                            notification++;
-                        }
-                    }
-                    if (notificationList != null && !notificationList.isEmpty()) {
-                        carouselMsg(notificationList);
-                    }
-                }
-
-            }
-        };
-        new Handler().postDelayed(runnable, 1000);
-    }
+//    private void carouselMsg(final List<String> list) {
+//        final Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (list != null && !list.isEmpty()) {
+//                    if (notification + 1 <= list.size()) {
+//                        if (notificationText != null) {
+//                            notificationText.setText(list.get(notification));
+//                        }
+//                        if (notification + 1 == list.size()) {
+//                            notification = 0;
+//                        } else {
+//                            notification++;
+//                        }
+//                    }
+//                    if (notificationList != null && !notificationList.isEmpty()) {
+//                        carouselMsg(notificationList);
+//                    }
+//                }
+//
+//            }
+//        };
+//        new Handler().postDelayed(runnable, 1000);
+//    }
 
     public void registerBoradcastReceiver() {
         IntentFilter intent = new IntentFilter();
         intent.addAction("HeartBeatService.RELOADIMG");//更新广告
+        intent.addAction("HeartBeatService.SocketConnected");//socket连接成功
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
     }
@@ -359,6 +364,10 @@ public class MainActivity extends BaseActivity {
             String action = intent.getAction();
             if (action.equals("HeartBeatService.RELOADIMG")) {//更新广告
                 ininImage();//图片更新
+            } else if (action.equals("HeartBeatService.SocketConnected")) {//socket连接成功
+                if (snText != null) {
+                    snText.setBackgroundResource(R.drawable.green_circle);
+                }
             }
         }
 
@@ -402,7 +411,7 @@ public class MainActivity extends BaseActivity {
                 if (weatherText != null) {
                     weatherText.setText(weekDays[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
                 }
-                OkHttp.get(ConnectPath.WEATHER_PATH(mContext), new BaseStringCallback(mContext, new CallbackHandler<String>() {
+                OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.WEATHER_PATH), new BaseStringCallback(mContext, new CallbackHandler<String>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response.has("obj")) {
@@ -459,7 +468,9 @@ public class MainActivity extends BaseActivity {
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
             case R.id.main_time:
-                BaseUtils.startActivity(mContext, CallActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("stringValue", "8");
+                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
                 break;
         }
     }

@@ -99,7 +99,7 @@ public class DoorService extends Service {
                                 map.put("snCode", idData8);
                                 map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
 
-                                HttpUtils.doPost(ConnectPath.CARD(DoorService.this), map, new Callback() {
+                                HttpUtils.doPost(ConnectPath.getPath(DoorService.this,ConnectPath.CARD), map, new Callback() {
                                     @Override
                                     public void onFailure(Call call, IOException e) {
 

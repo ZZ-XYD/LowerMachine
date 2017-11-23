@@ -52,8 +52,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".base.BaseActivity" />
-        <activity android:name=".activity.CallActivity" />
-        <activity android:name=".activity.SetActivity" />
+        <activity android:name=".activity.CallActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".activity.SetActivity"
+            android:screenOrientation="landscape"/>
 
         <service android:name=".service.HeartBeatService" />
         <service android:name=".service.DoorService" />

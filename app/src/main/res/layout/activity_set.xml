@@ -6,158 +6,250 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <TextView
-        android:id="@+id/set_text"
+    <android.support.percent.PercentRelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_heightPercent="10%"
-        android:text="设置"
-        android:gravity="center_vertical"
-        app:layout_marginLeftPercent="5%"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1sp"
-        android:background="@color/black"/>
+        app:layout_heightPercent="10%">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="设置"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:background="#940926"
+            />
+        <TextView
+            android:id="@+id/set_save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="保存"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:textColor="@color/white"
+            app:layout_marginRightPercent="5%"
+            />
+    </android.support.percent.PercentRelativeLayout>
+
     <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
         <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
-            android:layout_width="0dp"
-            app:layout_widthPercent="30%"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%"
+            android:orientation="horizontal">
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:id="@+id/set_ip"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
             <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
+                app:layout_heightPercent="95%">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="服务器地址"
+                    android:gravity="center"
+                    app:layout_marginLeftPercent="5%"/>
                 <TextView
                     android:id="@+id/ip_address"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text="服务器地址"
-                    android:gravity="center"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    app:layout_marginRightPercent="5%"/>
             </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-            <android.support.percent.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    app:layout_marginLeftPercent="10%"
-                    android:text="单元门"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:id="@+id/set_time"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="等待时间"
+                    app:layout_marginLeftPercent="5%"/>
+                <TextView
+                    android:id="@+id/set_time_text"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="10s"
+                    app:layout_marginRightPercent="5%"/>
+
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%"
+            android:orientation="horizontal">
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="单元门"
+                    app:layout_marginLeftPercent="5%"/>
                 <Switch
                     android:id="@+id/is_cell_gate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    app:layout_marginRightPercent="10%"/>
-            </android.support.percent.PercentRelativeLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-            <android.support.percent.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:theme="@style/MySwitch"
+                    app:layout_marginRightPercent="5%"
+                    />
+
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    app:layout_marginLeftPercent="10%"
-                    android:text="等待时间"/>
-                <Switch
-                    android:id="@+id/is_wait_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    app:layout_marginRightPercent="10%"/>
-            </android.support.percent.PercentRelativeLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-            <android.support.percent.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    app:layout_marginLeftPercent="10%"
-                    android:text="测试"/>
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="测试"
+                    app:layout_marginLeftPercent="5%"/>
                 <Switch
                     android:id="@+id/is_test"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    app:layout_marginRightPercent="10%"/>
-            </android.support.percent.PercentRelativeLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-            <android.support.percent.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:theme="@style/MySwitch"
+                    app:layout_marginRightPercent="5%"
+                    />
+
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    app:layout_marginLeftPercent="10%"
-                    android:text="梯控"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%"
+            android:orientation="horizontal">
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="梯控"
+                    app:layout_marginLeftPercent="5%"/>
                 <Switch
                     android:id="@+id/is_elevator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    app:layout_marginRightPercent="10%"/>
-            </android.support.percent.PercentRelativeLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_heightPercent="15%"
-                >
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:theme="@style/MySwitch"
+                    app:layout_marginRightPercent="5%"
+                    />
+
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
                 <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
+
+                    <TextView
                     android:id="@+id/mac_address"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="服务器地址"
+                    android:text="mac地址"
                     android:gravity="center"/>
-            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:background="@color/black"/>
-        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
-        <TextView
-            android:layout_width="1sp"
-            android:layout_height="match_parent"
-            android:background="@color/black"/>
-    </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+    </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
 </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>

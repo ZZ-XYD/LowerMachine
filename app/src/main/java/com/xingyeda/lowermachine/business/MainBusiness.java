@@ -25,7 +25,7 @@ public class MainBusiness {
     public static void getSN(final Context context) {
         Map map = new HashMap();
         map.put("mac", getMacAddress(context));
-        HttpUtils.doPost(ConnectPath.ADDSHEBEIFORAPP(context), map, new Callback() {
+        HttpUtils.doPost(ConnectPath.getPath(context,ConnectPath.ADDSHEBEIFORAPP), map, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 

@@ -18,6 +18,7 @@ public class BaseActivity extends Activity {
 
     public static MainApplication mApplication;
     public Context mContext = this;
+    public static int mScreenW, mScreenH;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,13 @@ public class BaseActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         MainApplication.getInstance().addActivity(this);
+
+        //得到屏幕的长宽
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+        mScreenW = outMetrics.widthPixels;
+        mScreenH = outMetrics.heightPixels;
+
         mApplication = (MainApplication) getApplication();
         hideBottomUIMenu();
     }
