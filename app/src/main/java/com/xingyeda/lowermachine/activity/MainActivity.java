@@ -69,7 +69,6 @@ public class MainActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
 
-
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
         @Override
@@ -294,7 +293,7 @@ public class MainActivity extends BaseActivity {
     private void getInform() {
         Map<String, String> params = new HashMap<>();
         params.put("eid", MainBusiness.getMacAddress(mContext));
-        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.INFORM_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.INFORM_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.has("obj")) {
@@ -472,14 +471,14 @@ public class MainActivity extends BaseActivity {
         new Handler().postDelayed(runnable, time);
     }
 
-    private BroadcastReceiver  networkReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver networkReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cwjManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cwjManager.getActiveNetworkInfo();
             if (info != null && info.isAvailable()) {
                 flag = true;
-                if (noNetwork!=null) {
+                if (noNetwork != null) {
                     noNetwork.setVisibility(View.GONE);
                 }
                 if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
@@ -489,13 +488,13 @@ public class MainActivity extends BaseActivity {
                 getBindMsg();
             } else {
                 flag = false;
-                if (mRtcEngine!=null) {
+                if (mRtcEngine != null) {
                     leaveChannel();
                     RtcEngine.destroy();//销毁引擎实例
                 }
-                if (noNetwork!=null) {
-                noNetwork.setVisibility(View.VISIBLE);
-                noNetwork.setBackgroundResource(R.mipmap.timg);
+                if (noNetwork != null) {
+                    noNetwork.setVisibility(View.VISIBLE);
+                    noNetwork.setBackgroundResource(R.mipmap.timg);
                 }
             }
         }
@@ -588,66 +587,35 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Bundle bundle = new Bundle();
         if (keyCode == KeyEvent.KEYCODE_0) {
-            bundle.putString("stringValue", "0");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
-            bundle.putString("stringValue", "1");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
-            bundle.putString("stringValue", "2");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
-            bundle.putString("stringValue", "3");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_4) {
-            bundle.putString("stringValue", "4");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
-            bundle.putString("stringValue", "5");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
-            bundle.putString("stringValue", "6");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
-            bundle.putString("stringValue", "7");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
-            bundle.putString("stringValue", "8");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_9) {
-            bundle.putString("stringValue", "9");
-            bundle.putBoolean("isNet", flag);
-            bundle.putBoolean("isSocket", mIsSocket);
-            BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+            BaseUtils.startActivity(mContext, CallActivity.class);
             return false;
         }
         return super.onKeyDown(keyCode, event);
