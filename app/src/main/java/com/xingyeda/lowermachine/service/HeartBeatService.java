@@ -103,16 +103,18 @@ public class HeartBeatService extends Service {
     private void initSocket() {
         try {
             mSocket = SocketUtils.getInstance();
-            if (mSocket.isConnected()) {
-                Intent intent = new Intent();
-                intent.setAction("HeartBeatService.SocketConnected");
-                HeartBeatService.this.sendBroadcast(intent);
-            }
-            if (out == null) {
-                out = mSocket.getOutputStream();
-            }
-            if (in == null) {
-                in = mSocket.getInputStream();
+            if (mSocket != null) {
+                if (mSocket.isConnected()) {
+                    Intent intent = new Intent();
+                    intent.setAction("HeartBeatService.SocketConnected");
+                    HeartBeatService.this.sendBroadcast(intent);
+                }
+                if (out == null) {
+                    out = mSocket.getOutputStream();
+                }
+                if (in == null) {
+                    in = mSocket.getInputStream();
+                }
             }
         } catch (IOException e) {
             exitForReConnect();
