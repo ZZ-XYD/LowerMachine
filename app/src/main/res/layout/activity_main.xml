@@ -74,13 +74,38 @@
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
 
-        <TextView
-            android:id="@+id/equipment_id"
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/white"/>
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/equipment_id"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/white"/>
+
+
+            <TextView
+                android:id="@+id/notification"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="暂没通告"
+                android:textColor="@color/white"
+                android:gravity="center"
+                />
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+        <!--<TextView-->
+            <!--android:id="@+id/equipment_id"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:gravity="center"-->
+            <!--android:textColor="@color/white"/>-->
         <!--<ImageView-->
             <!--android:id="@+id/qr_code"-->
             <!--android:layout_width="match_parent"-->
