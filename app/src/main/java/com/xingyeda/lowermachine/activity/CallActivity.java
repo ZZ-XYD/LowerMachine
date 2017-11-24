@@ -82,7 +82,6 @@ public class CallActivity extends BaseActivity {
     private Timer mTimer = new Timer();
     private Timer mCallTimer = new Timer();
     private rkctrl mRkctrl = new rkctrl();
-    private String mCallNumber;
     private boolean mIsNet;
     private boolean mIsSocket;
 
@@ -127,15 +126,9 @@ public class CallActivity extends BaseActivity {
         setContentView(R.layout.activity_call);
         ButterKnife.bind(this);
 
-        mCallNumber = getIntent().getExtras().getString("stringValue");
         mIsNet = getIntent().getExtras().getBoolean("isNet");
         mIsSocket = getIntent().getExtras().getBoolean("isSocket");
-        if (!mCallNumber.equals("")) {
-            mDoorNumber += mCallNumber;
-            if (doorNumber!=null) {
-                doorNumber.append(mCallNumber);
-            }
-        }
+
 
         registerBoradcastReceiver();
 
@@ -406,9 +399,9 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 promptTone(R.raw.calltips, false);
-//                if (mCallTimer != null) {
-//                    mCallTimer.cancel();
-//                }
+                if (mCallTimer != null) {
+                    mCallTimer.cancel();
+                }
                 if (callTimer!=null) {
                     callTimer.setText("呼叫失败");
                 }
@@ -419,9 +412,9 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 promptTone(R.raw.calltips, false);
-//                if (mCallTimer != null) {
-//                    mCallTimer.cancel();
-//                }
+                if (mCallTimer != null) {
+                    mCallTimer.cancel();
+                }
                 if (callTimer!=null) {
                     callTimer.setText("服务器异常，请联系管理员");
                 }

@@ -357,6 +357,7 @@ public class MainActivity extends BaseActivity {
         IntentFilter intent = new IntentFilter();
         intent.addAction("HeartBeatService.RELOADIMG");//更新广告
         intent.addAction("HeartBeatService.SocketConnected");//socket连接成功
+        intent.addAction("HeartBeatService.SocketIsNotConnected");//socket断开连接
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
     }
@@ -367,10 +368,16 @@ public class MainActivity extends BaseActivity {
             String action = intent.getAction();
             if (action.equals("HeartBeatService.RELOADIMG")) {//更新广告
                 ininImage();//图片更新
+                getInform();//获取通告
             } else if (action.equals("HeartBeatService.SocketConnected")) {//socket连接成功
                 mIsSocket = true;
                 if (snText != null) {
                     snText.setBackgroundResource(R.drawable.green_circle);
+                }
+            }else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接成功
+                mIsSocket = false;
+                if (snText != null) {
+                    snText.setBackgroundResource(R.drawable.red_circle);
                 }
             }
         }
