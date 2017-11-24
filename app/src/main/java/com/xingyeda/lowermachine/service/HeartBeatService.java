@@ -108,6 +108,10 @@ public class HeartBeatService extends Service {
                     Intent intent = new Intent();
                     intent.setAction("HeartBeatService.SocketConnected");
                     HeartBeatService.this.sendBroadcast(intent);
+                } else {
+                    Intent intent = new Intent();
+                    intent.setAction("HeartBeatService.SocketIsNotConnected");
+                    HeartBeatService.this.sendBroadcast(intent);
                 }
                 if (out == null) {
                     out = mSocket.getOutputStream();
