@@ -15,6 +15,7 @@ import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.Message;
 import com.xingyeda.lowermachine.business.MainBusiness;
+import com.xingyeda.lowermachine.socket.SocketUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 
@@ -32,7 +33,6 @@ public class HeartBeatService extends Service {
     private OutputStream out = null;
     private rkctrl m_rkctrl = new rkctrl();
     private SoundPool mSoundPool;
-    private Handler mHandler = new Handler();
 
     public HeartBeatService() {
     }
@@ -101,22 +101,21 @@ public class HeartBeatService extends Service {
     }
 
     private void initSocket() {
-        if (mSocket == null) {
-            try {
-                mSocket = new Socket(ConnectPath.SOCKET_HOST, ConnectPath.SOCKET_PORT);
+        try {
+            mSocket = SocketUtils.getInstance();
+            if (mSocket.isConnected()) {
                 Intent intent = new Intent();
                 intent.setAction("HeartBeatService.SocketConnected");
                 HeartBeatService.this.sendBroadcast(intent);
-                if (out == null) {
-                    out = mSocket.getOutputStream();
-                }
-                if (in == null) {
-                    in = mSocket.getInputStream();
-                }
-            } catch (IOException e) {
-                exitForReConnect();
-                initSocket();
             }
+            if (out == null) {
+                out = mSocket.getOutputStream();
+            }
+            if (in == null) {
+                in = mSocket.getInputStream();
+            }
+        } catch (IOException e) {
+            exitForReConnect();
         }
     }
 
@@ -225,15 +224,9 @@ public class HeartBeatService extends Service {
     private void exitForReConnect() {
         //关闭流
         try {
-            if (out != null) {
-                out.close();
-            }
-            if (in != null) {
-                in.close();
-            }
-            if (mSocket != null) {
-                mSocket.close();
-            }
+            out.close();
+            in.close();
+            mSocket.close();
         } catch (Exception ex) {
         }
     }
