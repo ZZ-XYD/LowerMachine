@@ -83,6 +83,8 @@ public class CallActivity extends BaseActivity {
     private Timer mCallTimer = new Timer();
     private rkctrl mRkctrl = new rkctrl();
     private String mCallNumber;
+    private boolean mIsNet;
+    private boolean mIsSocket;
 
     private boolean mIsCall = false;
 
@@ -126,6 +128,8 @@ public class CallActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         mCallNumber = getIntent().getExtras().getString("stringValue");
+        mIsNet = getIntent().getExtras().getBoolean("isNet");
+        mIsSocket = getIntent().getExtras().getBoolean("isSocket");
         if (!mCallNumber.equals("")) {
             mDoorNumber += mCallNumber;
             if (doorNumber!=null) {
@@ -135,9 +139,12 @@ public class CallActivity extends BaseActivity {
 
         registerBoradcastReceiver();
 
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-            initAgoraEngineAndJoinChannel();
+        if (mIsNet) {
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+                initAgoraEngineAndJoinChannel();
+            }
         }
+
     }
 
     //初始化声网引擎和加入频道
@@ -209,8 +216,8 @@ public class CallActivity extends BaseActivity {
         ReleasePlayer();
         clearAll();
 
-        leaveChannel();
-        RtcEngine.destroy();//销毁引擎实例
+//        leaveChannel();
+//        RtcEngine.destroy();//销毁引擎实例
         mRtcEngine = null;
     }
 
@@ -641,25 +648,29 @@ public class CallActivity extends BaseActivity {
                     } else if (mDoorNumber.equals("3818")) {//密码开门
                         mDoorNumber = "";
                         doorNumber.setText("");
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                mRkctrl.exec_io_cmd(6, 1);//开门
-                                try {
-                                    sleep(1000 * 3);
-                                    mRkctrl.exec_io_cmd(6, 0);//关门
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                        if (!mIsSocket || !mIsNet) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    mRkctrl.exec_io_cmd(6, 1);//开门
+                                    try {
+                                        sleep(1000 * 3);
+                                        mRkctrl.exec_io_cmd(6, 0);//关门
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        }.start();
+                            }.start();
+                        }
                     } else if (mDoorNumber.equals("3819")) {//重启设备
                         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
                         powerManager.reboot("");
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
                     } else if (mDoorNumber.equals("3821")) {//设备更新
                     } else {
-                        callOut(mDoorNumber);
+                        if (mIsNet) {
+                            callOut(mDoorNumber);
+                        }
                     }
                 }
             }
