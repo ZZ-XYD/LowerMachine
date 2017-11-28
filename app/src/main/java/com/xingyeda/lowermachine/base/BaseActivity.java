@@ -33,6 +33,7 @@ public class BaseActivity extends Activity {
         mScreenW = outMetrics.widthPixels;
         mScreenH = outMetrics.heightPixels;
 
+
         mApplication = (MainApplication) getApplication();
         hideBottomUIMenu();
     }

@@ -1,7 +1,6 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -45,9 +44,12 @@ public class SetActivity extends BaseActivity {
     TextView setIp;
     @BindView(R.id.set_time_text)
     TextView setTime;
+    @BindView(R.id.is_portrait)
+    Switch isPortrait;
     private boolean mIsCellGate;
     private boolean mIsTest;
     private boolean mIsElevator;
+    private boolean mIsPortrait;
     private String mHostIp = "";
     private String mTimerTime = "";
 
@@ -64,10 +66,12 @@ public class SetActivity extends BaseActivity {
         mIsCellGate = SharedPreUtil.getBoolean(mContext, "isCellGate");
         mIsTest = SharedPreUtil.getBoolean(mContext, "isTest");
         mIsElevator = SharedPreUtil.getBoolean(mContext, "isElevator");
+        mIsPortrait = SharedPreUtil.getBoolean(mContext, "isPortrait");
 
         isCellGate.setChecked(mIsCellGate);
         isTest.setChecked(mIsTest);
         isElevator.setChecked(mIsElevator);
+        isPortrait.setChecked(mIsPortrait);
 
         isCellGate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -88,11 +92,17 @@ public class SetActivity extends BaseActivity {
                 mIsElevator = b;
             }
         });
+        isPortrait.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mIsPortrait = b;
+            }
+        });
 
     }
 
 
-    @OnClick({R.id.is_cell_gate, R.id.is_test, R.id.is_elevator, R.id.set_save,R.id.set_ip, R.id.set_time})
+    @OnClick({R.id.is_cell_gate, R.id.is_test, R.id.is_elevator, R.id.set_save, R.id.set_ip, R.id.set_time})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.set_save:
@@ -129,7 +139,8 @@ public class SetActivity extends BaseActivity {
         params.put("isCellGate", mIsCellGate + "");
         params.put("isTest", mIsTest + "");
         params.put("isElevator", mIsElevator + "");
-        String path = ConnectPath.getPath(mContext,ConnectPath.USERSET_PATH) + "?" + getHrefByMap(params) + "&eid=" + MainBusiness.getMacAddress(mContext) + "&type=add";
+        params.put("isPortrait", mIsPortrait + "");
+        String path = ConnectPath.getPath(mContext, ConnectPath.USERSET_PATH) + "?" + getHrefByMap(params) + "&eid=" + MainBusiness.getMacAddress(mContext) + "&type=add";
         OkHttp.get(path, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -138,6 +149,7 @@ public class SetActivity extends BaseActivity {
                 SharedPreUtil.put(mContext, "isCellGate", mIsCellGate);
                 SharedPreUtil.put(mContext, "isTest", mIsTest);
                 SharedPreUtil.put(mContext, "isElevator", mIsElevator);
+                SharedPreUtil.put(mContext, "isPortrait", mIsPortrait);
                 BaseUtils.showShortToast(mContext, "设置成功");
                 finish();
             }
@@ -155,11 +167,10 @@ public class SetActivity extends BaseActivity {
     }
 
 
-
     private void getDialog(final int type) {
         final EditText et = new EditText(this);
-        String title ="";
-        switch (type){
+        String title = "";
+        switch (type) {
             case 1:
                 title = "设置新的ip地址";
                 break;
@@ -176,24 +187,24 @@ public class SetActivity extends BaseActivity {
                         if (input.equals("")) {
                             BaseUtils.showShortToast(mContext, "设置内容不能为空！");
                         } else {
-                            switch (type){
+                            switch (type) {
                                 case 1:
                                     if (isIp(input)) {
-                                        mHostIp=input;
-                                        if (setIp!=null) {
+                                        mHostIp = input;
+                                        if (setIp != null) {
                                             setIp.setText(mHostIp);
                                         }
-                                    }else{
+                                    } else {
                                         BaseUtils.showShortToast(mContext, "设置内容不是ip地址，请重新输入");
                                     }
                                     break;
                                 case 2:
                                     if (isNumeric(input)) {
-                                        mTimerTime=input;
-                                        if (setTime!=null) {
-                                            setTime.setText(mTimerTime+"s");
+                                        mTimerTime = input;
+                                        if (setTime != null) {
+                                            setTime.setText(mTimerTime + "s");
                                         }
-                                    }else{
+                                    } else {
                                         BaseUtils.showShortToast(mContext, "输入的时间不真确，请输入时间（秒）");
                                     }
                                     break;
@@ -208,39 +219,39 @@ public class SetActivity extends BaseActivity {
     }
 
 
-    public static boolean isIp(String ip){//判断是否是一个IP
+    public static boolean isIp(String ip) {//判断是否是一个IP
         boolean b = false;
 //        ip = trimSpaces(ip);//去掉空格
-        if(ip.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")){
+        if (ip.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
             String s[] = ip.split("\\.");
-            if(Integer.parseInt(s[0])<255)
-                if(Integer.parseInt(s[1])<255)
-                    if(Integer.parseInt(s[2])<255)
-                        if(Integer.parseInt(s[3])<255)
+            if (Integer.parseInt(s[0]) < 255)
+                if (Integer.parseInt(s[1]) < 255)
+                    if (Integer.parseInt(s[2]) < 255)
+                        if (Integer.parseInt(s[3]) < 255)
                             b = true;
         }
         return b;
     }
-    public static String trimSpaces(String ip){//去掉IP字符串前后所有的空格
-        while(ip.startsWith(" ")){
-            ip= ip.substring(1,ip.length()).trim();
+
+    public static String trimSpaces(String ip) {//去掉IP字符串前后所有的空格
+        while (ip.startsWith(" ")) {
+            ip = ip.substring(1, ip.length()).trim();
         }
-        while(ip.endsWith(" ")){
-            ip= ip.substring(0,ip.length()-1).trim();
+        while (ip.endsWith(" ")) {
+            ip = ip.substring(0, ip.length() - 1).trim();
         }
         return ip;
     }
 
     //数字的判断
-    public boolean isNumeric(String str){
+    public boolean isNumeric(String str) {
         Pattern pattern = Pattern.compile("[0-9]*");
         Matcher isNum = pattern.matcher(str);
-        if( !isNum.matches() ){
+        if (!isNum.matches()) {
             return false;
         }
         return true;
     }
-
 
 
 }

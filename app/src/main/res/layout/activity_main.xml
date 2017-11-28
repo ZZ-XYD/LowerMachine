@@ -22,7 +22,7 @@
     <android.support.percent.PercentRelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        app:layout_widthPercent="70%">
+        android:layout_weight="7">
 
         <com.youth.banner.Banner
             android:id="@+id/banner"
@@ -46,10 +46,12 @@
 
 
     <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+        android:id="@+id/msg_show"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layout_widthPercent="30%">
+        android:layout_weight="3"
+        >
 
         <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
@@ -63,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/white"
+                android:textSize="@dimen/text_size"
                 />
             <TextView
                 android:id="@+id/weather_text"
@@ -70,23 +73,20 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/white"
+                android:textSize="@dimen/text_size"
                 />
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
 
-        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/equipment_id"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size"/>
 
 
             <TextView
@@ -97,7 +97,35 @@
                 android:text="暂没通告"
                 android:textColor="@color/white"
                 android:gravity="center"
+                android:textSize="@dimen/text_size"
                 />
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/door_number"
+                android:layout_width="0dp"
+                app:layout_widthPercent="60%"
+                android:layout_height="0dp"
+                app:layout_heightPercent="40%"
+                app:layout_marginTopPercent="5%"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/white_layout"
+                android:textSize="@dimen/text_size"
+                />
+            <TextView
+                android:id="@+id/call_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_marginTopPercent="5%"
+                android:textColor="@color/white"
+                android:layout_gravity="center_horizontal"
+                android:textSize="@dimen/text_size"/>
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
         <!--<TextView-->
             <!--android:id="@+id/equipment_id"-->

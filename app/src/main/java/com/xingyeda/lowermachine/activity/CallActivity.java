@@ -398,6 +398,10 @@ public class CallActivity extends BaseActivity {
             public void parameterError(JSONObject response) {//失败
                 mIsCall = false;
                 ReleasePlayer();
+                mDoorNumber = "";
+                if (doorNumber!=null) {
+                    doorNumber.setText("");
+                }
                 promptTone(R.raw.calltips, false);
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
@@ -411,6 +415,10 @@ public class CallActivity extends BaseActivity {
             public void onFailure() {//接口问题
                 mIsCall = false;
                 ReleasePlayer();
+                mDoorNumber = "";
+                if (doorNumber!=null) {
+                    doorNumber.setText("");
+                }
                 promptTone(R.raw.calltips, false);
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
@@ -479,6 +487,7 @@ public class CallActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
+                promptTone(R.raw.wurenjieting, false);//正忙
                 BaseUtils.showShortToast(mContext,"对方已挂断，通话结束中");
                 finish();
             } else if (action.equals("HeartBeatService.REMOTE_RELEASE")) {//手机接通后挂断
@@ -675,7 +684,10 @@ public class CallActivity extends BaseActivity {
     private void promptTone(int resId, boolean isCirculation) {
         // 开始播放音乐
         if (mMediaPlayer != null) {
-            mMediaPlayer.start();
+//            mMediaPlayer.start();
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
         mMediaPlayer = MediaPlayer.create(mContext, resId);
         mMediaPlayer.setLooping(isCirculation);
