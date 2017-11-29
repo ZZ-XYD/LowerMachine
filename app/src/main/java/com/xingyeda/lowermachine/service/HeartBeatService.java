@@ -50,6 +50,9 @@ public class HeartBeatService extends Service {
             public void run() {
                 initSocket();
                 while (true) {
+                    Intent intent = new Intent();
+                    intent.setAction("HeartBeatService.SocketConnected");
+                    HeartBeatService.this.sendBroadcast(intent);
                     sendMessage();
                     try {
                         sleep(1000 * 10);
@@ -219,6 +222,9 @@ public class HeartBeatService extends Service {
             out.write(bytes);
             out.flush();
         } catch (Exception e) {
+            Intent intent = new Intent();
+            intent.setAction("HeartBeatService.SocketIsNotConnected");
+            HeartBeatService.this.sendBroadcast(intent);
             exitForReConnect();
             initSocket();
         }
