@@ -52,13 +52,27 @@
             </intent-filter>
         </activity>
         <activity android:name=".base.BaseActivity" />
-        <activity android:name=".activity.CallActivity"
-            android:screenOrientation="landscape"/>
-        <activity android:name=".activity.SetActivity"
-            android:screenOrientation="landscape"/>
+        <activity
+            android:name=".activity.CallActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".activity.SetActivity"
+            android:screenOrientation="landscape" />
 
         <service android:name=".service.HeartBeatService" />
         <service android:name=".service.DoorService" />
+        <service
+            android:name=".service.AccessibilityService"
+            android:label="我的智能安装"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
         <receiver android:name=".broadcast.BootReceiver">
             <intent-filter>
