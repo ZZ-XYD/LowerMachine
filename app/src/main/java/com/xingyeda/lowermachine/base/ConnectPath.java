@@ -17,15 +17,13 @@ public class ConnectPath {
     public static final String HOST = "192.168.10.200";
 
 
-
     /*
     Socket地址
      */
 //    public static final String SOCKET_HOST = "192.168.10.200";
-    public static final String SOCKET_HOST="192.168.10.200";
+    public static final String SOCKET_HOST = "192.168.10.200";
 
     public static final int SOCKET_PORT = 5888;
-
 
 
     //    public static final String HOST_PATH = HOST + "xydServer/servlet/";
@@ -53,21 +51,23 @@ public class ConnectPath {
     public static final String WEATHER_PATH = HOST_PATH + "getTianqi";
     //呼叫电话
     public static final String PHONECALL_PATH = HOST_PATH + "phonecall";
+    //查询版本
+    public static final String GETSERVERVERSION = HOST_PATH + "getServerVersion";
 
     //获取地址
-    public static String getPath(Context context,String url) {
+    public static String getPath(Context context, String url) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
-            return DOMAIN+HOST + url;
+            return DOMAIN + HOST + url;
         }
-        return DOMAIN+SharedPreUtil.getString(context, "ip") + url;
+        return DOMAIN + SharedPreUtil.getString(context, "ip") + url;
     }
+
     public static String getHost(Context context) {
         if (SharedPreUtil.getString(context, "ip").equals("")) {
             return HOST;
         }
         return SharedPreUtil.getString(context, "ip");
     }
-
 
 
 //    //传送MAC地址添加设备
