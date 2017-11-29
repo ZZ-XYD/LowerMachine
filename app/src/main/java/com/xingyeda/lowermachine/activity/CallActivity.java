@@ -366,7 +366,7 @@ public class CallActivity extends BaseActivity {
 
 
     private void callOut(String callinfo) {
-        if (callTimer!=null) {
+        if (callTimer != null) {
             callTimer.setText("呼叫中");
         }
         promptTone(R.raw.ringback, true);
@@ -382,7 +382,7 @@ public class CallActivity extends BaseActivity {
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
         params.put("paizhao", "false");
 //        BaseUtils.showLongToast(mContext,ConnectPath.CALLUSER_PATH(mContext)+params);
-        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//成功
                 try {
@@ -399,14 +399,14 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 mDoorNumber = "";
-                if (doorNumber!=null) {
+                if (doorNumber != null) {
                     doorNumber.setText("");
                 }
                 promptTone(R.raw.calltips, false);
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
-                if (callTimer!=null) {
+                if (callTimer != null) {
                     callTimer.setText("呼叫失败");
                 }
             }
@@ -416,14 +416,14 @@ public class CallActivity extends BaseActivity {
                 mIsCall = false;
                 ReleasePlayer();
                 mDoorNumber = "";
-                if (doorNumber!=null) {
+                if (doorNumber != null) {
                     doorNumber.setText("");
                 }
                 promptTone(R.raw.calltips, false);
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
-                if (callTimer!=null) {
+                if (callTimer != null) {
                     callTimer.setText("服务器异常，请联系管理员");
                 }
             }
@@ -434,7 +434,7 @@ public class CallActivity extends BaseActivity {
 
     //挂断
     private void cancel() {
-        if (callTimer!=null) {
+        if (callTimer != null) {
             callTimer.setText("挂断中");
         }
         Map<String, String> params = new HashMap<>();
@@ -442,7 +442,7 @@ public class CallActivity extends BaseActivity {
         params.put("uid", mUserId);
         params.put("housenum", mHousenum);
         params.put("dongshu", SharedPreUtil.getString(mContext, "DongShuId"));
-        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.CANCEL_PATH), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CANCEL_PATH), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 finish();
@@ -454,7 +454,7 @@ public class CallActivity extends BaseActivity {
     private void checkPhone(String phone) {
         Map<String, String> params = new HashMap<>();
         params.put("tel", phone);
-        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.CHECKPHONE_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CHECKPHONE_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//本地
 
@@ -488,10 +488,10 @@ public class CallActivity extends BaseActivity {
             String action = intent.getAction();
             if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
                 promptTone(R.raw.wurenjieting, false);//正忙
-                BaseUtils.showShortToast(mContext,"对方已挂断，通话结束中");
+                BaseUtils.showShortToast(mContext, "对方已挂断，通话结束中");
                 finish();
             } else if (action.equals("HeartBeatService.REMOTE_RELEASE")) {//手机接通后挂断
-                BaseUtils.showShortToast(mContext,"对方已挂断，通话结束中");
+                BaseUtils.showShortToast(mContext, "对方已挂断，通话结束中");
                 finish();
             } else if (action.equals("HeartBeatService.MOBILE_ANSWER")) {//手机接通视频通话
                 updateTime();
@@ -508,12 +508,13 @@ public class CallActivity extends BaseActivity {
     };
 
     private int mCount = 0;
+
     private void updateTime() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 mCount += 1;
-                if (callTimer!=null) {
+                if (callTimer != null) {
                     callTimer.setText(getStandardTime(mCount));
                     updateTime();
                 }
@@ -559,16 +560,17 @@ public class CallActivity extends BaseActivity {
             @Override
             public void run() {//呼叫电话
                 ReleasePlayer();
-                phoneCall(1,"start");
+                phoneCall(1, "start");
                 promptTone(R.raw.record, false);
             }
         }, time);
     }
-    private void phoneCall(int type,String flag){
+
+    private void phoneCall(int type, String flag) {
         Map<String, String> params = new HashMap<>();
         params.put("flag", flag);//flag = start(开始调用)，fail(失败)
         params.put("uid", mUserId);
-        switch (type){
+        switch (type) {
             case 1:
                 params.put("callId", mCallId);
                 params.put("eid", MainBusiness.getMacAddress(mContext));
@@ -577,7 +579,7 @@ public class CallActivity extends BaseActivity {
                 params.put("id", mCallId);
                 break;
         }
-        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.PHONECALL_PATH),new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.PHONECALL_PATH), new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -667,8 +669,8 @@ public class CallActivity extends BaseActivity {
                     } else if (mDoorNumber.equals("3819")) {//重启设备
                         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
                         powerManager.reboot("");
-                    } else if (mDoorNumber.equals("3820")) {//关闭设备
-                    } else if (mDoorNumber.equals("3821")) {//设备更新
+                    } else if (mDoorNumber.equals("3821")) {//设备更新\
+                        MainBusiness.getVersion(mContext);
                     } else {
                         if (mIsNet) {
                             callOut(mDoorNumber);
@@ -735,8 +737,8 @@ public class CallActivity extends BaseActivity {
 
     public int getTimerTime(Context context) {
         if (SharedPreUtil.getString(context, "timerTime").equals("")) {
-            return 30*1000;
+            return 30 * 1000;
         }
-        return Integer.valueOf(SharedPreUtil.getString(context, "timerTime"))*1000;
+        return Integer.valueOf(SharedPreUtil.getString(context, "timerTime")) * 1000;
     }
 }
