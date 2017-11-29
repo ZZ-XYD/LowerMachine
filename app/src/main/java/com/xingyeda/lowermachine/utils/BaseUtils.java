@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.Date;
 
 
@@ -109,4 +113,32 @@ public class BaseUtils {
         }
         return versionCode;
     }
+
+    /*
+    获取路径
+    */
+    public static String initFile(Context context) {
+        String PATH_LOGCAT;
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {// 优先保存到SD卡中
+            PATH_LOGCAT = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "LowerMachine";
+        } else {
+            PATH_LOGCAT = context.getFilesDir().getAbsolutePath() + File.separator + "LowerMachine";
+        }
+        File file = new File(PATH_LOGCAT);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return PATH_LOGCAT;
+    }
+
+    /*
+    安装App
+     */
+    public static void installApk(File file, Context context) {
+        Uri uri = Uri.fromFile(file);
+        Intent localIntent = new Intent(Intent.ACTION_VIEW);
+        localIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+        context.startActivity(localIntent);
+    }
+
 }
