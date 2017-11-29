@@ -1,8 +1,12 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -51,13 +55,17 @@ public class SetActivity extends BaseActivity {
     private boolean mIsElevator;
     private boolean mIsPortrait;
     private String mHostIp = "";
-    private String mTimerTime = "";
+    private int mTimerTime;
+    private AudioManager mAudioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set);
         ButterKnife.bind(this);
+
+        //初始化音频管理器
+        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         macAddress.setText(MainBusiness.getMacAddress(mContext));
 
 //        mHostIp = "http://192.168.10.250:8080/";
@@ -67,6 +75,8 @@ public class SetActivity extends BaseActivity {
         mIsTest = SharedPreUtil.getBoolean(mContext, "isTest");
         mIsElevator = SharedPreUtil.getBoolean(mContext, "isElevator");
         mIsPortrait = SharedPreUtil.getBoolean(mContext, "isPortrait");
+        mTimerTime = SharedPreUtil.getInt(mContext, "timerTime");
+        setTime.setText(mTimerTime + "s");
 
         isCellGate.setChecked(mIsCellGate);
         isTest.setChecked(mIsTest);
@@ -99,6 +109,77 @@ public class SetActivity extends BaseActivity {
             }
         });
 
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+            if (keyCode == KeyEvent.KEYCODE_0) {//0
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_1) {//1
+                if (isCellGate.isChecked()) {
+                    mIsCellGate = false;
+                }else{
+                    mIsCellGate = true;
+                }
+                isCellGate.setChecked(mIsCellGate);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_2) {//2
+                if (isTest.isChecked()) {
+                    mIsTest = false;
+                }else{
+                    mIsTest = true;
+                }
+                isTest.setChecked(mIsTest);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_3) {//3
+                if (isElevator.isChecked()) {
+                    mIsElevator = false;
+                }else{
+                    mIsElevator = true;
+                }
+                isElevator.setChecked(mIsElevator);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_4) {//4
+                if (isPortrait.isChecked()) {
+                    mIsPortrait = false;
+                }else{
+                    mIsPortrait = true;
+                }
+                isPortrait.setChecked(mIsPortrait);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_5) {//5
+                //减少音量
+                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,AudioManager.ADJUST_LOWER,AudioManager.FX_FOCUS_NAVIGATION_UP);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_6) {//6
+                //增加音量
+                mAudioManager.adjustStreamVolume (AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE,AudioManager.FX_FOCUS_NAVIGATION_UP);
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_7) {//7
+                if (mTimerTime >= 5) {
+                    if (setTime!=null) {
+                        mTimerTime-=5;
+                        setTime.setText(mTimerTime + "s");
+                    }
+                }
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_8) {//8
+                if (mTimerTime < 120) {
+                    if (setTime!=null) {
+                        mTimerTime+=5;
+                        setTime.setText(mTimerTime + "s");
+                    }
+                }
+
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_9) {//9
+                return false;
+            } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
+                finish();
+                return false;
+            } else { //#
+                setSubmit();
+            }
+        return super.onKeyDown(keyCode, event);
     }
 
 
@@ -135,7 +216,7 @@ public class SetActivity extends BaseActivity {
     private void setSubmit() {
         Map<String, String> params = new HashMap<>();
         params.put("hostIp", mHostIp);
-        params.put("isWaitTime", mTimerTime);
+        params.put("isWaitTime", mTimerTime+"");
         params.put("isCellGate", mIsCellGate + "");
         params.put("isTest", mIsTest + "");
         params.put("isElevator", mIsElevator + "");
@@ -200,7 +281,7 @@ public class SetActivity extends BaseActivity {
                                     break;
                                 case 2:
                                     if (isNumeric(input)) {
-                                        mTimerTime = input;
+                                        mTimerTime = Integer.valueOf(input);
                                         if (setTime != null) {
                                             setTime.setText(mTimerTime + "s");
                                         }

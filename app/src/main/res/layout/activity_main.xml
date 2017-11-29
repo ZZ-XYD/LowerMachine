@@ -23,12 +23,30 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="7">
-
-        <com.youth.banner.Banner
-            android:id="@+id/banner"
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:delay_time="10000" />
+            android:orientation="vertical"
+            >
+            <com.youth.banner.Banner
+                android:id="@+id/banner"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="9"
+                app:delay_time="10000" />
+            <TextView
+                android:id="@+id/notification"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="暂没通告"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="@dimen/text_size"
+                />
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+
 
         <TextView
             android:id="@+id/sn_text"
@@ -42,6 +60,7 @@
             android:padding="5dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"/>
+
     </android.support.percent.PercentRelativeLayout>
 
 
@@ -89,16 +108,7 @@
                 android:textSize="@dimen/text_size"/>
 
 
-            <TextView
-                android:id="@+id/notification"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="暂没通告"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:textSize="@dimen/text_size"
-                />
+
         <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -114,9 +124,16 @@
                 app:layout_marginTopPercent="5%"
                 android:textColor="@color/white"
                 android:gravity="center"
+                android:hint="请输入房号"
+                android:textColorHint="@color/white"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/white_layout"
                 android:textSize="@dimen/text_size"
+                />
+            <TextView
+                android:layout_width="0dp"
+                app:layout_widthPercent="60%"
+                android:layout_height="1px"
+                android:background="@color/white"
                 />
             <TextView
                 android:id="@+id/call_timer"
@@ -149,7 +166,9 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            >
             <ImageView
                 android:id="@+id/qr_code"
                 android:layout_width="match_parent"
@@ -157,7 +176,6 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:src="@mipmap/qr_code"
-                app:layout_marginBottomPercent="5%"
                 />
 
             <!--<TextView-->

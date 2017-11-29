@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval"
-    android:useLevel="false">
-    <solid android:color="@color/red"/>
-    <size android:width="20dp"
-    android:height="20dp"/>
+<!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:shape="oval"-->
+    <!--android:useLevel="false">-->
+    <!--<solid android:color="@color/red"/>-->
+    <!--<size android:width="20dp"-->
+    <!--android:height="20dp"/>-->
 
+<!--</shape>-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <!-- 填充色 -->
+    <solid android:color="@color/red" />
+    <corners android:radius="5dp"/>
+    <!-- 描边 -->
+    <stroke
+        android:width="1sp"
+        android:color="@null"
+        />
 </shape>

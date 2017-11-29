@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -148,11 +149,11 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        if (SharedPreUtil.getBoolean(this, "isPortrait")) {
-            msgShow.setVisibility(View.GONE);//竖屏
-        } else {
-            msgShow.setVisibility(View.VISIBLE);//横屏
-        }
+//        if (SharedPreUtil.getBoolean(this, "isPortrait")) {
+//            msgShow.setVisibility(View.GONE);//竖屏
+//        } else {
+//            msgShow.setVisibility(View.VISIBLE);//横屏
+//        }
 
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -398,14 +399,18 @@ public class MainActivity extends BaseActivity {
                 ininImage();//图片更新
                 getInform();//获取通告
             } else if (action.equals("HeartBeatService.SocketConnected")) {//socket连接成功
-                mIsSocket = true;
-                if (snText != null) {
-                    snText.setBackgroundResource(R.drawable.green_circle);
+                if (!mIsSocket) {
+                    mIsSocket = true;
+                    if (snText != null) {
+                        snText.setBackgroundResource(R.drawable.green_circle);
+                    }
                 }
             } else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接成功
-                mIsSocket = false;
-                if (snText != null) {
-                    snText.setBackgroundResource(R.drawable.red_circle);
+                if (mIsSocket) {
+                    mIsSocket = false;
+                    if (snText != null) {
+                        snText.setBackgroundResource(R.drawable.red_circle);
+                    }
                 }
             } else if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
                 promptTone(R.raw.wurenjieting, false);//正忙
@@ -557,10 +562,10 @@ public class MainActivity extends BaseActivity {
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
             case R.id.main_time:
-//                callOut("88");
-                mDoorNumber += "0";
-                doorNumber.append("0");
-                freeTime(10000);
+                callOut("8888");
+//                mDoorNumber += "0";
+//                doorNumber.append("0");
+//                freeTime(10000);
 //                Bundle bundle = new Bundle();
 //                bundle.putString("stringValue", "8");
 //                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
@@ -590,7 +595,7 @@ public class MainActivity extends BaseActivity {
             callTimer.setText("呼叫中");
         }
         promptTone(R.raw.ringback, true);
-        callTime(10000);
+        callTime(getTimerTime(mContext));
         mIsCall = true;
         mDoorNumber = "";
         mHousenum = callinfo;
@@ -977,11 +982,12 @@ public class MainActivity extends BaseActivity {
         return sdf.format(date);
     }
 
+    //等待呼叫电话时间
     public int getTimerTime(Context context) {
-        if (SharedPreUtil.getString(context, "timerTime").equals("")) {
+        if (SharedPreUtil.getInt(context, "timerTime")==0) {
             return 30 * 1000;
         }
-        return Integer.valueOf(SharedPreUtil.getString(context, "timerTime")) * 1000;
+        return SharedPreUtil.getInt(context, "timerTime") * 1000;
     }
 
 
