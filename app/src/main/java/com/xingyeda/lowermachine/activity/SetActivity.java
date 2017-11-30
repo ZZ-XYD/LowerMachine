@@ -3,9 +3,11 @@ package com.xingyeda.lowermachine.activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -112,73 +114,75 @@ public class SetActivity extends BaseActivity {
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_0) {//0
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_1) {//1
-                if (isCellGate.isChecked()) {
-                    mIsCellGate = false;
-                }else{
-                    mIsCellGate = true;
-                }
-                isCellGate.setChecked(mIsCellGate);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_2) {//2
-                if (isTest.isChecked()) {
-                    mIsTest = false;
-                }else{
-                    mIsTest = true;
-                }
-                isTest.setChecked(mIsTest);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_3) {//3
-                if (isElevator.isChecked()) {
-                    mIsElevator = false;
-                }else{
-                    mIsElevator = true;
-                }
-                isElevator.setChecked(mIsElevator);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_4) {//4
-                if (isPortrait.isChecked()) {
-                    mIsPortrait = false;
-                }else{
-                    mIsPortrait = true;
-                }
-                isPortrait.setChecked(mIsPortrait);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_5) {//5
-                //减少音量
-                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,AudioManager.ADJUST_LOWER,AudioManager.FX_FOCUS_NAVIGATION_UP);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_6) {//6
-                //增加音量
-                mAudioManager.adjustStreamVolume (AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE,AudioManager.FX_FOCUS_NAVIGATION_UP);
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_7) {//7
-                if (mTimerTime >= 5) {
-                    if (setTime!=null) {
-                        mTimerTime-=5;
-                        setTime.setText(mTimerTime + "s");
-                    }
-                }
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_8) {//8
-                if (mTimerTime < 120) {
-                    if (setTime!=null) {
-                        mTimerTime+=5;
-                        setTime.setText(mTimerTime + "s");
-                    }
-                }
-
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_9) {//9
-                return false;
-            } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
-                finish();
-                return false;
-            } else { //#
-                setSubmit();
+        if (keyCode == KeyEvent.KEYCODE_0) {//0
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_1) {//1
+            if (isCellGate.isChecked()) {
+                mIsCellGate = false;
+            } else {
+                mIsCellGate = true;
             }
+            isCellGate.setChecked(mIsCellGate);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_2) {//2
+            if (isTest.isChecked()) {
+                mIsTest = false;
+            } else {
+                mIsTest = true;
+            }
+            isTest.setChecked(mIsTest);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_3) {//3
+            if (isElevator.isChecked()) {
+                mIsElevator = false;
+            } else {
+                mIsElevator = true;
+            }
+            isElevator.setChecked(mIsElevator);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_4) {//4
+            if (isPortrait.isChecked()) {
+                mIsPortrait = false;
+            } else {
+                mIsPortrait = true;
+            }
+            isPortrait.setChecked(mIsPortrait);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_5) {//5
+            //减少音量
+            mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FX_FOCUS_NAVIGATION_UP);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_6) {//6
+            //增加音量
+            mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FX_FOCUS_NAVIGATION_UP);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_7) {//7
+            if (mTimerTime >= 5) {
+                if (setTime != null) {
+                    mTimerTime -= 5;
+                    setTime.setText(mTimerTime + "s");
+                }
+            }
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_8) {//8
+            if (mTimerTime < 120) {
+                if (setTime != null) {
+                    mTimerTime += 5;
+                    setTime.setText(mTimerTime + "s");
+                }
+            }
+
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_9) {//9
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
+            finish();
+            return false;
+        } else { //#
+            setSubmit();
+        }
         return super.onKeyDown(keyCode, event);
     }
 
@@ -216,7 +220,7 @@ public class SetActivity extends BaseActivity {
     private void setSubmit() {
         Map<String, String> params = new HashMap<>();
         params.put("hostIp", mHostIp);
-        params.put("isWaitTime", mTimerTime+"");
+        params.put("isWaitTime", mTimerTime + "");
         params.put("isCellGate", mIsCellGate + "");
         params.put("isTest", mIsTest + "");
         params.put("isElevator", mIsElevator + "");
