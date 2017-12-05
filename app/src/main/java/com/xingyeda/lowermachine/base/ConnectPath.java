@@ -26,6 +26,12 @@ public class ConnectPath {
     public static final int SOCKET_PORT = 5888;
 
 
+    /*
+    SIP地址
+     */
+    public static final String SIP_HOST = "393818.2d09f8.sip.newrocktech.com:5090";
+
+
     //    public static final String HOST_PATH = HOST + "xydServer/servlet/";
     private static final String HOST_PATH = ":8080/xydServer/servlet/";
 
