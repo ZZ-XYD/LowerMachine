@@ -1,5 +1,11 @@
 package com.xingyeda.lowermachine.utils;
 
+import android.content.Context;
+import android.content.Intent;
+
+import com.xingyeda.lowermachine.base.ConnectPath;
+
+import org.linphone.CallOutgoingActivity;
 import org.linphone.LinphoneManager;
 import org.linphone.LinphonePreferences;
 import org.linphone.core.LinphoneAddress;
@@ -46,6 +52,22 @@ public class SIPUtils {
             builder.saveNewAccount();
         } catch (LinphoneCoreException e) {
             e.printStackTrace();
+        }
+    }
+
+    /*
+    呼出SIP电话
+     */
+    public static void callOutGoing(Context context, String number) {
+        try {
+            if (!LinphoneManager.getInstance().acceptCallIfIncomingPending()) {
+                String to = String.format("sip:%s@%s", number, ConnectPath.SIP_HOST);
+                LinphoneManager.getInstance().newOutgoingCall(to, number);
+
+                context.startActivity(new Intent().setClass(context, CallOutgoingActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
+        } catch (LinphoneCoreException e) {
+            LinphoneManager.getInstance().terminateCall();
         }
     }
 }
