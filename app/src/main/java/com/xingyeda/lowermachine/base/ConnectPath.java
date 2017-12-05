@@ -53,6 +53,10 @@ public class ConnectPath {
     public static final String PHONECALL_PATH = HOST_PATH + "phonecall";
     //查询版本
     public static final String GETSERVERVERSION = HOST_PATH + "getServerVersion";
+    //获取SIP账户
+    public static final String GETACCOUNT = HOST_PATH + "getAccount";
+    //释放SIP账户
+    public static final String RELEASEACCOUNT = HOST_PATH + "releaseAccount";
 
     //获取地址
     public static String getPath(Context context, String url) {
