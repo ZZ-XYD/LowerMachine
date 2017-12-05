@@ -12,8 +12,12 @@ import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
 import com.youth.banner.loader.ImageLoader;
 
+import org.linphone.LinphoneService;
+
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
+
+import static android.content.Intent.ACTION_MAIN;
 
 public class MainApplication extends Application {
 
@@ -32,6 +36,9 @@ public class MainApplication extends Application {
 
         initDoorService();
         initHeartBeatService();
+        if (!LinphoneService.isReady()) {
+            startService(new Intent(ACTION_MAIN).setClass(this, LinphoneService.class));
+        }
     }
 
     public static Context getmContext() {
