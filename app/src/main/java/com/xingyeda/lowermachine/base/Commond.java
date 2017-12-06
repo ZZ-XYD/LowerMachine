@@ -62,4 +62,10 @@ public class Commond {
     //拨打轻码云电话
     public static String QMY = "M110";
 
+    //添加设备成功
+    public static String Add_SUCCESS = "M911";
+
+    //更新设备
+    public static String UPDATE_DEVICE = "ME41";
+
 }
