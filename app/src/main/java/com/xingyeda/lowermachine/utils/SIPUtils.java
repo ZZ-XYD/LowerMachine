@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.xingyeda.lowermachine.base.ConnectPath;
+import com.xingyeda.lowermachine.business.MainBusiness;
 
 import org.linphone.CallOutgoingActivity;
 import org.linphone.LinphoneManager;
@@ -58,16 +59,19 @@ public class SIPUtils {
     /*
     呼出SIP电话
      */
-    public static void callOutGoing(Context context, String number) {
+    public static void callOutGoing(Context context, String number, String userName) {
         try {
             if (!LinphoneManager.getInstance().acceptCallIfIncomingPending()) {
                 String to = String.format("sip:%s@%s", number, ConnectPath.SIP_HOST);
                 LinphoneManager.getInstance().newOutgoingCall(to, number);
 
                 context.startActivity(new Intent().setClass(context, CallOutgoingActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
+                MainBusiness.releaseAccount(context, userName);
             }
         } catch (LinphoneCoreException e) {
             LinphoneManager.getInstance().terminateCall();
+            MainBusiness.releaseAccount(context, userName);
         }
     }
 }
