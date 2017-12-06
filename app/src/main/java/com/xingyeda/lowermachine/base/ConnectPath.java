@@ -14,14 +14,15 @@ public class ConnectPath {
     //    public static String HOST = "http://service.xyd999.com:8080/";
 //    private static final String HOST = "http://192.168.10.200:8080/";
 //    public static final String HOST = "http://192.168.10.250:8080/";
-    public static final String HOST = "192.168.10.200";
+//    public static final String HOST = "192.168.10.200";
+    public static final String HOST = "120.25.245.234";
 
 
     /*
     Socket地址
      */
 //    public static final String SOCKET_HOST = "192.168.10.200";
-    public static final String SOCKET_HOST = "192.168.10.200";
+    public static final String SOCKET_HOST = "120.25.245.234";
 
     public static final int SOCKET_PORT = 5888;
 
