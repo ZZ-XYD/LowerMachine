@@ -9,6 +9,7 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.SNCode;
+import com.xingyeda.lowermachine.bean.SipResult;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
@@ -133,6 +134,25 @@ public class MainBusiness {
 
             @Override
             public void onFailure(HttpException e, String s) {
+
+            }
+        });
+    }
+
+    /*
+    释放SIP账号
+     */
+    public static void releaseAccount(Context context, String id) {
+        Map map = new HashMap();
+        map.put("user_name", id);
+        HttpUtils.doPost(ConnectPath.getPath(context, ConnectPath.RELEASEACCOUNT), map, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
 
             }
         });
