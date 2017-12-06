@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.ActivityCompat;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -56,6 +57,7 @@ public class CallOutgoingActivity extends Activity implements OnClickListener {
     private LinphoneCall mCall;
     private LinphoneCoreListenerBase mListener;
     private boolean isMicMuted, isSpeakerEnabled;
+    private CountDownTimer downTimer = null;
 
     public static CallOutgoingActivity instance() {
         return instance;
@@ -75,6 +77,21 @@ public class CallOutgoingActivity extends Activity implements OnClickListener {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.call_outgoing);
+
+        downTimer = new CountDownTimer(1000 * 60, 1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                if (!CallOutgoingActivity.this.isFinishing()) {
+                    decline();
+                }
+            }
+        }.start();
+
 
         name = (TextView) findViewById(R.id.contact_name);
         number = (TextView) findViewById(R.id.contact_number);
@@ -205,6 +222,7 @@ public class CallOutgoingActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         instance = null;
+        downTimer.cancel();
     }
 
     @Override
