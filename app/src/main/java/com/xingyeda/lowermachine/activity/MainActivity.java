@@ -34,6 +34,7 @@ import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.base.ConnectPath;
+import com.xingyeda.lowermachine.bean.SipResult;
 import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.http.BaseStringCallback;
 import com.xingyeda.lowermachine.http.CallbackHandler;
@@ -41,6 +42,9 @@ import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
 import com.xingyeda.lowermachine.utils.BaseUtils;
+import com.xingyeda.lowermachine.utils.HttpUtils;
+import com.xingyeda.lowermachine.utils.JsonUtils;
+import com.xingyeda.lowermachine.utils.SIPUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import com.youth.banner.Banner;
@@ -50,7 +54,9 @@ import com.youth.banner.Transformer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.linphone.LinphoneService;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,6 +76,9 @@ import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity {
 
@@ -77,7 +86,6 @@ public class MainActivity extends BaseActivity {
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
-
 
 
     private RtcEngine mRtcEngine;//  教程步骤 1
@@ -135,6 +143,11 @@ public class MainActivity extends BaseActivity {
     private rkctrl mRkctrl = new rkctrl();
     private boolean flag = true;
     private boolean mIsSocket = false;
+    private SipResult sipResult = null;
+    private ServiceWaitThread mThread = null;
+
+    private String userName = "";
+    private String userPwd = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -930,7 +943,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private void promptTone(int resId, boolean isCirculation) {
+    private void promptTone(final int resId, boolean isCirculation) {
         // 开始播放音乐
         if (mMediaPlayer != null) {
 //            mMediaPlayer.start();
@@ -946,6 +959,9 @@ public class MainActivity extends BaseActivity {
 
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    if (resId == R.raw.record) {
+                        getAccount(mContext);
+                    }
                     ReleasePlayer();
                 }
             });
@@ -984,7 +1000,7 @@ public class MainActivity extends BaseActivity {
 
     //等待呼叫电话时间
     public int getTimerTime(Context context) {
-        if (SharedPreUtil.getInt(context, "timerTime")==0) {
+        if (SharedPreUtil.getInt(context, "timerTime") == 0) {
             return 30 * 1000;
         }
         return SharedPreUtil.getInt(context, "timerTime") * 1000;
@@ -1250,5 +1266,55 @@ public class MainActivity extends BaseActivity {
 //        if (tag != null && (Integer) tag == uid) {
 //            surfaceView.setVisibility(muted ? View.GONE : View.VISIBLE);
 //        }
+    }
+
+    /*
+获取SIP账号
+ */
+    private void getAccount(Context context) {
+        HttpUtils.doGet(ConnectPath.getPath(context, ConnectPath.GETACCOUNT), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                sipResult = JsonUtils.getGson().fromJson(response.body().string(), SipResult.class);
+                if (sipResult.getStatus().equals("200") && sipResult.getSipValue() != null) {
+                    userName = sipResult.getSipValue().getUser_name();
+                    userPwd = sipResult.getSipValue().getUser_pwd();
+                } else {
+                    userName = ConnectPath.SIP_NAME;
+                    userPwd = ConnectPath.SIP_PWD;
+                }
+                mThread = new ServiceWaitThread();
+                mThread.start();
+            }
+        });
+    }
+
+    /*
+    LinPhone登录线程
+     */
+    private class ServiceWaitThread extends Thread {
+
+        public void run() {
+            while (!LinphoneService.isReady()) {
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("waiting thread sleep() has been interrupted");
+                }
+            }
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    SIPUtils.syncAccount(userName, userPwd, ConnectPath.SIP_HOST);
+                    SIPUtils.callOutGoing(mContext, mPhone, userName);
+                }
+            });
+            mThread = null;
+        }
     }
 }
