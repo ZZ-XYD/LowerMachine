@@ -31,6 +31,11 @@ public class ConnectPath {
      */
     public static final String SIP_HOST = "393818.2d09f8.sip.newrocktech.com:5090";
 
+    //SIP默认账号
+    public static final String SIP_NAME = "215";
+    //SIP默认密码
+    public static final String SIP_PWD = "467464";
+
 
     //    public static final String HOST_PATH = HOST + "xydServer/servlet/";
     private static final String HOST_PATH = ":8080/xydServer/servlet/";
