@@ -193,6 +193,12 @@ public class HeartBeatService extends Service {
                         Intent intent = new Intent();
                         intent.setAction("HeartBeatService.RELOADIMG");
                         HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.Add_SUCCESS)) {//添加设备
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.Add_SUCCESS");
+                        HeartBeatService.this.sendBroadcast(intent);
+                    } else if (str.equals(Commond.UPDATE_DEVICE)) {//更新设备
+                        MainBusiness.getVersion(HeartBeatService.this);
                     }
                 }
             }
