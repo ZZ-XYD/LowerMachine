@@ -11,7 +11,7 @@ public class ConnectPath {
 
     public static final String DOMAIN = "http://";
 
-    //    public static String HOST = "http://service.xyd999.com:8080/";
+//        public static String HOST = "http://service.xyd999.com:8080/";
 //    private static final String HOST = "http://192.168.10.200:8080/";
 //    public static final String HOST = "http://192.168.10.250:8080/";
 //    public static final String HOST = "192.168.10.200";

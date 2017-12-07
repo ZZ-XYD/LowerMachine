@@ -40,7 +40,4 @@ dependencies {
     compile project(':okhttp')
     compile files('libs/bugly_crash_release.jar')
     compile files('libs/xUtils-2.6.14.jar')
-    compile files('libs/liblinphone.jar')
-    compile files('libs/gcm.jar')
-    compile files('libs/commons-compress-1.11.jar')
 }

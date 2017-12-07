@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -16,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -34,8 +32,8 @@ import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.base.ConnectPath;
-import com.xingyeda.lowermachine.bean.SipResult;
 import com.xingyeda.lowermachine.bean.NotificationBean;
+import com.xingyeda.lowermachine.bean.SipResult;
 import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.http.BaseStringCallback;
 import com.xingyeda.lowermachine.http.CallbackHandler;
@@ -43,10 +41,9 @@ import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
 import com.xingyeda.lowermachine.utils.BaseUtils;
-import com.xingyeda.lowermachine.utils.LogUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
-import com.xingyeda.lowermachine.utils.SIPUtils;
+import com.xingyeda.lowermachine.utils.LogUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import com.youth.banner.Banner;
@@ -56,7 +53,6 @@ import com.youth.banner.Transformer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.linphone.LinphoneService;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -81,8 +77,6 @@ import io.agora.rtc.video.VideoCanvas;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-
-import static android.os.Build.VERSION_CODES.O;
 
 public class MainActivity extends BaseActivity {
 
@@ -154,11 +148,8 @@ public class MainActivity extends BaseActivity {
     private boolean flag = true;
     private boolean mIsSocket = false;
     private SipResult sipResult = null;
-    private ServiceWaitThread mThread = null;
-
-    private String userName = "";
-    private String userPwd = "";
-
+    String userName = "";
+    String userPwd = "";
     private boolean mIsCarousel = false;
 
     @Override
@@ -183,7 +174,7 @@ public class MainActivity extends BaseActivity {
 
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-       MainBusiness.getSN(mContext);//获取sn
+        MainBusiness.getSN(mContext);//获取sn
         updateTime();//时间更新
 
         ininImage();//图片获取
@@ -355,10 +346,10 @@ public class MainActivity extends BaseActivity {
                             for (int i = 0; i < jobj.length(); i++) {
                                 JSONObject jobjBean = jobj.getJSONObject(i);
                                 NotificationBean bean = new NotificationBean();
-                                bean.setmTime(jobjBean.has("title")?jobjBean.getString("title"):"");
-                                bean.setmContent(jobjBean.has("content")?jobjBean.getString("content"):"");
-                                bean.setmTime(jobjBean.has("sendTime")?jobjBean.getString("sendTime"):"");
-                                bean.setmDuration(jobjBean.has("duration")?jobjBean.getString("durationtime"):"10");
+                                bean.setmTime(jobjBean.has("title") ? jobjBean.getString("title") : "");
+                                bean.setmContent(jobjBean.has("content") ? jobjBean.getString("content") : "");
+                                bean.setmTime(jobjBean.has("sendTime") ? jobjBean.getString("sendTime") : "");
+                                bean.setmDuration(jobjBean.has("duration") ? jobjBean.getString("durationtime") : "10");
 //                                if (jobjBean.has("content")) {
 //                                    notificationList.add(jobjBean.getString("content"));
 //                                }
@@ -366,10 +357,10 @@ public class MainActivity extends BaseActivity {
                             }
                         }
 //                        if (notificationList != null && !notificationList.isEmpty()) {
-                            if (!mIsCarousel) {
-                                mIsCarousel = true;
-                                carouselMsg(10);
-                            }
+                        if (!mIsCarousel) {
+                            mIsCarousel = true;
+                            carouselMsg(10);
+                        }
 //                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -397,7 +388,7 @@ public class MainActivity extends BaseActivity {
                 if (notificationText != null) {
                     if (notificationList != null && !notificationList.isEmpty()) {
                         LogUtils.d("list:" + notificationList.toString());
-                        if (notification<= notificationList.size()) {
+                        if (notification <= notificationList.size()) {
                             notificationText.setVisibility(View.VISIBLE);
                             notificationTime.setVisibility(View.VISIBLE);
                             notificationText.setText(notificationList.get(notification - 1).getmContent());
@@ -553,8 +544,8 @@ public class MainActivity extends BaseActivity {
                                 JSONObject jobj = (JSONObject) response.get("obj");
                                 getWeather(12 * 60 * 60 * 1000);
                                 if (cityText != null) {
-                                    cityText.setText(jobj.has("city")?jobj.getString("city"):"");
-                                    LogUtils.d(jobj.has("city")?jobj.getString("city"):"111");
+                                    cityText.setText(jobj.has("city") ? jobj.getString("city") : "");
+                                    LogUtils.d(jobj.has("city") ? jobj.getString("city") : "111");
                                 }
                                 if (jobj.has("temp")) {
                                     if (weatherText != null) {
@@ -923,65 +914,65 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         } else {
-            if (mDoorNumber.length()>11) {
+            if (mDoorNumber.length() > 11) {
                 return false;
             }
             if (keyCode == KeyEvent.KEYCODE_0) {//0
-                promptTone(R.raw.s_0,false);
+                promptTone(R.raw.s_0, false);
                 mDoorNumber += "0";
                 doorNumber.append("0");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_1) {//1
-                promptTone(R.raw.s_1,false);
+                promptTone(R.raw.s_1, false);
                 mDoorNumber += "1";
                 doorNumber.append("1");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_2) {//2
-                promptTone(R.raw.s_2,false);
+                promptTone(R.raw.s_2, false);
                 mDoorNumber += "2";
                 doorNumber.append("2");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_3) {//3
-                promptTone(R.raw.s_3,false);
+                promptTone(R.raw.s_3, false);
                 mDoorNumber += "3";
                 doorNumber.append("3");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_4) {//4
-                promptTone(R.raw.s_4,false);
+                promptTone(R.raw.s_4, false);
                 mDoorNumber += "4";
                 doorNumber.append("4");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_5) {//5
-                promptTone(R.raw.s_5,false);
+                promptTone(R.raw.s_5, false);
                 mDoorNumber += "5";
                 doorNumber.append("5");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_6) {//6
-                promptTone(R.raw.s_6,false);
+                promptTone(R.raw.s_6, false);
                 mDoorNumber += "6";
                 doorNumber.append("6");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_7) {//7
-                promptTone(R.raw.s_7,false);
+                promptTone(R.raw.s_7, false);
                 mDoorNumber += "7";
                 doorNumber.append("7");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_8) {//8
-                promptTone(R.raw.s_8,false);
+                promptTone(R.raw.s_8, false);
                 mDoorNumber += "8";
                 doorNumber.append("8");
                 freeTime(10000);
                 return false;
             } else if (keyCode == KeyEvent.KEYCODE_9) {//9
-                promptTone(R.raw.s_9,false);
+                promptTone(R.raw.s_9, false);
                 mDoorNumber += "9";
                 doorNumber.append("9");
                 freeTime(10000);
@@ -1052,6 +1043,7 @@ public class MainActivity extends BaseActivity {
 
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+
                     if (resId == R.raw.record) {
                         getAccount(mContext);
                     }
@@ -1381,33 +1373,7 @@ public class MainActivity extends BaseActivity {
                     userName = ConnectPath.SIP_NAME;
                     userPwd = ConnectPath.SIP_PWD;
                 }
-                mThread = new ServiceWaitThread();
-                mThread.start();
             }
         });
-    }
-
-    /*
-    LinPhone登录线程
-     */
-    private class ServiceWaitThread extends Thread {
-
-        public void run() {
-            while (!LinphoneService.isReady()) {
-                try {
-                    sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("waiting thread sleep() has been interrupted");
-                }
-            }
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    SIPUtils.syncAccount(userName, userPwd, ConnectPath.SIP_HOST);
-                    SIPUtils.callOutGoing(mContext, mPhone, userName);
-                }
-            });
-            mThread = null;
-        }
     }
 }
