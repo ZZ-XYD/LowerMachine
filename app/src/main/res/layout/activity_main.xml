@@ -53,7 +53,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:delay_time="10000"
-                android:layout_above="@id/notification"/>
+                android:layout_above="@id/notification"
+                />
         <TextView
             android:id="@+id/sn_text"
             android:layout_width="wrap_content"
@@ -183,14 +184,25 @@
             android:orientation="vertical"
             android:layout_marginBottom="20dp"
             >
-            <ImageView
+            <TextView
                 android:id="@+id/qr_code"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:src="@mipmap/qr_code"
-                />
+                android:drawableTop="@mipmap/qr_code"
+                android:text="扫描二维码下载软件"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size"
+            />
+            <!--<ImageView-->
+                <!--android:id="@+id/qr_code"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="0dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:gravity="center"-->
+                <!--android:src="@mipmap/qr_code"-->
+                <!--/>-->
 
             <!--<TextView-->
                 <!--android:id="@+id/notification"-->

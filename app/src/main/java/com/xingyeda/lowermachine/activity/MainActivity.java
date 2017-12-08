@@ -78,6 +78,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static android.R.string.cancel;
+
 public class MainActivity extends BaseActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -85,8 +87,6 @@ public class MainActivity extends BaseActivity {
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
-    @BindView(R.id.qr_code)
-    ImageView qrCode;
 
     private RtcEngine mRtcEngine;//  教程步骤 1
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
@@ -425,6 +425,9 @@ public class MainActivity extends BaseActivity {
         intent.addAction("HeartBeatService.REMOTE_RELEASE");//手机接通后挂断
         intent.addAction("HeartBeatService.MOBILE_ANSWER");//手机接通视频通话
         intent.addAction("HeartBeatService.MOBILE_RECEIVE");//手机收到呼入
+
+
+
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
     }
@@ -455,28 +458,28 @@ public class MainActivity extends BaseActivity {
                 }
             } else if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
                 LogUtils.d("手机直接挂断");
-                promptTone(R.raw.wurenjieting, false);//正忙
-//                BaseUtils.showShortToast(mContext, "对方已挂断，通话结束中");
                 ReleasePlayer();
+                promptTone(R.raw.wurenjieting, false);//正忙
                 clearAll();
-//                finish();
             } else if (action.equals("HeartBeatService.REMOTE_RELEASE")) {//手机接通后挂断
                 LogUtils.d("手机接通后挂断");
-//                BaseUtils.showShortToast(mContext, "对方已挂断，通话结束中");
-                clearAll();
                 ReleasePlayer();
-//                finish();
+                clearAll();
             } else if (action.equals("HeartBeatService.MOBILE_ANSWER")) {//手机接通视频通话
                 LogUtils.d("手机接通视频通话");
                 setTime();
 //                mIsCall = false;
                 ReleasePlayer();
-                connectTime(60000);
+                if (mOvertimeTimer!=null) {
+                    mOvertimeTimer.cancel();
+                }
+                connectTime(60);
             } else if (action.equals("HeartBeatService.MOBILE_RECEIVE")) {//手机收到呼入
                 LogUtils.d("手机收到呼入   ");
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
+//                overtimeTimer(30);
             }
         }
 
@@ -652,12 +655,16 @@ public class MainActivity extends BaseActivity {
     private Timer mTimer;
     private Timer mFreeTimer;
     private Timer mCallTimer;
+    private Timer mOvertimeTimer;
     private boolean mIsCall = false;
     private String mDoorNumber = new String();
     private MediaPlayer mMediaPlayer;
 
 
     private void callOut(String callinfo) {
+        while (callinfo.length() < 4) {
+            callinfo = "0" + callinfo;
+        }
         if (callTimer != null) {
             callTimer.setText("呼叫中");
         }
@@ -672,8 +679,8 @@ public class MainActivity extends BaseActivity {
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
         params.put("paizhao", "false");
-//        BaseUtils.showLongToast(mContext,ConnectPath.CALLUSER_PATH(mContext)+params);
-        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        LogUtils.d("test : "+ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH)+params);
+        OkHttp.get(ConnectPath.getPath( mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//成功
                 try {
@@ -735,7 +742,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //挂断
-    private void cancel() {
+    private void cancels() {
         if (callTimer != null) {
             callTimer.setText("挂断中");
         }
@@ -747,9 +754,7 @@ public class MainActivity extends BaseActivity {
         OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CANCEL_PATH), params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
-                ReleasePlayer();
                 clearAll();
-//                finish();
             }
         }));
     }
@@ -812,6 +817,9 @@ public class MainActivity extends BaseActivity {
         if (mFreeTimer != null) {
             mFreeTimer.cancel();
         }
+        if (mOvertimeTimer != null) {
+            mOvertimeTimer.cancel();
+        }
         if (mCallTimer != null) {
             mCallTimer.cancel();
         }
@@ -831,6 +839,9 @@ public class MainActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
+                    cancels();
+                    break;
+                case 1:
                     clearAll();
                     break;
             }
@@ -847,9 +858,22 @@ public class MainActivity extends BaseActivity {
         mFreeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
+                mHandler.sendEmptyMessage(1);
+            }
+        }, time * 1000);
+    }    //呼叫超时未接通
+    private void overtimeTimer(int time) {
+        if (mOvertimeTimer != null) {
+            mOvertimeTimer.cancel();
+        }
+        mOvertimeTimer = new Timer();
+        mOvertimeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                promptTone(R.raw.bujie, false);//转接电话声音
                 mHandler.sendEmptyMessage(0);
             }
-        }, time);
+        }, time * 1000);
     }
 
     //接通计时  默认60秒----收到接通信息时调用
@@ -863,9 +887,8 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 ReleasePlayer();
                 mHandler.sendEmptyMessage(0);
-//                finish();
             }
-        }, time);
+        }, time * 1000);
     }
 
     //电话呼叫计时  默认60秒
@@ -879,10 +902,9 @@ public class MainActivity extends BaseActivity {
             public void run() {//呼叫电话
 //                ReleasePlayer();
                 phoneCall(1, "start");
-                promptTone(R.raw.record, false);
-
+                promptTone(R.raw.record, false);//转接电话声音
             }
-        }, time);
+        }, time * 1000);
     }
 
     private void phoneCall(int type, String flag) {
@@ -910,74 +932,88 @@ public class MainActivity extends BaseActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (mIsCall) {
             if (keyCode == KeyEvent.KEYCODE_STAR) {//*
-                cancel();
+                ReleasePlayer();
+                cancels();
                 return false;
             }
         } else {
-            if (mDoorNumber.length() > 11) {
-                return false;
+            if (mDoorNumber.length() >= 11) {
+//                return false;
+            }else{
+                if (keyCode == KeyEvent.KEYCODE_0) {//0
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "0";
+                    doorNumber.append("0");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_1) {//1
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "1";
+                    doorNumber.append("1");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_2) {//2
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "2";
+                    doorNumber.append("2");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_3) {//3
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "3";
+                    doorNumber.append("3");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_4) {//4
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "4";
+                    doorNumber.append("4");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_5) {//5
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "5";
+                    doorNumber.append("5");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_6) {//6
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "6";
+                    doorNumber.append("6");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_7) {//7
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "7";
+                    doorNumber.append("7");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_8) {//8
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "8";
+                    doorNumber.append("8");
+                    freeTime(10);
+                    return false;
+                } else if (keyCode == KeyEvent.KEYCODE_9) {//9
+                    promptTone(R.raw.free, false);
+                    mDoorNumber += "9";
+                    doorNumber.append("9");
+                    freeTime(10);
+                    return false;
+                }
             }
             if (keyCode == KeyEvent.KEYCODE_0) {//0
-                promptTone(R.raw.s_0, false);
-                mDoorNumber += "0";
-                doorNumber.append("0");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_1) {//1
-                promptTone(R.raw.s_1, false);
-                mDoorNumber += "1";
-                doorNumber.append("1");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_2) {//2
-                promptTone(R.raw.s_2, false);
-                mDoorNumber += "2";
-                doorNumber.append("2");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_3) {//3
-                promptTone(R.raw.s_3, false);
-                mDoorNumber += "3";
-                doorNumber.append("3");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_4) {//4
-                promptTone(R.raw.s_4, false);
-                mDoorNumber += "4";
-                doorNumber.append("4");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_5) {//5
-                promptTone(R.raw.s_5, false);
-                mDoorNumber += "5";
-                doorNumber.append("5");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_6) {//6
-                promptTone(R.raw.s_6, false);
-                mDoorNumber += "6";
-                doorNumber.append("6");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_7) {//7
-                promptTone(R.raw.s_7, false);
-                mDoorNumber += "7";
-                doorNumber.append("7");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_8) {//8
-                promptTone(R.raw.s_8, false);
-                mDoorNumber += "8";
-                doorNumber.append("8");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_9) {//9
-                promptTone(R.raw.s_9, false);
-                mDoorNumber += "9";
-                doorNumber.append("9");
-                freeTime(10000);
-                return false;
             } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
+                promptTone(R.raw.free, false);
                 if (mFreeTimer != null) {
                     mFreeTimer.cancel();
                 }
@@ -1017,7 +1053,7 @@ public class MainActivity extends BaseActivity {
                         if (flag && !mIsCall) {
                             if (!mDoorNumber.equals("")) {
                                 callOut(mDoorNumber);
-                            }
+                             }
                         }
                     }
                 }
@@ -1025,6 +1061,7 @@ public class MainActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
 
 
     private void promptTone(final int resId, boolean isCirculation) {
@@ -1086,9 +1123,9 @@ public class MainActivity extends BaseActivity {
     //等待呼叫电话时间
     public int getTimerTime(Context context) {
         if (SharedPreUtil.getInt(context, "timerTime") == 0) {
-            return 30 * 1000;
+            return 30 ;
         }
-        return SharedPreUtil.getInt(context, "timerTime") * 1000;
+        return SharedPreUtil.getInt(context, "timerTime");
     }
 
 
@@ -1127,7 +1164,6 @@ public class MainActivity extends BaseActivity {
                     checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA);
                 } else {
                     showLongToast("没有许可 " + Manifest.permission.RECORD_AUDIO);
-//                    finish();
                 }
                 break;
             }
@@ -1137,7 +1173,6 @@ public class MainActivity extends BaseActivity {
                     initAgoraEngineAndJoinChannel();
                 } else {
                     showLongToast("没有许可 " + Manifest.permission.CAMERA);
-//                    finish();
                 }
                 break;
             }
@@ -1157,14 +1192,14 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         mContext.unregisterReceiver(mBroadcastReceiver);
-        unregisterReceiver(networkReceiver);
+        mContext.unregisterReceiver(networkReceiver);
 
         ReleasePlayer();
 
 
-//        leaveChannel();
-//        RtcEngine.destroy();//销毁引擎实例
-//        mRtcEngine = null;
+        leaveChannel();
+        RtcEngine.destroy();//销毁引擎实例
+        mRtcEngine = null;
     }
 
 //    @Override
@@ -1243,7 +1278,7 @@ public class MainActivity extends BaseActivity {
 
     //  教程步骤 6  挂断
     public void onEncCallClicked(View view) {
-        finish();
+//        finish();
     }
 
     //  教程步骤 1
