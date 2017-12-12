@@ -149,6 +149,9 @@ public class HeartBeatService extends Service {
                 if (message.getCommond() != null) {
                     String str = message.getCommond().split(",")[0];
                     if (str.equals(Commond.REMOTE_OPEN)) {//开门
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.REMOTE_OPEN");
+                        HeartBeatService.this.sendBroadcast(intent);
                         new Thread() {
                             @Override
                             public void run() {
