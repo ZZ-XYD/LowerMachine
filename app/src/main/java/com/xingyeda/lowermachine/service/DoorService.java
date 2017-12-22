@@ -45,7 +45,9 @@ public class DoorService extends Service {
         super.onCreate();
         initSP();
         preferencesUtils = new SharedPreferencesUtils(this);
-        initSerial();
+        if (android.os.Build.MODEL.equals("rk3168")) {
+            initSerial();
+        }
     }
 
     @Override
@@ -84,8 +86,8 @@ public class DoorService extends Service {
                 String idData28 = "";
                 String idData8 = "";
                 while (true) {
-                    int r = mSerial.select(fd, 1, 0);
-                    if (r == 1) {
+//                    int r = mSerial.select(fd, 1, 0);
+//                    if (r == 1) {
                         byte[] buf = new byte[50];
                         buf = mSerial.read(fd, 100);
                         if (buf != null && buf.length > 0) {
@@ -150,7 +152,7 @@ public class DoorService extends Service {
 //                                }
                             }
                         }
-                    }
+//                    }
                 }
             }
         };

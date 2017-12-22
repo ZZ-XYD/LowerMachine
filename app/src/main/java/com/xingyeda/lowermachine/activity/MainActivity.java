@@ -24,6 +24,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,8 @@ import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
+import com.xingyeda.lowermachine.service.DoorService;
+import com.xingyeda.lowermachine.service.HeartBeatService;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
@@ -78,7 +81,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static android.R.string.cancel;
+import static com.tencent.bugly.crashreport.crash.c.i;
 
 public class MainActivity extends BaseActivity {
 
@@ -141,6 +144,8 @@ public class MainActivity extends BaseActivity {
     PercentLinearLayout msgShow;
     @BindView(R.id.notification_time)
     TextView notificationTime;
+    @BindView(R.id.banner_layout)
+    LinearLayout bannerLayout;
 
     private List<String> mList = new ArrayList<>();
 
@@ -164,13 +169,13 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        if (msgShow != null) {
-            if (SharedPreUtil.getBoolean(this, "isPortrait")) {
-                msgShow.setVisibility(View.GONE);//竖屏
-            } else {
-                msgShow.setVisibility(View.VISIBLE);//横屏
-            }
-        }
+//        if (msgShow != null) {
+//            if (SharedPreUtil.getBoolean(this, "isPortrait")) {
+//                msgShow.setVisibility(View.GONE);//竖屏
+//            } else {
+//                msgShow.setVisibility(View.VISIBLE);//横屏
+//            }
+//        }
 
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -220,29 +225,21 @@ public class MainActivity extends BaseActivity {
                     if (response.has("obj")) {
                         JSONObject jobj = (JSONObject) response.get("obj");
 
-                        if (jobj.has("rid"))
-                            SharedPreUtil.put(mContext, "XiaoQuId", jobj.getString("rid"));
+                        SharedPreUtil.put(mContext, "XiaoQuId", jobj.has("rid") ? jobj.getString("rid") : "");
 
-                        if (jobj.has("rname"))
-                            SharedPreUtil.put(mContext, "XiaoQu", jobj.getString("rname"));
+                        SharedPreUtil.put(mContext, "XiaoQu", jobj.has("rname") ? jobj.getString("rname") : "");
 
-                        if (jobj.has("nid"))
-                            SharedPreUtil.put(mContext, "QiShuId", jobj.getString("nid"));
+                        SharedPreUtil.put(mContext, "QiShuId", jobj.has("nid") ? jobj.getString("nid") : "");
 
-                        if (jobj.has("nname"))
-                            SharedPreUtil.put(mContext, "QiShu", jobj.getString("nname"));
+                        SharedPreUtil.put(mContext, "QiShu", jobj.has("nname") ? jobj.getString("nname") : "");
 
-                        if (jobj.has("tid"))
-                            SharedPreUtil.put(mContext, "DongShuId", jobj.getString("tid"));
+                        SharedPreUtil.put(mContext, "DongShuId", jobj.has("tid") ? jobj.getString("tid") : "");
 
-                        if (jobj.has("tname"))
-                            SharedPreUtil.put(mContext, "DongShu", jobj.getString("tname"));
+                        SharedPreUtil.put(mContext, "DongShu", jobj.has("tname") ? jobj.getString("tname") : "");
 
-                        if (jobj.has("sn"))
-                            SharedPreUtil.put(mContext, "sncode", jobj.getString("sn"));
+                        SharedPreUtil.put(mContext, "sncode", jobj.has("sn") ? jobj.getString("sn") : "");
 
-                        if (jobj.has("isxiaoqu"))
-                            SharedPreUtil.put(mContext, "isxiaoqu", jobj.getString("isxiaoqu"));
+                        SharedPreUtil.put(mContext, "isxiaoqu", jobj.has("isxiaoqu") ? jobj.getString("isxiaoqu") : "");
 
                         setEquipmentName();
                     }
@@ -277,7 +274,10 @@ public class MainActivity extends BaseActivity {
             if (equipmentId != null) {
                 equipmentId.setText(xiaoQu + qiShu + dongShu);
             }
-
+        } else {
+            if (equipmentId != null) {
+                equipmentId.setText("设备未绑定");
+            }
         }
 
     }
@@ -426,8 +426,6 @@ public class MainActivity extends BaseActivity {
         intent.addAction("HeartBeatService.MOBILE_ANSWER");//手机接通视频通话
         intent.addAction("HeartBeatService.MOBILE_RECEIVE");//手机收到呼入
 
-
-
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
     }
@@ -436,8 +434,10 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {//Socket广播获取
             String action = intent.getAction();
+            String msg = intent.getStringExtra("msg");
             if (action.equals("HeartBeatService.RELOADIMG")) {//更新广告
                 ininImage();//图片更新
+                getBindMsg();
                 LogUtils.d("更新广告");
                 getInform();//获取通告
             } else if (action.equals("HeartBeatService.SocketConnected")) {//socket连接成功
@@ -446,14 +446,22 @@ public class MainActivity extends BaseActivity {
                     mIsSocket = true;
                     if (snText != null) {
                         snText.setBackgroundResource(R.drawable.green_circle);
+//                        banner.setBackgroundResource(R.mipmap.not_image);
+                        bannerLayout.setBackgroundResource(R.mipmap.not_image);
+                        banner.setVisibility(View.VISIBLE);
+                        ininImage();//图片更新
                     }
                 }
-            } else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接成功
+            } else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接失败
                 LogUtils.d("socket连接失败");
                 if (mIsSocket) {
                     mIsSocket = false;
                     if (snText != null) {
+                        mList.clear();
                         snText.setBackgroundResource(R.drawable.red_circle);
+//                        banner.setBackgroundResource(R.mipmap.network_anomaly);
+                        bannerLayout.setBackgroundResource(R.mipmap.network_anomaly);
+                        banner.setVisibility(View.GONE);
                     }
                 }
             } else if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
@@ -467,23 +475,30 @@ public class MainActivity extends BaseActivity {
                 clearAll();
             } else if (action.equals("HeartBeatService.MOBILE_ANSWER")) {//手机接通视频通话
                 LogUtils.d("手机接通视频通话");
-                setTime();
+                i++;
+                if (!mIsTime) {
+                    setTime();
+                }
 //                mIsCall = false;
                 ReleasePlayer();
-                if (mOvertimeTimer!=null) {
+                if (mOvertimeTimer != null) {
                     mOvertimeTimer.cancel();
                 }
                 connectTime(60);
             } else if (action.equals("HeartBeatService.MOBILE_RECEIVE")) {//手机收到呼入
-                LogUtils.d("手机收到呼入   ");
+                LogUtils.d("手机收到呼入 ");
+                i1++;
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
-//                overtimeTimer(30);
+                overtimeTimer(30);
             }
         }
 
     };
+
+    private int i = 0;
+    private int i1 = 0;
 
     @Override
     protected void onResume() {
@@ -491,8 +506,12 @@ public class MainActivity extends BaseActivity {
         if (snText != null) {
             if (mIsSocket) {
                 snText.setBackgroundResource(R.drawable.green_circle);
+                bannerLayout.setBackgroundResource(R.mipmap.not_image);
+                banner.setVisibility(View.VISIBLE);
             } else {
                 snText.setBackgroundResource(R.drawable.red_circle);
+                bannerLayout.setBackgroundResource(R.mipmap.network_anomaly);
+                banner.setVisibility(View.GONE);
             }
         }
         if (msgShow != null) {
@@ -611,28 +630,39 @@ public class MainActivity extends BaseActivity {
                 }
                 ininImage();
                 getBindMsg();
+                getInform();//获取通告
             } else {
                 flag = false;
                 if (mRtcEngine != null) {
                     leaveChannel();
                     RtcEngine.destroy();//销毁引擎实例
                 }
-                if (noNetwork != null) {
-                    noNetwork.setVisibility(View.VISIBLE);
-                    noNetwork.setBackgroundResource(R.mipmap.timg);
-                }
+//                if (noNetwork != null) {
+//                    noNetwork.setVisibility(View.VISIBLE);
+//                    noNetwork.setBackgroundResource(R.mipmap.timg);
+//                }
             }
         }
     };
 
-    @OnClick({R.id.equipment_id, R.id.main_time})
+    @OnClick({R.id.equipment_id, R.id.main_time,R.id.qr_code,R.id.door_number})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.equipment_id:
+            case R.id.qr_code:
+                callOut("8888");
+                break;
+            case R.id.door_number:
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
+            case R.id.equipment_id:
+//                BaseUtils.startActivity(mContext, SetActivity.class);
+                BaseUtils.showLongToast(mContext,"接通视频通话 : " +i +"  收到呼叫 ： "+i1);
+                break;
             case R.id.main_time:
-                callOut("8888");
+                i = 0;
+                i1 = 0;
+
+//                callOut("8888");
 //                mDoorNumber += "0";
 //                doorNumber.append("0");
 //                freeTime(10000);
@@ -679,8 +709,8 @@ public class MainActivity extends BaseActivity {
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
         params.put("paizhao", "false");
-        LogUtils.d("test : "+ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH)+params);
-        OkHttp.get(ConnectPath.getPath( mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
+        LogUtils.d("test : " + ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH) + params);
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//成功
                 try {
@@ -783,6 +813,7 @@ public class MainActivity extends BaseActivity {
 
 
     private int mCount = 0;
+    private boolean mIsTime = false;
 
     private void setTime() {
         Runnable runnable = new Runnable() {
@@ -790,10 +821,12 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 if (callTimer != null) {
                     if (mIsCall) {
+                        mIsTime = true;
                         mCount += 1;
-                        setTime();
                         callTimer.setText(getStandardTime(mCount));
+                        setTime();
                     } else {
+                        mIsTime = false;
                         mCount = 0;
                         if (callTimer != null) {
                             callTimer.setText("");
@@ -862,6 +895,7 @@ public class MainActivity extends BaseActivity {
             }
         }, time * 1000);
     }    //呼叫超时未接通
+
     private void overtimeTimer(int time) {
         if (mOvertimeTimer != null) {
             mOvertimeTimer.cancel();
@@ -870,7 +904,7 @@ public class MainActivity extends BaseActivity {
         mOvertimeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                promptTone(R.raw.bujie, false);//转接电话声音
+//                promptTone(R.raw.bujie, false);//转接电话声音
                 mHandler.sendEmptyMessage(0);
             }
         }, time * 1000);
@@ -939,7 +973,7 @@ public class MainActivity extends BaseActivity {
         } else {
             if (mDoorNumber.length() >= 11) {
 //                return false;
-            }else{
+            } else {
                 if (keyCode == KeyEvent.KEYCODE_0) {//0
                     promptTone(R.raw.free, false);
                     mDoorNumber += "0";
@@ -1049,11 +1083,12 @@ public class MainActivity extends BaseActivity {
                         powerManager.reboot("");
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
                     } else if (mDoorNumber.equals("3821")) {//设备更新
+                        MainBusiness.getVersion(mContext);
                     } else {
                         if (flag && !mIsCall) {
                             if (!mDoorNumber.equals("")) {
                                 callOut(mDoorNumber);
-                             }
+                            }
                         }
                     }
                 }
@@ -1061,7 +1096,6 @@ public class MainActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
 
     private void promptTone(final int resId, boolean isCirculation) {
@@ -1123,7 +1157,7 @@ public class MainActivity extends BaseActivity {
     //等待呼叫电话时间
     public int getTimerTime(Context context) {
         if (SharedPreUtil.getInt(context, "timerTime") == 0) {
-            return 30 ;
+            return 30;
         }
         return SharedPreUtil.getInt(context, "timerTime");
     }

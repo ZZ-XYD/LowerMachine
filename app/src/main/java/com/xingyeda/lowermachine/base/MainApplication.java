@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.ldl.okhttp.OkHttpUtils;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
+import com.xingyeda.lowermachine.utils.LogUtils;
 
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -120,5 +122,14 @@ public class MainApplication extends Application {
         intent.setClass(this, HeartBeatService.class);
         startService(intent);
     }
+
+//    @Override
+//    public void onTerminate() {
+//        super.onTerminate();
+//        LogUtils.d("onTerminate");
+//        // 程序终止的时候执行
+//        stopService(new Intent(getApplicationContext(),HeartBeatService.class));
+//        stopService(new Intent(getApplicationContext(),DoorService.class));
+//    }
 
 }

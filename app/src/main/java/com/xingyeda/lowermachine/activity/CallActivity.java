@@ -140,7 +140,7 @@ public class CallActivity extends BaseActivity {
 
     }
 
-    //初始化声网引擎和加入频道
+    //初始化声网引擎和
     private void initAgoraEngineAndJoinChannel() {
         initializeAgoraEngine();     //  教程步骤 1
         setupVideoProfile();         //  教程步骤 2

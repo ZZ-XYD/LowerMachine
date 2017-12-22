@@ -7,6 +7,7 @@ import android.net.wifi.WifiManager;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.util.LogUtils;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.SNCode;
 import com.xingyeda.lowermachine.bean.SipResult;
@@ -35,6 +36,7 @@ public class MainBusiness {
     public static void getSN(final Context context) {
         Map map = new HashMap();
         map.put("mac", getMacAddress(context));
+        LogUtils.d(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP)+map);
         HttpUtils.doPost(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP), map, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

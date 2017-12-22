@@ -48,13 +48,20 @@
             android:layout_above="@id/notification_time"
             android:visibility="gone"
             />
+        <LinearLayout
+            android:id="@+id/banner_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/notification"
+            android:background="@mipmap/not_image">
             <com.youth.banner.Banner
                 android:id="@+id/banner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:delay_time="10000"
-                android:layout_above="@id/notification"
                 />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/sn_text"
             android:layout_width="wrap_content"

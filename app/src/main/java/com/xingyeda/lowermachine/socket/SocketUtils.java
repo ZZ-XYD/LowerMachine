@@ -7,25 +7,41 @@ import java.net.Socket;
 
 public class SocketUtils {
 
-    private static Socket mSocket;
+    private static Socket mSocket = null;
 
     private SocketUtils() {
 
     }
 
-    public static Socket getInstance() {
+    public static Socket getInstance(){
         if (mSocket == null) {
-            synchronized (SocketUtils.class) {
-                if (mSocket == null) {
-                    try {
-                        mSocket = new Socket(ConnectPath.SOCKET_HOST, ConnectPath.SOCKET_PORT);
-                    } catch (IOException e) {
-                        return null;
-                    }
-                }
+            try {
+                mSocket = new Socket(ConnectPath.HOST, ConnectPath.SOCKET_PORT);
+            } catch (IOException e) {
+                return null;
             }
         }
         return mSocket;
     }
+
+    public static void clearInstance(){
+        if (mSocket != null) {
+                mSocket = null;
+        }
+    }
+//    public static Socket getInstance() {
+//        if (mSocket == null) {
+//            synchronized (SocketUtils.class) {
+//                if (mSocket == null) {
+//                    try {
+//                        mSocket = new Socket(ConnectPath.HOST, ConnectPath.SOCKET_PORT);
+//                    } catch (IOException e) {
+//                        return null;
+//                    }
+//                }
+//            }
+//        }
+//        return mSocket;
+//    }
 
 }

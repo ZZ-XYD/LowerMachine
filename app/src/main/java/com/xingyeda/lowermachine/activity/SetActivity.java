@@ -22,6 +22,7 @@ import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.http.BaseStringCallback;
 import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.OkHttp;
+import com.xingyeda.lowermachine.utils.AppUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 
@@ -46,6 +47,8 @@ public class SetActivity extends BaseActivity {
     Switch isElevator;
     @BindView(R.id.mac_address)
     TextView macAddress;
+    @BindView(R.id.app_version)
+    TextView appVersion;
     @BindView(R.id.ip_address)
     TextView setIp;
     @BindView(R.id.set_time_text)
@@ -69,6 +72,7 @@ public class SetActivity extends BaseActivity {
         //初始化音频管理器
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         macAddress.setText(MainBusiness.getMacAddress(mContext));
+        appVersion.setText("当前版本 ： " + AppUtils.getVersionName(mContext));
 
 //        mHostIp = "http://192.168.10.250:8080/";
 
@@ -235,7 +239,7 @@ public class SetActivity extends BaseActivity {
                 SharedPreUtil.put(mContext, "isTest", mIsTest);
                 SharedPreUtil.put(mContext, "isElevator", mIsElevator);
                 SharedPreUtil.put(mContext, "isPortrait", mIsPortrait);
-                BaseUtils.showShortToast(mContext, "设置成功");
+                                  BaseUtils.showShortToast(mContext, "设置成功");
                 finish();
             }
 

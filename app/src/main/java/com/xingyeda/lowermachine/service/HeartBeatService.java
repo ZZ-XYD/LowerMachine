@@ -18,13 +18,22 @@ import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.socket.SocketUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
+import com.xingyeda.lowermachine.utils.LogUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static android.R.id.list;
+import static android.R.id.message;
 
 public class HeartBeatService extends Service {
 
@@ -50,9 +59,6 @@ public class HeartBeatService extends Service {
             public void run() {
                 initSocket();
                 while (true) {
-                    Intent intent = new Intent();
-                    intent.setAction("HeartBeatService.SocketConnected");
-                    HeartBeatService.this.sendBroadcast(intent);
                     sendMessage();
                     try {
                         sleep(1000 * 10);
@@ -73,7 +79,7 @@ public class HeartBeatService extends Service {
                 while (true) {
                     getMessage();
                     try {
-                        sleep(1000 * 1);
+                        sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -81,7 +87,105 @@ public class HeartBeatService extends Service {
             }
         }.start();
 
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    if (listMessage != null && !listMessage.isEmpty()) {
+                        for (Message message : listMessage) {
+                            try {
+                                if (message != null) {
+                                    String str = message.getCommond().split(",")[0];
+                                    LogUtils.d("str : "+str);
+                                    if (str.equals(Commond.REMOTE_OPEN)) {//开门
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.REMOTE_OPEN");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                        new Thread() {
+                                            @Override
+                                            public void run() {
+                                                m_rkctrl.exec_io_cmd(6, 1);
+                                                mSoundPool.play(1, 1, 1, 0, 0, 1);
+                                                try {
+                                                    sleep(1000 * 3);
+                                                    m_rkctrl.exec_io_cmd(6, 0);
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }.start();
+                                    } else if (str.equals(Commond.HANG_UP)) {//直接挂断
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.HANG_UP");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.REMOTE_RELEASE)) {//接通后挂断
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.REMOTE_RELEASE");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.REMOTE_LINSTEN)) {//远程监控
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.REMOTE_LINSTEN");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.MOBILE_ANSWER");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.MOBILE_RECEIVE)) {//手机收到呼入
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.MOBILE_RECEIVE");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.PC_RESTART)) {//重启
+                                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                                        powerManager.reboot("");
+                                    } else if (str.equals(Commond.NO_ANSWER)) {//无应答
+                                        mSoundPool.play(2, 1, 1, 0, 0, 1);
+                                    } else if (str.equals(Commond.BUSY)) {//用户通话中
+                                        mSoundPool.play(3, 1, 1, 0, 0, 1);
+                                    } else if (str.equals(Commond.RELOADIMG)) {//更新广告
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.RELOADIMG");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.Add_SUCCESS)) {//添加设备
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.Add_SUCCESS");
+                                        HeartBeatService.this.sendBroadcast(intent);
+                                    } else if (str.equals(Commond.UPDATE_DEVICE)) {//更新设备
+                                        MainBusiness.getVersion(HeartBeatService.this);
+                                    }
+                                    iteratorRemove(listMessage,message);
+                                }
+                                sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }.start();
+
     }
+    public void iteratorRemove(List<Message> list, Message target) {
+
+        for (int i = 0; i < list.size(); i++) {
+            Message value = list.get(i);
+            if(value.getCommond().equals(target.getCommond()))
+            {
+                list.remove(value);
+                i--;
+            }
+        }
+    }
+
+
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -107,15 +211,6 @@ public class HeartBeatService extends Service {
         try {
             mSocket = SocketUtils.getInstance();
             if (mSocket != null) {
-                if (mSocket.isConnected()) {
-                    Intent intent = new Intent();
-                    intent.setAction("HeartBeatService.SocketConnected");
-                    HeartBeatService.this.sendBroadcast(intent);
-                } else {
-                    Intent intent = new Intent();
-                    intent.setAction("HeartBeatService.SocketIsNotConnected");
-                    HeartBeatService.this.sendBroadcast(intent);
-                }
                 if (out == null) {
                     out = mSocket.getOutputStream();
                 }
@@ -131,9 +226,11 @@ public class HeartBeatService extends Service {
     /*
     获取消息
      */
+    private List<Message> listMessage = new CopyOnWriteArrayList<>();
     private void getMessage() {
         try {
             byte[] buffer = new byte[in.available()];
+
             in.read(buffer);
 
             if (buffer.length == 0) {
@@ -145,65 +242,8 @@ public class HeartBeatService extends Service {
                 System.out.println("-" + responseInfo + "-");
                 String info = responseInfo.substring(4);
                 System.out.println("-" + info + "-");
-                final Message message = JsonUtils.getGson().fromJson(info, Message.class);
-                if (message.getCommond() != null) {
-                    String str = message.getCommond().split(",")[0];
-                    if (str.equals(Commond.REMOTE_OPEN)) {//开门
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.REMOTE_OPEN");
-                        HeartBeatService.this.sendBroadcast(intent);
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                m_rkctrl.exec_io_cmd(6, 1);
-                                mSoundPool.play(1, 1, 1, 0, 0, 1);
-                                try {
-                                    sleep(1000 * 3);
-                                    m_rkctrl.exec_io_cmd(6, 0);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }.start();
-                    } else if (str.equals(Commond.HANG_UP)) {//直接挂断
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.HANG_UP");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.REMOTE_RELEASE)) {//接通后挂断
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.REMOTE_RELEASE");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.REMOTE_LINSTEN)) {//远程监控
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.REMOTE_LINSTEN");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.MOBILE_ANSWER");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.MOBILE_RECEIVE)) {//手机收到呼入
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.MOBILE_RECEIVE");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.PC_RESTART)) {//重启
-                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                        powerManager.reboot("");
-                    } else if (str.equals(Commond.NO_ANSWER)) {//无应答
-                        mSoundPool.play(2, 1, 1, 0, 0, 1);
-                    } else if (str.equals(Commond.BUSY)) {//用户通话中
-                        mSoundPool.play(3, 1, 1, 0, 0, 1);
-                    } else if (str.equals(Commond.RELOADIMG)) {//更新广告
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.RELOADIMG");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.Add_SUCCESS)) {//添加设备
-                        Intent intent = new Intent();
-                        intent.setAction("HeartBeatService.Add_SUCCESS");
-                        HeartBeatService.this.sendBroadcast(intent);
-                    } else if (str.equals(Commond.UPDATE_DEVICE)) {//更新设备
-                        MainBusiness.getVersion(HeartBeatService.this);
-                    }
-                }
+                Message message = JsonUtils.getGson().fromJson(info, Message.class);
+                listMessage.add(message);
             }
         } catch (Exception e) {
             exitForReConnect();
@@ -219,7 +259,11 @@ public class HeartBeatService extends Service {
         msg.setConverType("Object");
         msg.setContent("KeepLive");
         msg.setCommond(Commond.REMOTE_OPEN);
-        msg.setmId(MainBusiness.getMacAddress(this));
+        String mac =MainBusiness.getMacAddress(this);
+        if (mac==null) {
+            return;
+        }
+        msg.setmId(mac);
 
         String jsonObject = JsonUtils.getGson().toJson(msg);
 
@@ -230,6 +274,9 @@ public class HeartBeatService extends Service {
         try {
             out.write(bytes);
             out.flush();
+            Intent intent = new Intent();
+            intent.setAction("HeartBeatService.SocketConnected");
+            HeartBeatService.this.sendBroadcast(intent);
         } catch (Exception e) {
             Intent intent = new Intent();
             intent.setAction("HeartBeatService.SocketIsNotConnected");
@@ -246,8 +293,12 @@ public class HeartBeatService extends Service {
         //关闭流
         try {
             out.close();
+            out = null;
+            SocketUtils.clearInstance();
             in.close();
+            in = null;
             mSocket.close();
+            mSocket=null;
         } catch (Exception ex) {
         }
     }
