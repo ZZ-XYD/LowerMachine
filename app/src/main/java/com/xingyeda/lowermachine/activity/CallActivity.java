@@ -2,15 +2,23 @@ package com.xingyeda.lowermachine.activity;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +31,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.csipsimple.api.ISipService;
+import com.csipsimple.api.SipManager;
+import com.csipsimple.api.SipProfile;
+import com.csipsimple.db.DBProvider;
 import com.google.common.base.Strings;
 import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
@@ -87,38 +99,57 @@ public class CallActivity extends BaseActivity {
 
     private boolean mIsCall = false;
 
-    private RtcEngine mRtcEngine;//  教程步骤 1
-    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
+    private String phoneInfo = "";
+    private String nameInfo = "";
+    private String pwdInfo = "";
+
+    private long existingProfileId = SipProfile.INVALID_ID;
+    private ISipService service;
+    private ServiceConnection connection = new ServiceConnection() {
+
         @Override
-        public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) { //  教程步骤 5  远端视频接收解码回调
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setupRemoteVideo(uid);
-                }
-            });
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            service = ISipService.Stub.asInterface(iBinder);
         }
 
         @Override
-        public void onUserOffline(int uid, int reason) { //  教程步骤 7 其他用户离开当前频道回调
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    onRemoteUserLeft();
-                }
-            });
-        }
-
-        @Override
-        public void onUserMuteVideo(final int uid, final boolean muted) { //  教程步骤 10  其他用户已停发/已重发视频流回调
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-//                    onRemoteUserVideoMuted(uid, muted);
-                }
-            });
+        public void onServiceDisconnected(ComponentName componentName) {
+            service = null;
         }
     };
+
+//    private RtcEngine mRtcEngine;//  教程步骤 1
+//    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // 教程步骤1  回调
+//        @Override
+//        public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) { //  教程步骤 5  远端视频接收解码回调
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    setupRemoteVideo(uid);
+//                }
+//            });
+//        }
+//
+//        @Override
+//        public void onUserOffline(int uid, int reason) { //  教程步骤 7 其他用户离开当前频道回调
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    onRemoteUserLeft();
+//                }
+//            });
+//        }
+//
+//        @Override
+//        public void onUserMuteVideo(final int uid, final boolean muted) { //  教程步骤 10  其他用户已停发/已重发视频流回调
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+////                    onRemoteUserVideoMuted(uid, muted);
+//                }
+//            });
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,18 +157,29 @@ public class CallActivity extends BaseActivity {
         setContentView(R.layout.activity_call);
         ButterKnife.bind(this);
 
+        Bundle bundle = getIntent().getExtras();
+        phoneInfo = bundle.getString("mPhone");
+        nameInfo = bundle.getString("userName");
+        pwdInfo = bundle.getString("userPwd");
         mIsNet = getIntent().getExtras().getBoolean("isNet");
         mIsSocket = getIntent().getExtras().getBoolean("isSocket");
 
+        Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+        // Optional, but here we bundle so just ensure we are using csipsimple package
+        serviceIntent.setPackage(this.getPackageName());
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
         registerBoradcastReceiver();
 
-        if (mIsNet) {
-            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-                initAgoraEngineAndJoinChannel();
-            }
-        }
+//        if (mIsNet) {
+//            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+//                initAgoraEngineAndJoinChannel();
+//            }
+//        }
 
+
+        registerSIP();
+        doorNumber.setText(phoneInfo);
     }
 
     //初始化声网引擎和
@@ -211,7 +253,7 @@ public class CallActivity extends BaseActivity {
 
 //        leaveChannel();
 //        RtcEngine.destroy();//销毁引擎实例
-        mRtcEngine = null;
+//        mRtcEngine = null;
     }
 
     // 教程步骤 10   本地视频开关
@@ -225,7 +267,7 @@ public class CallActivity extends BaseActivity {
             iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         }
 
-        mRtcEngine.muteLocalVideoStream(iv.isSelected());
+//        mRtcEngine.muteLocalVideoStream(iv.isSelected());
 
         FrameLayout container = (FrameLayout) findViewById(R.id.local_video_view_container);
         SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
@@ -244,12 +286,12 @@ public class CallActivity extends BaseActivity {
             iv.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         }
 
-        mRtcEngine.muteLocalAudioStream(iv.isSelected());
+//        mRtcEngine.muteLocalAudioStream(iv.isSelected());
     }
 
     //  教程步骤 8 摄像头切换
     public void onSwitchCameraClicked(View view) {
-        mRtcEngine.switchCamera();
+//        mRtcEngine.switchCamera();
     }
 
     //  教程步骤 6  挂断
@@ -266,7 +308,7 @@ public class CallActivity extends BaseActivity {
              * appid
              * 加入回调
              */
-            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
+//            mRtcEngine = RtcEngine.create(getBaseContext(), getString(R.string.agora_app_id), mRtcEventHandler);
         } catch (Exception e) {
             Log.e(LOG_TAG, Log.getStackTraceString(e));
 
@@ -276,13 +318,13 @@ public class CallActivity extends BaseActivity {
 
     //  教程步骤 2
     private void setupVideoProfile() {
-        mRtcEngine.enableVideo();//打开视频模式
+//        mRtcEngine.enableVideo();//打开视频模式
         /**
          * 设置本地视频属性
          * 视频属性
          * 是否交换宽高
          */
-        mRtcEngine.setVideoProfile(Constants.VIDEO_PROFILE_360P, false);
+//        mRtcEngine.setVideoProfile(Constants.VIDEO_PROFILE_360P, false);
     }
 
     //  教程步骤 3
@@ -299,7 +341,7 @@ public class CallActivity extends BaseActivity {
          RENDER_MODE_FIT(2): 如果视频尺寸与显示视窗尺寸不一致，在保持长宽比的前提下，将视频进行缩放后填满视窗。
          *        本地用户 ID，与 joinChannel 方法中的 uid 保持一致
          */
-        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_ADAPTIVE, 0));
+//        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_ADAPTIVE, 0));
     }
 
     //  教程步骤 4
@@ -310,7 +352,7 @@ public class CallActivity extends BaseActivity {
          * 房间信息：也就是通道信息
          * 用户id ：会在onJoinChannelSuccess返回
          */
-        mRtcEngine.joinChannel(null, MainBusiness.getMacAddress(mContext), "Extra Optional Data", 0); // 如果你不指定uid,我们会为您生成的uid
+//        mRtcEngine.joinChannel(null, MainBusiness.getMacAddress(mContext), "Extra Optional Data", 0); // 如果你不指定uid,我们会为您生成的uid
 
     }
 
@@ -340,7 +382,7 @@ public class CallActivity extends BaseActivity {
 
     //  教程步骤 6  离开频道
     private void leaveChannel() {
-        mRtcEngine.leaveChannel();//离开频道
+//        mRtcEngine.leaveChannel();//离开频道
     }
 
     //  教程步骤 7  远程用户离开  （挂断）
@@ -645,38 +687,40 @@ public class CallActivity extends BaseActivity {
 //                mDoorNumber += "*";
                 return false;
             } else { //#
-                if (mDoorNumber != null) {
-                    if (mDoorNumber.equals("9999")) {//跳转设置
-                        BaseUtils.startActivity(mContext, SetActivity.class);
-                        finish();
-                    } else if (mDoorNumber.equals("3818")) {//密码开门
-                        mDoorNumber = "";
-                        doorNumber.setText("");
-                        if (!mIsSocket || !mIsNet) {
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    mRkctrl.exec_io_cmd(6, 1);//开门
-                                    try {
-                                        sleep(1000 * 3);
-                                        mRkctrl.exec_io_cmd(6, 0);//关门
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }.start();
-                        }
-                    } else if (mDoorNumber.equals("3819")) {//重启设备
-                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                        powerManager.reboot("");
-                    } else if (mDoorNumber.equals("3821")) {//设备更新\
-                        MainBusiness.getVersion(mContext);
-                    } else {
-                        if (mIsNet) {
-                            callOut(mDoorNumber);
-                        }
-                    }
-                }
+                placeCallWithOption();
+                finish();
+//                if (mDoorNumber != null) {
+//                    if (mDoorNumber.equals("9999")) {//跳转设置
+//                        BaseUtils.startActivity(mContext, SetActivity.class);
+//                        finish();
+//                    } else if (mDoorNumber.equals("3818")) {//密码开门
+//                        mDoorNumber = "";
+//                        doorNumber.setText("");
+//                        if (!mIsSocket || !mIsNet) {
+//                            new Thread() {
+//                                @Override
+//                                public void run() {
+//                                    mRkctrl.exec_io_cmd(6, 1);//开门
+//                                    try {
+//                                        sleep(1000 * 3);
+//                                        mRkctrl.exec_io_cmd(6, 0);//关门
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            }.start();
+//                        }
+//                    } else if (mDoorNumber.equals("3819")) {//重启设备
+//                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//                        powerManager.reboot("");
+//                    } else if (mDoorNumber.equals("3821")) {//设备更新\
+//                        MainBusiness.getVersion(mContext);
+//                    } else {
+//                        if (mIsNet) {
+//                            callOut(mDoorNumber);
+//                        }
+//                    }
+//                }
             }
         }
         return super.onKeyDown(keyCode, event);
@@ -740,5 +784,45 @@ public class CallActivity extends BaseActivity {
             return 30 * 1000;
         }
         return Integer.valueOf(SharedPreUtil.getString(context, "timerTime")) * 1000;
+    }
+
+    private void registerSIP() {
+        String fullUser = nameInfo + "@" + ConnectPath.SIP_HOST;
+        String[] splitUser = fullUser.split("@");
+
+        SipProfile builtProfile = new SipProfile();
+        builtProfile.display_name = "兴业达科技";
+        builtProfile.id = SipProfile.INVALID_ID;
+        builtProfile.acc_id = "<sip:" + fullUser + ">";
+        builtProfile.reg_uri = "sip:" + splitUser[1];
+        builtProfile.realm = "*";
+        builtProfile.username = splitUser[0];
+        builtProfile.data = pwdInfo;
+        builtProfile.proxies = new String[]{"sip:" + splitUser[1]};
+
+        ContentValues builtValues = builtProfile.getDbContentValues();
+
+        if (existingProfileId != SipProfile.INVALID_ID) {
+            getContentResolver().update(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, existingProfileId), builtValues, null, null);
+        } else {
+            Uri savedUri = getContentResolver().insert(SipProfile.ACCOUNT_URI, builtValues);
+            if (savedUri != null) {
+                existingProfileId = ContentUris.parseId(savedUri);
+            }
+        }
+
+        MainBusiness.releaseAccount(mContext, nameInfo);
+    }
+
+    private void placeCallWithOption() {
+        if (service == null) {
+            return;
+        }
+        Cursor c = getContentResolver().query(SipProfile.ACCOUNT_URI, DBProvider.ACCOUNT_FULL_PROJECTION, null, null, null);
+        try {
+            service.makeCallWithOptions(phoneInfo, Integer.parseInt(c.getString(1)), null);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }
