@@ -83,6 +83,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.tencent.bugly.crashreport.crash.c.f;
 import static com.tencent.bugly.crashreport.crash.c.m;
 
 public class MainActivity extends BaseActivity {
@@ -599,6 +600,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+//        mRtcEngine.muteLocalVideoStream(false);
         if (snText != null) {
             if (mIsSocket) {
                 snText.setBackgroundResource(R.drawable.green_circle);
@@ -623,6 +625,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+//        mRtcEngine.muteLocalVideoStream(true);
     }
 
 
@@ -1032,7 +1035,7 @@ public class MainActivity extends BaseActivity {
             public void run() {//呼叫电话
 //                ReleasePlayer();
                 phoneCall(1, "start");
-                promptTone(R.raw.record, false);//转接电话声音
+//                promptTone(R.raw.record, false);//转接电话声音
             }
         }, time * 1000);
     }

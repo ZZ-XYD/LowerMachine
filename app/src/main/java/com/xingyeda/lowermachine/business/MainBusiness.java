@@ -97,7 +97,6 @@ public class MainBusiness {
                         if (jsonObj.has("versionNumber")) {
                             versionNumber = jsonObj.getString("versionNumber");
                         }
-                        com.xingyeda.lowermachine.utils.LogUtils.d("下载地址"+downPath);
                         if (Integer.valueOf(BaseUtils.getVersionCode(context)) < Integer.valueOf(versionNumber)) {
                             downloadUpdate(downPath, context);
                         }
