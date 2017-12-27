@@ -1,12 +1,10 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,10 +53,13 @@ public class SetActivity extends BaseActivity {
     TextView setTime;
     @BindView(R.id.is_portrait)
     Switch isPortrait;
+    @BindView(R.id.is_forced_update)
+    Switch isForcedUpdate;
     private boolean mIsCellGate;
     private boolean mIsTest;
     private boolean mIsElevator;
     private boolean mIsPortrait;
+    private boolean mIsForcedUpdate;
     private String mHostIp = "";
     private int mTimerTime;
     private AudioManager mAudioManager;
@@ -68,6 +69,7 @@ public class SetActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set);
         ButterKnife.bind(this);
+
 
         //初始化音频管理器
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -82,12 +84,14 @@ public class SetActivity extends BaseActivity {
         mIsElevator = SharedPreUtil.getBoolean(mContext, "isElevator");
         mIsPortrait = SharedPreUtil.getBoolean(mContext, "isPortrait");
         mTimerTime = SharedPreUtil.getInt(mContext, "timerTime");
+        mIsForcedUpdate = SharedPreUtil.getBoolean(mContext, "isForcedUpdate");
         setTime.setText(mTimerTime + "s");
 
         isCellGate.setChecked(mIsCellGate);
         isTest.setChecked(mIsTest);
         isElevator.setChecked(mIsElevator);
         isPortrait.setChecked(mIsPortrait);
+        isForcedUpdate.setChecked(mIsForcedUpdate);
 
         isCellGate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -114,11 +118,22 @@ public class SetActivity extends BaseActivity {
                 mIsPortrait = b;
             }
         });
-
+        isForcedUpdate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mIsForcedUpdate = b;
+            }
+        });
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_0) {//0
+            if (isForcedUpdate.isChecked()) {
+                mIsForcedUpdate = false;
+            } else {
+                mIsForcedUpdate = true;
+            }
+            isForcedUpdate.setChecked(mIsForcedUpdate);
             return false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {//1
             if (isCellGate.isChecked()) {
@@ -229,6 +244,7 @@ public class SetActivity extends BaseActivity {
         params.put("isTest", mIsTest + "");
         params.put("isElevator", mIsElevator + "");
         params.put("isPortrait", mIsPortrait + "");
+        params.put("isForcedUpdate", mIsForcedUpdate + "");
         String path = ConnectPath.getPath(mContext, ConnectPath.USERSET_PATH) + "?" + getHrefByMap(params) + "&eid=" + MainBusiness.getMacAddress(mContext) + "&type=add";
         OkHttp.get(path, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
@@ -239,7 +255,8 @@ public class SetActivity extends BaseActivity {
                 SharedPreUtil.put(mContext, "isTest", mIsTest);
                 SharedPreUtil.put(mContext, "isElevator", mIsElevator);
                 SharedPreUtil.put(mContext, "isPortrait", mIsPortrait);
-                                  BaseUtils.showShortToast(mContext, "设置成功");
+                SharedPreUtil.put(mContext, "isForcedUpdate", mIsForcedUpdate);
+                BaseUtils.showShortToast(mContext, "设置成功");
                 finish();
             }
 

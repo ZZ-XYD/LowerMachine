@@ -12,4 +12,6 @@
     <color name="red">#FF0000</color>
     <!--绿色-->
     <color name="green">#00FF00</color>
+    <!--灰色-->
+    <color name="gray">#EAEAEA</color>
 </resources>

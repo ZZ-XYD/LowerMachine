@@ -260,6 +260,61 @@
             </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+
+        <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%"
+            android:orientation="horizontal">
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+                <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="95%">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="强制更新"
+                        app:layout_marginLeftPercent="5%"/>
+                    <Switch
+                        android:id="@+id/is_forced_update"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:theme="@style/MySwitch"
+                        app:layout_marginRightPercent="5%"
+                        />
+
+                </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black"/>
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+            <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                app:layout_marginLeftPercent="5%"
+                app:layout_marginRightPercent="5%">
+
+
+            </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+        </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
+
         <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"

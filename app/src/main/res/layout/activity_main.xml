@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.xingyeda.lowermachine.view.layout.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
@@ -73,6 +74,41 @@
             android:padding="5dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"/>
+        <android.support.percent.PercentFrameLayout
+            android:id="@+id/number_keyboard_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#50000000"
+            android:clickable="true"
+            android:descendantFocusability="afterDescendants"
+            android:visibility="gone"
+            >
+            <android.support.percent.PercentRelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.xingyeda.lowermachine.view.NumberKeyboardView
+                    android:id="@+id/main_number_keyboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="30%"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/gray"
+                    android:layout_alignParentBottom="true"/>
+                <TextView
+                    android:id="@+id/number_keyboard_show"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="10%"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:textSize="30sp"
+                    android:textColor="@color/black"
+                    android:maxLines="1"
+                    android:background="@color/gray"
+                    android:textStyle = "bold"
+                    android:layout_above="@id/main_number_keyboard"/>
+            </android.support.percent.PercentRelativeLayout>
+        </android.support.percent.PercentFrameLayout>
 
     </android.support.percent.PercentRelativeLayout>
 
