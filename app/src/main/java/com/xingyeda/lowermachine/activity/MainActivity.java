@@ -163,8 +163,8 @@ public class MainActivity extends BaseActivity {
     private boolean flag = true;
     private boolean mIsSocket = false;
     private SipResult sipResult = null;
-    String userName = "";
-    String userPwd = "";
+    public static String userName = "";
+    public static String userPwd = "";
     private boolean mIsCarousel = false;
 //    private String  mNKeyboard;
 
@@ -751,7 +751,8 @@ public class MainActivity extends BaseActivity {
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
             case R.id.equipment_id:
-                BaseUtils.showLongToast(mContext,"接通视频通话 : " +i +"  收到呼叫 ： "+i1);
+//                BaseUtils.startActivity(mContext, SetActivity.class);
+                BaseUtils.showLongToast(mContext, "接通视频通话 : " + i + "  收到呼叫 ： " + i1);
                 break;
             case R.id.main_time:
                 i = 0;
@@ -1537,6 +1538,11 @@ public class MainActivity extends BaseActivity {
                     userName = ConnectPath.SIP_NAME;
                     userPwd = ConnectPath.SIP_PWD;
                 }
+                Bundle bundle = new Bundle();
+                bundle.putString("mPhone", mPhone);
+                bundle.putString("userName", userName);
+                bundle.putString("userPwd", userPwd);
+                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
             }
         });
     }

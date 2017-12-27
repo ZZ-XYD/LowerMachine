@@ -12,6 +12,12 @@
     <color name="red">#FF0000</color>
     <!--绿色-->
     <color name="green">#00FF00</color>
+
+    <color name="account_inactive">#FF646464</color>
+    <color name="account_unregistered">#FFFFC200</color>
+    <color name="account_valid">#FF84E300</color>
+    <color name="account_error">#FFFF0F00</color>
+
     <!--灰色-->
     <color name="gray">#EAEAEA</color>
 </resources>

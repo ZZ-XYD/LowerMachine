@@ -1,99 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/call_iamge"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/call_iamge"
-    android:background="@mipmap/timg"
-    >
+    android:background="@mipmap/timg">
     <!--<FrameLayout-->
-        <!--android:id="@+id/remote_video_view_container"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@android:color/white" />-->
+    <!--android:id="@+id/remote_video_view_container"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="@android:color/white" />-->
 
     <FrameLayout
         android:id="@+id/local_video_view_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
     <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
         android:id="@+id/test"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_heightPercent="80%"
-        app:layout_widthPercent="40%"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:background="@drawable/lucency_layout"
         android:orientation="vertical"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
+        app:layout_heightPercent="80%"
+        app:layout_widthPercent="40%">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_marginTopPercent="10%"
+            android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:text="请输入门牌号"
             android:textColor="@color/white"
-            android:layout_gravity="center_horizontal"/>
+            app:layout_marginTopPercent="10%" />
 
         <TextView
             android:id="@+id/door_number"
             android:layout_width="0dp"
-            app:layout_widthPercent="35%"
             android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/white_layout"
+            android:gravity="center"
+            android:textColor="@color/white"
             app:layout_heightPercent="15%"
             app:layout_marginTopPercent="5%"
-            android:textColor="@color/white"
-            android:gravity="center"
-           android:layout_gravity="center_horizontal"
-            android:background="@drawable/white_layout"
-            />
+            app:layout_widthPercent="35%" />
+
         <com.xingyeda.lowermachine.view.layout.PercentLinearLayout
             android:layout_width="0dp"
-            app:layout_widthPercent="40%"
             android:layout_height="wrap_content"
-            app:layout_marginTopPercent="2%"
             android:layout_gravity="center_horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            app:layout_marginTopPercent="2%"
+            app:layout_widthPercent="40%">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@mipmap/w_0"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:background="@mipmap/w_0"
+                android:gravity="center" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="呼叫中"
-                android:textColor="@color/white"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:text="呼叫中"
+                android:textColor="@color/white" />
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@mipmap/w_0"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:background="@mipmap/w_0"
+                android:gravity="center" />
         </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_marginTopPercent="5%"
+            android:layout_gravity="center_horizontal"
             android:text="★呼叫管理中心请输入0000 \n★呼叫住户请输入房号 \n★确认请按#，返回请按*"
             android:textColor="@color/white"
-            android:layout_gravity="center_horizontal"/>
+            app:layout_marginTopPercent="5%" />
 
         <TextView
             android:id="@+id/call_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_marginTopPercent="5%"
+            android:layout_gravity="center_horizontal"
             android:textColor="@color/white"
-            android:layout_gravity="center_horizontal"/>
+            app:layout_marginTopPercent="5%" />
+
+
     </com.xingyeda.lowermachine.view.layout.PercentLinearLayout>
 
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="保存" />
 
+    <Button
+        android:id="@+id/btn_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/btn_save"
+        android:text="呼叫" />
 </android.support.percent.PercentRelativeLayout>
