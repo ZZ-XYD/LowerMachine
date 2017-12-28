@@ -160,22 +160,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (SharedPreUtil.getBoolean(this, "isPortrait")) {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
-//        } else {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
-//        }
-
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-//        if (msgShow != null) {
-//            if (SharedPreUtil.getBoolean(this, "isPortrait")) {
-//                msgShow.setVisibility(View.GONE);//竖屏
-//            } else {
-//                msgShow.setVisibility(View.VISIBLE);//横屏
-//            }
-//        }
 
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -201,19 +188,6 @@ public class MainActivity extends BaseActivity {
         }
 
     }
-
-//    public  void checkConnectStatus() {
-//        ConnectivityManager cwjManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo info = cwjManager.getActiveNetworkInfo();
-//        if (info != null && info.isAvailable()) {
-//            ininImage();
-//            getBindMsg();
-//        } else {
-//            noNetwork.setVisibility(View.VISIBLE);
-//            noNetwork.setBackgroundResource(R.mipmap.timg);
-//        }
-//
-//    }
 
     public void getBindMsg() {
         Map<String, String> params = new HashMap<>();
@@ -350,18 +324,13 @@ public class MainActivity extends BaseActivity {
                                 bean.setmContent(jobjBean.has("content") ? jobjBean.getString("content") : "");
                                 bean.setmTime(jobjBean.has("sendTime") ? jobjBean.getString("sendTime") : "");
                                 bean.setmDuration(jobjBean.has("duration") ? jobjBean.getString("durationtime") : "10");
-//                                if (jobjBean.has("content")) {
-//                                    notificationList.add(jobjBean.getString("content"));
-//                                }
                                 notificationList.add(bean);
                             }
                         }
-//                        if (notificationList != null && !notificationList.isEmpty()) {
                         if (!mIsCarousel) {
                             mIsCarousel = true;
                             carouselMsg(10);
                         }
-//                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -637,10 +606,6 @@ public class MainActivity extends BaseActivity {
                     leaveChannel();
                     RtcEngine.destroy();//销毁引擎实例
                 }
-//                if (noNetwork != null) {
-//                    noNetwork.setVisibility(View.VISIBLE);
-//                    noNetwork.setBackgroundResource(R.mipmap.timg);
-//                }
             }
         }
     };
@@ -655,20 +620,11 @@ public class MainActivity extends BaseActivity {
                 BaseUtils.startActivity(mContext, SetActivity.class);
                 break;
             case R.id.equipment_id:
-//                BaseUtils.startActivity(mContext, SetActivity.class);
                 BaseUtils.showLongToast(mContext, "接通视频通话 : " + i + "  收到呼叫 ： " + i1);
                 break;
             case R.id.main_time:
                 i = 0;
                 i1 = 0;
-
-//                callOut("8888");
-//                mDoorNumber += "0";
-//                doorNumber.append("0");
-//                freeTime(10000);
-//                Bundle bundle = new Bundle();
-//                bundle.putString("stringValue", "8");
-//                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
                 break;
         }
     }
@@ -904,7 +860,6 @@ public class MainActivity extends BaseActivity {
         mOvertimeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-//                promptTone(R.raw.bujie, false);//转接电话声音
                 mHandler.sendEmptyMessage(0);
             }
         }, time * 1000);
@@ -934,11 +889,10 @@ public class MainActivity extends BaseActivity {
         mCallTimer.schedule(new TimerTask() {
             @Override
             public void run() {//呼叫电话
-//                ReleasePlayer();
-                phoneCall(1, "start");
-//                promptTone(R.raw.record, false);//转接电话声音
                 ReleasePlayer();
-                cancels();
+                getAccount(mContext);
+                mHandler.sendEmptyMessage(1);
+                phoneCall(1, "start");
             }
         }, time * 1000);
     }
@@ -1113,13 +1067,8 @@ public class MainActivity extends BaseActivity {
         mMediaPlayer.start();
         if (!isCirculation) {
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-
-                    if (resId == R.raw.record) {
-                        getAccount(mContext);
-                    }
                     ReleasePlayer();
                 }
             });
@@ -1159,7 +1108,7 @@ public class MainActivity extends BaseActivity {
     //等待呼叫电话时间
     public int getTimerTime(Context context) {
         if (SharedPreUtil.getInt(context, "timerTime") == 0) {
-            return 30;
+            return 15;
         }
         return SharedPreUtil.getInt(context, "timerTime");
     }
@@ -1238,41 +1187,6 @@ public class MainActivity extends BaseActivity {
         mRtcEngine = null;
     }
 
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_0) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_1) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_2) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_3) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_4) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_5) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_6) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_7) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_8) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        } else if (keyCode == KeyEvent.KEYCODE_9) {
-//            BaseUtils.startActivity(mContext, CallActivity.class);
-//            return false;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
 
     // 教程步骤 10   本地视频开关
     public void onLocalVideoMuteClicked(View view) {
