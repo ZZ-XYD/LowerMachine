@@ -715,6 +715,7 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
                     e.printStackTrace();
                 }
             }
+            getContentResolver().delete(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, 1), null, null);
         }
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -764,14 +765,6 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
             case KeyEvent.KEYCODE_ENDCALL:
                 return inCallAnswerControls.onKeyDown(keyCode, event);
 
-        }
-        if (keyCode == KeyEvent.KEYCODE_STAR) {
-            try {
-                service.hangup(session.getCallId(), 0);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            finish();
         }
         return super.onKeyUp(keyCode, event);
     }
@@ -1554,12 +1547,14 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
     TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            try {
-                service.hangup(session.getCallId(), 0);
-            } catch (RemoteException e) {
-                e.printStackTrace();
+            if (service != null) {
+                try {
+                    service.hangup(session.getCallId(), 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
-            finish();
+            getContentResolver().delete(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, 1), null, null);
         }
     };
 }
