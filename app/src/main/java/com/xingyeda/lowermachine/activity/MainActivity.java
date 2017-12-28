@@ -455,7 +455,7 @@ public class MainActivity extends BaseActivity {
                 }
                 connectTime(60);
             } else if (action.equals("HeartBeatService.MOBILE_RECEIVE")) {//手机收到呼入
-                LogUtils.d("手机收到呼入 ");
+                LogUtils.d("手机收到呼入");
                 i1++;
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
