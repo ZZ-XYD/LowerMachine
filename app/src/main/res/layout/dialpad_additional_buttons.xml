@@ -33,8 +33,7 @@
         android:id="@+id/divider1"
         android:layout_width="1dip"
         android:layout_height="24dip"
-        android:layout_gravity="center_vertical"
-        android:background="@mipmap/ic_launcher" />
+        android:layout_gravity="center_vertical" />
 
     <ImageButton
         android:id="@+id/dialButton"
@@ -51,8 +50,7 @@
         android:id="@+id/divider2"
         android:layout_width="1dip"
         android:layout_height="24dip"
-        android:layout_gravity="center_vertical"
-        android:background="@mipmap/ic_launcher" />
+        android:layout_gravity="center_vertical" />
 
     <ImageButton
         android:id="@+id/deleteButton"

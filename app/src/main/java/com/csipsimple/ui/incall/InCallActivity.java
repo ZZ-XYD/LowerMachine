@@ -36,6 +36,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,6 +63,7 @@ import com.csipsimple.api.SipCallSession.StatusCode;
 import com.csipsimple.api.SipConfigManager;
 import com.csipsimple.api.SipManager;
 import com.csipsimple.api.SipProfile;
+import com.csipsimple.db.DBProvider;
 import com.csipsimple.service.SipService;
 import com.csipsimple.ui.PickupSipUri;
 import com.csipsimple.ui.incall.CallProximityManager.ProximityDirector;
@@ -75,6 +77,7 @@ import com.csipsimple.utils.Log;
 import com.csipsimple.utils.PreferencesProviderWrapper;
 import com.csipsimple.utils.Theme;
 import com.csipsimple.utils.keyguard.KeyguardWrapper;
+import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
 
 import org.webrtc.videoengine.ViERenderer;
@@ -90,6 +93,7 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
     //private final static int DRAGGING_DELAY = 150;
 
 
+    private SipCallSession session;
     private Object callMutex = new Object();
     private SipCallSession[] callsInfo = null;
     private MediaState lastMediaState;
@@ -134,6 +138,8 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
     private final static int PICKUP_SIP_URI_XFER = 0;
     private final static int PICKUP_SIP_URI_NEW_CALL = 1;
     private static final String CALL_ID = "call_id";
+
+    private rkctrl mRkctrl = new rkctrl();
 
     private Timer timer = new Timer();
 
@@ -701,14 +707,19 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(THIS_FILE, "Key down : " + keyCode);
+        if (keyCode == KeyEvent.KEYCODE_STAR) {
+            if (service != null) {
+                try {
+                    service.hangup(session.getCallId(), 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
-                //
-                // Volume has been adjusted by the user.
-                //
-                Log.d(THIS_FILE, "onKeyDown: Volume button pressed");
+
                 int action = AudioManager.ADJUST_RAISE;
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     action = AudioManager.ADJUST_LOWER;
@@ -739,16 +750,11 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
             default:
                 // Nothing to do
         }
-        if (keyCode == KeyEvent.KEYCODE_STAR) {
-            onDisplayVideo(false);
-            delayedQuit();
-        }
         return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        Log.d(THIS_FILE, "Key up : " + keyCode);
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
@@ -758,6 +764,14 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
             case KeyEvent.KEYCODE_ENDCALL:
                 return inCallAnswerControls.onKeyDown(keyCode, event);
 
+        }
+        if (keyCode == KeyEvent.KEYCODE_STAR) {
+            try {
+                service.hangup(session.getCallId(), 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            finish();
         }
         return super.onKeyUp(keyCode, event);
     }
@@ -1527,7 +1541,7 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
                 // TODO ---
                 //badge.setOnTouchListener(new OnBadgeTouchListener(badge, call));
 
-                SipCallSession session = (SipCallSession) getItem(position);
+                session = (SipCallSession) getItem(position);
                 vc.setCallState(session);
             }
 
@@ -1540,7 +1554,12 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
     TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            InCallActivity.this.finish();
+            try {
+                service.hangup(session.getCallId(), 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            finish();
         }
     };
 }

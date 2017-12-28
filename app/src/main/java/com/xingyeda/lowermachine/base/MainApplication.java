@@ -30,7 +30,7 @@ public class MainApplication extends Application {
         CrashReport.initCrashReport(getApplicationContext(), "6e8ad93526", true);
         OkHttpUtils.getInstance().setConnectTimeout(100000, TimeUnit.MILLISECONDS);
 
-//        initDoorService();
+        initDoorService();
         initHeartBeatService();
     }
 

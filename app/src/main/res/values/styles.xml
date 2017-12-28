@@ -91,7 +91,6 @@
     <style name="DarkTheme.Dialog" parent="Theme.AppCompat.Light.DarkActionBar">
 
         <!-- TODO : use android:attr on 11 -->
-        <item name="actionBarItemBackground">@mipmap/ic_launcher</item>
         <!--
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowAnimationStyle">@null</item>
@@ -100,7 +99,6 @@
     </style>
 
     <style name="DarkTheme.NoTitle" parent="Theme.AppCompat.NoActionBar">
-        <item name="actionBarItemBackground">@mipmap/ic_launcher</item>
     </style>
 
     <!-- Notification -->

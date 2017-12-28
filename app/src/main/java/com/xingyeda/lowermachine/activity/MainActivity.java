@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
-import android.support.percent.PercentFrameLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -42,14 +41,13 @@ import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
+import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
-import com.xingyeda.lowermachine.utils.AppUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 import com.xingyeda.lowermachine.utils.LogUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
-import com.xingyeda.lowermachine.view.NumberKeyboardView;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
@@ -83,8 +81,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.tencent.bugly.crashreport.crash.c.f;
-import static com.tencent.bugly.crashreport.crash.c.m;
+import static com.tencent.bugly.crashreport.crash.c.i;
 
 public class MainActivity extends BaseActivity {
 
@@ -92,7 +89,6 @@ public class MainActivity extends BaseActivity {
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
-
 
 
     private RtcEngine mRtcEngine;//  教程步骤 1
@@ -151,13 +147,6 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.banner_layout)
     LinearLayout bannerLayout;
 
-    @BindView(R.id.main_number_keyboard)
-    NumberKeyboardView numberKeyboard;
-    @BindView(R.id.number_keyboard_show)
-    TextView numberKeyboardShow;
-    @BindView(R.id.number_keyboard_layout)
-    PercentFrameLayout numberKeyboardLayout;
-
     private List<String> mList = new ArrayList<>();
 
     private rkctrl mRkctrl = new rkctrl();
@@ -167,7 +156,6 @@ public class MainActivity extends BaseActivity {
     public static String userName = "";
     public static String userPwd = "";
     private boolean mIsCarousel = false;
-//    private String  mNKeyboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,11 +177,6 @@ public class MainActivity extends BaseActivity {
 //            }
 //        }
 
-
-        if (SharedPreUtil.getBoolean(mContext, "isForcedUpdate")) {
-            MainBusiness.getVersion(mContext);
-        }
-
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         MainBusiness.getSN(mContext);//获取sn
@@ -210,85 +193,6 @@ public class MainActivity extends BaseActivity {
         registerBoradcastReceiver();//返回监控
 
         setEquipmentName();
-        if (SharedPreUtil.getBoolean(mContext, "isPortrait")) {
-            numberKeyboard.setOnNumberClickListener(new NumberKeyboardView.OnNumberClickListener() {
-                @Override
-                public void onNumberReturn(String number) {//数字键
-                    if (!mIsCall) {
-                        if (!(mDoorNumber.length() >= 11)) {
-                            promptTone(R.raw.free, false);
-                            mDoorNumber += number;
-                            numberKeyboardShow.setText(mDoorNumber);;
-//                            freeTime(10);//计时
-                        }
-                    }
-                }
-
-                @Override
-                public void onNumberClear() {//*
-                    if (mIsCall) {
-                            ReleasePlayer();
-                            cancels();
-                    }else {
-                        if (mDoorNumber.length() > 0) {
-                            promptTone(R.raw.free, false);
-                            if (mFreeTimer != null) {
-                                mFreeTimer.cancel();
-                            }
-                            ReleasePlayer();
-                            clearAll();
-                        } else {
-                            numberKeyboardLayout.setVisibility(View.GONE);
-                        }
-                    }
-                }
-
-                @Override
-                public void onNumberConfirm() {//#
-                    if (!mIsCall) {
-                        if (!(mDoorNumber.length() > 11)) {
-                            if (mFreeTimer != null) {
-                                mFreeTimer.cancel();
-                            }
-                            if (mDoorNumber != null) {
-                                if (mDoorNumber.equals("9999")) {//跳转设置
-                                    BaseUtils.startActivity(mContext, SetActivity.class);
-                                    clearAll();
-                                } else if (mDoorNumber.equals("3818")) {//密码开门
-                                    clearAll();
-                                    if (!mIsSocket || !flag) {
-                                        new Thread() {
-                                            @Override
-                                            public void run() {
-                                                mRkctrl.exec_io_cmd(6, 1);//开门
-                                                try {
-                                                    sleep(1000 * 3);
-                                                    mRkctrl.exec_io_cmd(6, 0);//关门
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }.start();
-                                    }
-                                } else if (mDoorNumber.equals("3819")) {//重启设备
-                                    PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                                    powerManager.reboot("");
-                                } else if (mDoorNumber.equals("3820")) {//关闭设备
-                                } else if (mDoorNumber.equals("3821")) {//设备更新
-                                    MainBusiness.getVersion(mContext);
-                                } else {
-                                    if (flag && !mIsCall) {
-                                        if (!mDoorNumber.equals("")) {
-                                            callOut(mDoorNumber);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        }
-                }
-            });
-        }
 
         if (flag) {
             if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
@@ -314,7 +218,6 @@ public class MainActivity extends BaseActivity {
     public void getBindMsg() {
         Map<String, String> params = new HashMap<>();
         params.put("mac", MainBusiness.getMacAddress(mContext));
-        params.put("version",  AppUtils.getVersionName(mContext)  );
         OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.BINDMSG_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -600,7 +503,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        mRtcEngine.muteLocalVideoStream(false);
         if (snText != null) {
             if (mIsSocket) {
                 snText.setBackgroundResource(R.drawable.green_circle);
@@ -625,7 +527,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        mRtcEngine.muteLocalVideoStream(true);
     }
 
 
@@ -744,7 +645,7 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    @OnClick({R.id.equipment_id, R.id.main_time, R.id.qr_code, R.id.door_number, R.id.main_layout})
+    @OnClick({R.id.equipment_id, R.id.main_time, R.id.qr_code, R.id.door_number})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.qr_code:
@@ -760,11 +661,14 @@ public class MainActivity extends BaseActivity {
             case R.id.main_time:
                 i = 0;
                 i1 = 0;
-                break;
-            case R.id.main_layout:
-                if (SharedPreUtil.getBoolean(mContext, "isPortrait")) {
-                    numberKeyboardLayout.setVisibility(View.VISIBLE);
-                }
+
+//                callOut("8888");
+//                mDoorNumber += "0";
+//                doorNumber.append("0");
+//                freeTime(10000);
+//                Bundle bundle = new Bundle();
+//                bundle.putString("stringValue", "8");
+//                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
                 break;
         }
     }
@@ -940,7 +844,6 @@ public class MainActivity extends BaseActivity {
         mHousenum = "";
         mPhone = "";
         mIsCall = false;
-        mDoorNumber = "";
         if (mTimer != null) {
             mTimer.cancel();
         }
@@ -954,10 +857,8 @@ public class MainActivity extends BaseActivity {
             mCallTimer.cancel();
         }
         if (doorNumber != null) {
+            mDoorNumber = "";
             doorNumber.setText("");
-        }
-        if (numberKeyboardShow != null) {
-            numberKeyboardShow.setText("");
         }
         if (callTimer != null) {
             callTimer.setText("");
@@ -993,8 +894,8 @@ public class MainActivity extends BaseActivity {
                 mHandler.sendEmptyMessage(1);
             }
         }, time * 1000);
-    }
-    //呼叫超时未接通
+    }    //呼叫超时未接通
+
     private void overtimeTimer(int time) {
         if (mOvertimeTimer != null) {
             mOvertimeTimer.cancel();
@@ -1035,9 +936,7 @@ public class MainActivity extends BaseActivity {
             public void run() {//呼叫电话
 //                ReleasePlayer();
                 phoneCall(1, "start");
-//                promptTone(R.raw.record, false);//转接电话声音
-                ReleasePlayer();
-                cancels();
+                promptTone(R.raw.record, false);//转接电话声音
             }
         }, time * 1000);
     }
@@ -1258,7 +1157,7 @@ public class MainActivity extends BaseActivity {
     //等待呼叫电话时间
     public int getTimerTime(Context context) {
         if (SharedPreUtil.getInt(context, "timerTime") == 0) {
-            return 10;
+            return 30;
         }
         return SharedPreUtil.getInt(context, "timerTime");
     }
@@ -1386,10 +1285,10 @@ public class MainActivity extends BaseActivity {
 
         mRtcEngine.muteLocalVideoStream(iv.isSelected());
 
-        FrameLayout container = (FrameLayout) findViewById(R.id.local_video_view_container);
-        SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
-        surfaceView.setZOrderMediaOverlay(!iv.isSelected());
-        surfaceView.setVisibility(iv.isSelected() ? View.GONE : View.VISIBLE);
+//        FrameLayout container = (FrameLayout) findViewById(R.id.local_video_view_container);
+//        SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
+//        surfaceView.setZOrderMediaOverlay(!iv.isSelected());
+//        surfaceView.setVisibility(iv.isSelected() ? View.GONE : View.VISIBLE);
     }
 
     // 教程步骤 9  本地音频静音（声控制）
@@ -1548,6 +1447,7 @@ public class MainActivity extends BaseActivity {
                 bundle.putString("userName", userName);
                 bundle.putString("userPwd", userPwd);
                 BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+                finish();
             }
         });
     }
