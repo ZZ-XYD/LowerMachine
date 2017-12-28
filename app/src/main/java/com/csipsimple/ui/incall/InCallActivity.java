@@ -715,7 +715,6 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
                     e.printStackTrace();
                 }
             }
-            getContentResolver().delete(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, 1), null, null);
         }
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -1554,7 +1553,6 @@ public class InCallActivity extends FragmentActivity implements IOnCallActionTri
                     e.printStackTrace();
                 }
             }
-            getContentResolver().delete(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, 1), null, null);
         }
     };
 }
