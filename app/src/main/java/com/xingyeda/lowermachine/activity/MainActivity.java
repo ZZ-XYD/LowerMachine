@@ -936,7 +936,9 @@ public class MainActivity extends BaseActivity {
             public void run() {//呼叫电话
 //                ReleasePlayer();
                 phoneCall(1, "start");
-                promptTone(R.raw.record, false);//转接电话声音
+//                promptTone(R.raw.record, false);//转接电话声音
+                ReleasePlayer();
+                cancels();
             }
         }, time * 1000);
     }
