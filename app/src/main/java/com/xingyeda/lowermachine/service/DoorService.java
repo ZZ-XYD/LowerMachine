@@ -4,8 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 
 import com.hurray.plugins.rkctrl;
 import com.hurray.plugins.serial;
@@ -48,6 +50,7 @@ public class DoorService extends Service {
         if (android.os.Build.MODEL.equals("rk3168")) {
             initSerial();
         }
+        runReadLockStatus();
     }
 
     @Override
@@ -88,56 +91,56 @@ public class DoorService extends Service {
                 while (true) {
 //                    int r = mSerial.select(fd, 1, 0);
 //                    if (r == 1) {
-                        byte[] buf = new byte[50];
-                        buf = mSerial.read(fd, 100);
-                        if (buf != null && buf.length > 0) {
-                            cardId += byte2HexString(buf);
-                            if (cardId.length() >= 28) {
-                                idData28 = cardId.substring(0, 28);
-                                idData8 = idData28.substring(16, 24);
+                    byte[] buf = new byte[50];
+                    buf = mSerial.read(fd, 100);
+                    if (buf != null && buf.length > 0) {
+                        cardId += byte2HexString(buf);
+                        if (cardId.length() >= 28) {
+                            idData28 = cardId.substring(0, 28);
+                            idData8 = idData28.substring(16, 24);
 
-                                Map map = new HashMap();
-                                map.put("searchType", "getByCode");
-                                map.put("snCode", idData8);
-                                map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                            Map map = new HashMap();
+                            map.put("searchType", "getByCode");
+                            map.put("snCode", idData8);
+                            map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
 
-                                HttpUtils.doPost(ConnectPath.getPath(DoorService.this,ConnectPath.CARD), map, new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
+                            HttpUtils.doPost(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
 
-                                    }
+                                }
 
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        final CardResult cardResult = JsonUtils.getGson().fromJson(response.body().string(), CardResult.class);
-                                        if (cardResult.getStatus().equals("200")) {
-                                            mRkctrl.exec_io_cmd(6, 1);//开门
-                                            mSoundPool.play(1, 1, 1, 0, 0, 1);
-                                            mHandler.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
-                                                }
-                                            });
-                                            try {
-                                                pthread.sleep(1000 * 3);
-                                                mRkctrl.exec_io_cmd(6, 0);//关门
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    final CardResult cardResult = JsonUtils.getGson().fromJson(response.body().string(), CardResult.class);
+                                    if (cardResult.getStatus().equals("200")) {
+                                        mRkctrl.exec_io_cmd(6, 1);//开门
+                                        mSoundPool.play(1, 1, 1, 0, 0, 1);
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
                                             }
-                                        } else {
-                                            mHandler.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
-                                                }
-                                            });
+                                        });
+                                        try {
+                                            pthread.sleep(1000 * 3);
+                                            mRkctrl.exec_io_cmd(6, 0);//关门
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
                                         }
+                                    } else {
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
+                                            }
+                                        });
                                     }
-                                });
-                                cardId = "";
-                                idData28 = "";
-                                idData8 = "";
+                                }
+                            });
+                            cardId = "";
+                            idData28 = "";
+                            idData8 = "";
 //                                if (idData8.equals("2e320d16")) {
 //                                    mRkctrl.exec_io_cmd(6, 1);//开门
 //                                    cardId = "";
@@ -150,9 +153,38 @@ public class DoorService extends Service {
 //                                        e.printStackTrace();
 //                                    }
 //                                }
-                            }
                         }
+                    }
 //                    }
+                }
+            }
+        };
+        pthread = new Thread(run);
+        pthread.start();
+    }
+
+    public void runReadLockStatus() {
+        Runnable run = new Runnable() {
+            public void run() {
+                while (true) {
+                    //延迟读取
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    int gpioid = 9;
+                    int r = mRkctrl.get_io_status(gpioid);
+                    if (r == 1) {
+                        mRkctrl.exec_io_cmd(6, 1);//开门
+                        try {
+                            pthread.sleep(3000);
+                            mRkctrl.exec_io_cmd(6, 0);//关门
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         };
