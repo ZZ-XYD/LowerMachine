@@ -13,6 +13,7 @@ import com.xingyeda.lowermachine.bean.SNCode;
 import com.xingyeda.lowermachine.bean.SipResult;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
+import com.xingyeda.lowermachine.utils.Installation;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
 
@@ -20,7 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,9 +59,26 @@ public class MainBusiness {
     *获取mac地址
     */
     public static String getMacAddress(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getMacAddress().replaceAll(":", "");
+//        return Installation.id(context).replaceAll("-", "");
+            try {
+                return loadFileAsString("/sys/class/net/wlan0/address").toUpperCase().substring(0, 17).replaceAll(":", "");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+    private static String loadFileAsString(String filePath) throws java.io.IOException {
+        StringBuffer fileData = new StringBuffer(1000);
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        char[] buf = new char[1024];
+        int numRead = 0;
+        while ((numRead = reader.read(buf)) != -1) {
+            String readData = String.valueOf(buf, 0, numRead);
+            fileData.append(readData);
+        }
+        reader.close();
+        return fileData.toString();
     }
 
     /*

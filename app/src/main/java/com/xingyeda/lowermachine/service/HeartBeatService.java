@@ -34,6 +34,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static android.R.id.list;
 import static android.R.id.message;
+import static com.tencent.bugly.crashreport.crash.c.i;
+import static com.tencent.bugly.crashreport.crash.c.k;
 
 public class HeartBeatService extends Service {
 
@@ -231,24 +233,35 @@ public class HeartBeatService extends Service {
         try {
             byte[] buffer = new byte[in.available()];
 
-            in.read(buffer);
+            if (in.available()>0) {
+                in.read(buffer);
 
-            if (buffer.length == 0) {
-                System.out.println(buffer.length);
-                return;
-            } else {
-                System.out.println("-" + buffer.length + "-");
-                String responseInfo = new String(buffer, "UTF-8");
-                System.out.println("-" + responseInfo + "-");
-                String info = responseInfo.substring(4);
-                System.out.println("-" + info + "-");
-                Message message = JsonUtils.getGson().fromJson(info, Message.class);
+
+                byte[] buffers = new byte[4];
+                System.arraycopy(buffer, 0,buffers , 0, 4);
+                int size = byteArrayToInt(buffers);
+
+                byte[] rspinfo = new byte[size - 4];
+                System.arraycopy(buffer, 4,rspinfo , 0, rspinfo.length);
+
+
+                String responseInfo = new String(rspinfo, "UTF-8");
+                Message message = JsonUtils.getGson().fromJson(responseInfo, Message.class);
                 listMessage.add(message);
+
+
             }
         } catch (Exception e) {
             exitForReConnect();
             initSocket();
         }
+    }
+
+    public static int byteArrayToInt(byte[] b) {
+        return   b[3] & 0xFF |
+                (b[2] & 0xFF) << 8 |
+                (b[1] & 0xFF) << 16 |
+                (b[0] & 0xFF) << 24;
     }
 
     /*
