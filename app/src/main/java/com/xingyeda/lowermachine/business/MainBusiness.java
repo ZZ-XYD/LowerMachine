@@ -1,8 +1,11 @@
 package com.xingyeda.lowermachine.business;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
@@ -33,13 +36,18 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MainBusiness {
+
+    private static ProgressDialog mProgressDialog;
+    private static int progress = 0;
+    private static Handler mHandler = new Handler();
+
     /*
     获取设备SN码
      */
     public static void getSN(final Context context) {
         Map map = new HashMap();
         map.put("mac", getMacAddress(context));
-        LogUtils.d(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP)+map);
+        LogUtils.d(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP) + map);
         HttpUtils.doPost(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP), map, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -132,11 +140,25 @@ public class MainBusiness {
     从服务器获取APK
     */
     public static void downloadUpdate(String downPath, final Context context) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mProgressDialog = new ProgressDialog(context);
+                mProgressDialog.setCancelable(false);
+                mProgressDialog.setTitle("正在下载");
+                mProgressDialog.setMessage("请稍候...");
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);// 设置进度条对话框//样式（水平，旋转）
+                mProgressDialog.show();
+            }
+        });
+
         final String apkPath = BaseUtils.initFile(context) + "/" + "LowerMachine.apk";
         com.lidroid.xutils.HttpUtils mHttpUtils = new com.lidroid.xutils.HttpUtils();
+
         mHttpUtils.download(downPath, apkPath, true, true, new RequestCallBack<File>() {
             @Override
             public void onSuccess(ResponseInfo<File> responseInfo) {
+                mProgressDialog.dismiss();
                 String[] command = {"chmod", "777", apkPath};
                 ProcessBuilder builder = new ProcessBuilder(command);
                 try {
@@ -155,8 +177,15 @@ public class MainBusiness {
             }
 
             @Override
-            public void onFailure(HttpException e, String s) {
+            public void onLoading(long total, long current, boolean isUploading) {
+                progress = (int) (((float) current / total) * 100);
+                progress = (progress > 0) ? progress : 0;
+                mProgressDialog.setProgress(progress);
+            }
 
+            @Override
+            public void onFailure(HttpException e, String s) {
+                mProgressDialog.dismiss();
             }
         });
     }
