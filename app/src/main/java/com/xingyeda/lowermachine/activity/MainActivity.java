@@ -1,6 +1,7 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -394,6 +395,7 @@ public class MainActivity extends BaseActivity {
         intent.addAction("HeartBeatService.REMOTE_RELEASE");//手机接通后挂断
         intent.addAction("HeartBeatService.MOBILE_ANSWER");//手机接通视频通话
         intent.addAction("HeartBeatService.MOBILE_RECEIVE");//手机收到呼入
+        intent.addAction("HeartBeatService.UPDATE_DEVICE");//更新设备
 
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
@@ -461,6 +463,8 @@ public class MainActivity extends BaseActivity {
                     mCallTimer.cancel();
                 }
                 overtimeTimer(30);
+            } else if (action.equals("HeartBeatService.UPDATE_DEVICE")) {
+                MainBusiness.getVersion(mContext);
             }
         }
 
@@ -1039,7 +1043,9 @@ public class MainActivity extends BaseActivity {
                         powerManager.reboot("");
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
                     } else if (mDoorNumber.equals("3821")) {//设备更新
-                        MainBusiness.getVersion(mContext);
+                        Intent intent = new Intent();
+                        intent.setAction("HeartBeatService.UPDATE_DEVICE");
+                        MainActivity.this.sendBroadcast(intent);
                     } else {
                         if (flag && !mIsCall) {
                             if (!mDoorNumber.equals("")) {
