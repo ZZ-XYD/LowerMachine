@@ -1,5 +1,6 @@
 package com.xingyeda.lowermachine.service;
 
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +9,11 @@ import android.media.SoundPool;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.widget.Toast;
 
 import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
+import com.xingyeda.lowermachine.activity.MainActivity;
 import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.Message;
@@ -98,7 +101,7 @@ public class HeartBeatService extends Service {
                             try {
                                 if (message != null) {
                                     String str = message.getCommond().split(",")[0];
-                                    LogUtils.d("str : "+str);
+                                    LogUtils.d("str : " + str);
                                     if (str.equals(Commond.REMOTE_OPEN)) {//开门
                                         Intent intent = new Intent();
                                         intent.setAction("HeartBeatService.REMOTE_OPEN");
@@ -152,9 +155,11 @@ public class HeartBeatService extends Service {
                                         intent.setAction("HeartBeatService.Add_SUCCESS");
                                         HeartBeatService.this.sendBroadcast(intent);
                                     } else if (str.equals(Commond.UPDATE_DEVICE)) {//更新设备
-                                        MainBusiness.getVersion(HeartBeatService.this);
+                                        Intent intent = new Intent();
+                                        intent.setAction("HeartBeatService.UPDATE_DEVICE");
+                                        HeartBeatService.this.sendBroadcast(intent);
                                     }
-                                    iteratorRemove(listMessage,message);
+                                    iteratorRemove(listMessage, message);
                                 }
                                 sleep(1000);
                             } catch (InterruptedException e) {
@@ -173,20 +178,17 @@ public class HeartBeatService extends Service {
         }.start();
 
     }
+
     public void iteratorRemove(List<Message> list, Message target) {
 
         for (int i = 0; i < list.size(); i++) {
             Message value = list.get(i);
-            if(value.getCommond().equals(target.getCommond()))
-            {
+            if (value.getCommond().equals(target.getCommond())) {
                 list.remove(value);
                 i--;
             }
         }
     }
-
-
-
 
 
     @Override
@@ -229,20 +231,21 @@ public class HeartBeatService extends Service {
     获取消息
      */
     private List<Message> listMessage = new CopyOnWriteArrayList<>();
+
     private void getMessage() {
         try {
             byte[] buffer = new byte[in.available()];
 
-            if (in.available()>0) {
+            if (in.available() > 0) {
                 in.read(buffer);
 
 
                 byte[] buffers = new byte[4];
-                System.arraycopy(buffer, 0,buffers , 0, 4);
+                System.arraycopy(buffer, 0, buffers, 0, 4);
                 int size = byteArrayToInt(buffers);
 
                 byte[] rspinfo = new byte[size - 4];
-                System.arraycopy(buffer, 4,rspinfo , 0, rspinfo.length);
+                System.arraycopy(buffer, 4, rspinfo, 0, rspinfo.length);
 
 
                 String responseInfo = new String(rspinfo, "UTF-8");
@@ -258,7 +261,7 @@ public class HeartBeatService extends Service {
     }
 
     public static int byteArrayToInt(byte[] b) {
-        return   b[3] & 0xFF |
+        return b[3] & 0xFF |
                 (b[2] & 0xFF) << 8 |
                 (b[1] & 0xFF) << 16 |
                 (b[0] & 0xFF) << 24;
@@ -272,8 +275,8 @@ public class HeartBeatService extends Service {
         msg.setConverType("Object");
         msg.setContent("KeepLive");
         msg.setCommond(Commond.REMOTE_OPEN);
-        String mac =MainBusiness.getMacAddress(this);
-        if (mac==null) {
+        String mac = MainBusiness.getMacAddress(this);
+        if (mac == null) {
             return;
         }
         msg.setmId(mac);
@@ -311,7 +314,7 @@ public class HeartBeatService extends Service {
             in.close();
             in = null;
             mSocket.close();
-            mSocket=null;
+            mSocket = null;
         } catch (Exception ex) {
         }
     }
