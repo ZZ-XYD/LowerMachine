@@ -15,19 +15,15 @@ import android.view.KeyEvent;
 import com.csipsimple.api.ISipService;
 import com.csipsimple.api.SipManager;
 import com.csipsimple.api.SipProfile;
-import com.hurray.plugins.rkctrl;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.BaseActivity;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 
-import java.util.Timer;
 import java.util.TimerTask;
 
 public class CallActivity extends BaseActivity {
-
-    private rkctrl mRkctrl = new rkctrl();
 
     private String phoneInfo = "";
     private String nameInfo = "";
@@ -48,8 +44,6 @@ public class CallActivity extends BaseActivity {
         }
     };
 
-//    private Timer timer = new Timer();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,57 +55,43 @@ public class CallActivity extends BaseActivity {
         pwdInfo = bundle.getString("userPwd");
 
         Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
-        // Optional, but here we bundle so just ensure we are using csipsimple package
         serviceIntent.setPackage(this.getPackageName());
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
         registerSIP();
 
-//        timer.schedule(timerTask, 1000 * 10);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        timer.cancel();
         mContext.unbindService(connection);
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_0) {//0
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_1) {//1
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_2) {//2
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_3) {//3
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_4) {//4
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_5) {//5
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_6) {//6
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_7) {//7
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_8) {//8
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_9) {//9
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else if (keyCode == KeyEvent.KEYCODE_STAR) {//*
-            BaseUtils.startActivity(mContext, MainActivity.class);
             finish();
         } else { //#
-            placeCallWithOption();
+            finish();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -167,11 +147,4 @@ public class CallActivity extends BaseActivity {
         finish();
     }
 
-    TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
-//            BaseUtils.startActivity(mContext, MainActivity.class);
-            finish();
-        }
-    };
 }
