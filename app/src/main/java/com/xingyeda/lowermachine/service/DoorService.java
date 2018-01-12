@@ -49,8 +49,8 @@ public class DoorService extends Service {
         preferencesUtils = new SharedPreferencesUtils(this);
         if (android.os.Build.MODEL.equals("rk3168")) {
             initSerial();
+            runReadLockStatus();
         }
-        runReadLockStatus();
     }
 
     @Override

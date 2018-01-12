@@ -1,6 +1,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">LowerMachine</string>
-    <string name="agora_app_id">a2c3c71d72264c5d9e79ee97b33b3277</string>
+
+    <string name="agora_app_id">404bdbf5706a4572969c4797903e60a7</string>
+
+
     <string name="accessibility_service_description">智能安装服务,无需用户的任何操作就可以自动安装程序.</string>
 
     <string name="next">Next</string>

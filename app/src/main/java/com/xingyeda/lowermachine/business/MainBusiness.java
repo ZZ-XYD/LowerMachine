@@ -14,6 +14,7 @@ import com.lidroid.xutils.util.LogUtils;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.SNCode;
 import com.xingyeda.lowermachine.bean.SipResult;
+import com.xingyeda.lowermachine.utils.AppUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.Installation;
@@ -47,6 +48,7 @@ public class MainBusiness {
     public static void getSN(final Context context) {
         Map map = new HashMap();
         map.put("mac", getMacAddress(context));
+        map.put("version", AppUtils.getVersionName(context));
         LogUtils.d(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP) + map);
         HttpUtils.doPost(ConnectPath.getPath(context, ConnectPath.ADDSHEBEIFORAPP), map, new Callback() {
             @Override
