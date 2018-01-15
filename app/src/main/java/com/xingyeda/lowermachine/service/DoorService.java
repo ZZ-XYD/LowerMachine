@@ -35,7 +35,6 @@ public class DoorService extends Service {
     private String arg = "/dev/ttyS1,9600,N,1,8";
     private Thread pthread = null;
     private int iRead = 0;
-    private SharedPreferencesUtils preferencesUtils;
     private Handler mHandler = new Handler();
     private SoundPool mSoundPool;
 
@@ -46,7 +45,6 @@ public class DoorService extends Service {
     public void onCreate() {
         super.onCreate();
         initSP();
-        preferencesUtils = new SharedPreferencesUtils(this);
         if (android.os.Build.MODEL.equals("rk3168")) {
             initSerial();
             runReadLockStatus();
@@ -141,21 +139,8 @@ public class DoorService extends Service {
                             cardId = "";
                             idData28 = "";
                             idData8 = "";
-//                                if (idData8.equals("2e320d16")) {
-//                                    mRkctrl.exec_io_cmd(6, 1);//开门
-//                                    cardId = "";
-//                                    idData28 = "";
-//                                    idData8 = "";
-//                                    try {
-//                                        pthread.sleep(1000 * 3);
-//                                        mRkctrl.exec_io_cmd(6, 0);//关门
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
                         }
                     }
-//                    }
                 }
             }
         };
@@ -164,22 +149,17 @@ public class DoorService extends Service {
     }
 
     public void runReadLockStatus() {
-        Runnable run = new Runnable() {
+        new Thread() {
+            @Override
             public void run() {
                 while (true) {
-                    //延迟读取
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                     int gpioid = 9;
                     int r = mRkctrl.get_io_status(gpioid);
                     if (r == 1) {
                         mRkctrl.exec_io_cmd(6, 1);//开门
+                        mSoundPool.play(1, 1, 1, 0, 0, 1);
                         try {
-                            pthread.sleep(3000);
+                            sleep(1000 * 3);
                             mRkctrl.exec_io_cmd(6, 0);//关门
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -187,9 +167,7 @@ public class DoorService extends Service {
                     }
                 }
             }
-        };
-        pthread = new Thread(run);
-        pthread.start();
+        }.start();
     }
 
     /**
