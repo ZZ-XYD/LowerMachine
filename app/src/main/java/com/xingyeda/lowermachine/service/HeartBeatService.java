@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -14,6 +15,7 @@ import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.bean.Message;
 import com.xingyeda.lowermachine.business.MainBusiness;
 import com.xingyeda.lowermachine.socket.SocketUtils;
+import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 import com.xingyeda.lowermachine.utils.LogUtils;
 
@@ -31,6 +33,8 @@ public class HeartBeatService extends Service {
     private OutputStream out = null;
     private rkctrl m_rkctrl = new rkctrl();
     private SoundPool mSoundPool;
+
+    private boolean openDoor = false;
 
     public HeartBeatService() {
     }
@@ -90,11 +94,14 @@ public class HeartBeatService extends Service {
                                         @Override
                                         public void run() {
                                             m_rkctrl.exec_io_cmd(6, 1);
-                                            mSoundPool.play(1, 1, 1, 0, 0, 1);
-
+                                            if (openDoor == true) {
+                                                mSoundPool.play(1, 1, 1, 0, 0, 1);
+                                                openDoor = false;
+                                            }
                                             try {
                                                 sleep(1000 * 3);
                                                 m_rkctrl.exec_io_cmd(6, 0);
+                                                openDoor = true;
                                             } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }
@@ -224,6 +231,9 @@ public class HeartBeatService extends Service {
                 listMessage.add(message);
             }
         } catch (Exception e) {
+            Intent intent = new Intent();
+            intent.setAction("HeartBeatService.SocketIsNotConnected");
+            HeartBeatService.this.sendBroadcast(intent);
             exitForReConnect();
             initSocket();
         }
@@ -277,13 +287,20 @@ public class HeartBeatService extends Service {
     private void exitForReConnect() {
         //关闭流
         try {
-            out.close();
-            out = null;
-            in.close();
-            in = null;
-            mSocket.close();
-            mSocket = null;
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+            if (in != null) {
+                in.close();
+                in = null;
+            }
+            if (mSocket != null) {
+                mSocket.close();
+                mSocket = null;
+            }
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
