@@ -18,6 +18,7 @@ import com.xingyeda.lowermachine.socket.SocketUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 import com.xingyeda.lowermachine.utils.LogUtils;
+import com.xingyeda.lowermachine.utils.SharedPreUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ public class HeartBeatService extends Service {
     private Socket mSocket = null;
     private InputStream in = null;
     private OutputStream out = null;
-    private rkctrl m_rkctrl = new rkctrl();
+    private rkctrl m_rkctrl = null;
     private SoundPool mSoundPool;
 
     private boolean openDoor = false;
@@ -42,7 +43,7 @@ public class HeartBeatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        m_rkctrl = new rkctrl();
         initSP();
         /*
         发送消息线程
@@ -254,11 +255,7 @@ public class HeartBeatService extends Service {
         msg.setConverType("Object");
         msg.setContent("KeepLive");
         msg.setCommond(Commond.REMOTE_OPEN);
-        String mac = MainBusiness.getMacAddress(this);
-        if (mac == null) {
-            return;
-        }
-        msg.setmId(mac);
+        msg.setmId(SharedPreUtil.getString(HeartBeatService.this, "Mac", ""));
 
         String jsonObject = JsonUtils.getGson().toJson(msg);
 
