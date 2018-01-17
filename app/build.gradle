@@ -8,8 +8,8 @@ android {
         applicationId "com.xingyeda.lowermachine"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 2
-        versionName "2.0115"
+        versionCode 1
+        versionName "2.0117"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
