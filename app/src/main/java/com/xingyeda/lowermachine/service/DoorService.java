@@ -30,12 +30,12 @@ import okhttp3.Response;
 
 public class DoorService extends Service {
 
-    private rkctrl mRkctrl = new rkctrl();
-    private serial mSerial = new serial();
+    private rkctrl mRkctrl = null;
+    private serial mSerial = null;
     private String arg = "/dev/ttyS1,9600,N,1,8";
     private Thread pthread = null;
     private int iRead = 0;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = null;
     private SoundPool mSoundPool;
 
     public DoorService() {
@@ -44,6 +44,9 @@ public class DoorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        mRkctrl = new rkctrl();
+        mSerial = new serial();
+        mHandler = new Handler();
         initSP();
         if (android.os.Build.MODEL.equals("rk3168")) {
             initSerial();
