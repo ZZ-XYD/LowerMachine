@@ -150,7 +150,7 @@ public class MainActivity extends BaseActivity {
 
     private List<String> mList = new ArrayList<>();
 
-    private rkctrl mRkctrl = new rkctrl();
+    private rkctrl mRkctrl = null;
     private boolean flag = true;
     private boolean mIsSocket = false;
     private SipResult sipResult = null;
@@ -164,7 +164,7 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        mRkctrl = new rkctrl();
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         MainBusiness.getSN(mContext);//获取sn
