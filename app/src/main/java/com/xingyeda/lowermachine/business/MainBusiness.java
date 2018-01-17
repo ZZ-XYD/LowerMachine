@@ -19,6 +19,7 @@ import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.Installation;
 import com.xingyeda.lowermachine.utils.JsonUtils;
+import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
 
 import org.json.JSONArray;
@@ -31,6 +32,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -70,13 +72,15 @@ public class MainBusiness {
     */
     public static String getMacAddress(Context context) {
 //        return Installation.id(context).replaceAll("-", "");
-            try {
-                return loadFileAsString("/sys/class/net/wlan0/address").toUpperCase().substring(0, 17).replaceAll(":", "");
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "";
-            }
+        try {
+            String mac = loadFileAsString("/sys/class/net/wlan0/address").toUpperCase().substring(0, 17).replaceAll(":", "");
+            SharedPreUtil.put(context, "Mac", mac);
+            return mac;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         }
+    }
 
     private static String loadFileAsString(String filePath) throws java.io.IOException {
         StringBuffer fileData = new StringBuffer(1000);
@@ -128,7 +132,7 @@ public class MainBusiness {
                             versionNumber = jsonObj.getString("versionNumber");
                         }
                         if (Integer.valueOf(BaseUtils.getVersionCode(context)) < Integer.valueOf(versionNumber)) {
-                            downloadUpdate(downPath, context);
+                            downloadUpdate(downPath, context, fileName);
                         }
                     }
                 } catch (JSONException e) {
@@ -141,7 +145,7 @@ public class MainBusiness {
     /*
     从服务器获取APK
     */
-    public static void downloadUpdate(String downPath, final Context context) {
+    public static void downloadUpdate(String downPath, final Context context, String fileName) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -153,8 +157,9 @@ public class MainBusiness {
                 mProgressDialog.show();
             }
         });
-
-        final String apkPath = BaseUtils.initFile(context) + "/" + "LowerMachine.apk";
+        Random rand = new Random();
+        int i = rand.nextInt(100);
+        final String apkPath = BaseUtils.initFile(context) + "/" + i + "LowerMachine" + fileName;
         com.lidroid.xutils.HttpUtils mHttpUtils = new com.lidroid.xutils.HttpUtils();
 
         mHttpUtils.download(downPath, apkPath, true, true, new RequestCallBack<File>() {
