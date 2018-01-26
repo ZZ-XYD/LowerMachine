@@ -71,15 +71,21 @@ public class MainBusiness {
     *获取mac地址
     */
     public static String getMacAddress(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String mac =  wifiInfo.getMacAddress().replaceAll(":", "");
+        SharedPreUtil.put(context, "Mac", mac);
+
+        return mac;
 //        return Installation.id(context).replaceAll("-", "");
-        try {
-            String mac = loadFileAsString("/sys/class/net/wlan0/address").toUpperCase().substring(0, 17).replaceAll(":", "");
-            SharedPreUtil.put(context, "Mac", mac);
-            return mac;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
+//        try {
+//            String mac = loadFileAsString("/sys/class/net/wlan0/address").toUpperCase().substring(0, 17).replaceAll(":", "");
+//            SharedPreUtil.put(context, "Mac", mac);
+//            return mac;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "";
+//        }
     }
 
     private static String loadFileAsString(String filePath) throws java.io.IOException {

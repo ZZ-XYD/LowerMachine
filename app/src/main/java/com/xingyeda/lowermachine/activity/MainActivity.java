@@ -1144,10 +1144,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        Log.i(LOG_TAG, "请求权限的结果 " + grantResults[0] + " " + requestCode);
-
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQ_ID_RECORD_AUDIO: {
                 if (grantResults.length > 0
@@ -1159,8 +1156,7 @@ public class MainActivity extends BaseActivity {
                 break;
             }
             case PERMISSION_REQ_ID_CAMERA: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     initAgoraEngineAndJoinChannel();
                 } else {
                     showLongToast("没有许可 " + Manifest.permission.CAMERA);
