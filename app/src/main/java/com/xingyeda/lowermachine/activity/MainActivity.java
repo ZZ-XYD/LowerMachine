@@ -281,7 +281,7 @@ public class MainActivity extends BaseActivity {
                                 }
                             }
                             if (banner != null) {
-                                banner.setImages(mList).setImageLoader(new GlideImageLoader()).setBannerAnimation(Transformer.ZoomOutSlide).setBannerStyle(BannerConfig.NOT_INDICATOR).start();
+                                banner.setImages(mList).setImageLoader(new GlideImageLoader()).setBannerAnimation(Transformer.Stack).setBannerStyle(BannerConfig.NOT_INDICATOR).start();
                             }
                         }
                     } catch (JSONException e) {
