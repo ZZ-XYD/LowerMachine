@@ -9,8 +9,10 @@ public class Commond {
     //远程开门
     public static String REMOTE_OPEN = "M001";
 
-    //APP监控
-    public static String REMOTE_LINSTEN = "M007";
+    //APP远程监控开启
+    public static String REMOTE_LINSTEN_OPEN = "M007";
+    //APP远程监控关闭
+    public static String REMOTE_LINSTEN_CLOSE = "M008";
 
     //远程接通物业
     public static String REMOTE_MANAGER = "M137";
