@@ -116,11 +116,15 @@ public class HeartBeatService extends Service {
                                     Intent intent = new Intent();
                                     intent.setAction("HeartBeatService.REMOTE_RELEASE");
                                     HeartBeatService.this.sendBroadcast(intent);
-                                } else if (str.equals(Commond.REMOTE_LINSTEN)) {//远程监控
+                                } else if (str.equals(Commond.REMOTE_LINSTEN_OPEN)) {//远程监控开启
                                     Intent intent = new Intent();
-                                    intent.setAction("HeartBeatService.REMOTE_LINSTEN");
+                                    intent.setAction("HeartBeatService.REMOTE_LINSTEN_OPEN");
                                     HeartBeatService.this.sendBroadcast(intent);
-                                } else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
+                                } else if (str.equals(Commond.REMOTE_LINSTEN_CLOSE)) {//远程监控关闭
+                                    Intent intent = new Intent();
+                                    intent.setAction("HeartBeatService.REMOTE_LINSTEN_CLOSE");
+                                    HeartBeatService.this.sendBroadcast(intent);
+                                }else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
                                     Intent intent = new Intent();
                                     intent.setAction("HeartBeatService.MOBILE_ANSWER");
                                     HeartBeatService.this.sendBroadcast(intent);
