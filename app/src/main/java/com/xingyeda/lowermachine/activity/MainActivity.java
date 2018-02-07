@@ -82,6 +82,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 import static com.tencent.bugly.crashreport.crash.c.i;
 
 public class MainActivity extends BaseActivity {
@@ -448,6 +449,7 @@ public class MainActivity extends BaseActivity {
                 LogUtils.d("手机接通视频通话");
                 i++;
                 if (!mIsTime) {
+                    mIsTime = true;
                     setTime();
                 }
 //                mIsCall = false;
@@ -594,21 +596,25 @@ public class MainActivity extends BaseActivity {
             ConnectivityManager cwjManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cwjManager.getActiveNetworkInfo();
             if (info != null && info.isAvailable()) {
-                flag = true;
-                if (noNetwork != null) {
-                    noNetwork.setVisibility(View.GONE);
+                if (!flag) {
+                    flag = true;
+                    if (noNetwork != null) {
+                        noNetwork.setVisibility(View.GONE);
+                    }
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+                        initAgoraEngineAndJoinChannel();
+                    }
+                    ininImage();
+                    getBindMsg();
+                    getInform();//获取通告
                 }
-                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-                    initAgoraEngineAndJoinChannel();
-                }
-                ininImage();
-                getBindMsg();
-                getInform();//获取通告
             } else {
-                flag = false;
-                if (mRtcEngine != null) {
-                    leaveChannel();
-                    RtcEngine.destroy();//销毁引擎实例
+                if (flag) {
+                    flag = false;
+                    if (mRtcEngine != null) {
+                        leaveChannel();
+                        RtcEngine.destroy();//销毁引擎实例
+                    }
                 }
             }
         }
@@ -1042,6 +1048,10 @@ public class MainActivity extends BaseActivity {
                         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
                         powerManager.reboot("");
                     } else if (mDoorNumber.equals("3820")) {//关闭设备
+//                        Intent intent = new Intent("android.intent.action.ACTION_REQUEST_SHUTDOWN");
+//                        intent.putExtra("android.intent.extra.KEY_CONFIRM", false);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(intent);
                     } else if (mDoorNumber.equals("3821")) {//设备更新
                         Intent intent = new Intent();
                         intent.setAction("HeartBeatService.UPDATE_DEVICE");
