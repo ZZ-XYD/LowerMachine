@@ -13,12 +13,20 @@ import com.hurray.plugins.rkctrl;
 import com.hurray.plugins.serial;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.ConnectPath;
+import com.xingyeda.lowermachine.base.LitePalUtil;
+import com.xingyeda.lowermachine.bean.CardBean;
 import com.xingyeda.lowermachine.bean.CardResult;
+import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
+import com.xingyeda.lowermachine.http.ConciseStringCallback;
+import com.xingyeda.lowermachine.http.OkHttp;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.utils.SharedPreferencesUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -100,45 +108,71 @@ public class DoorService extends Service {
                             idData28 = cardId.substring(0, 28);
                             idData8 = idData28.substring(16, 24);
 
-                            Map map = new HashMap();
-                            map.put("searchType", "getByCode");
-                            map.put("snCode", idData8);
-                            map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
-
-                            HttpUtils.doPost(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    final CardResult cardResult = JsonUtils.getGson().fromJson(response.body().string(), CardResult.class);
-                                    if (cardResult.getStatus().equals("200")) {
-                                        mRkctrl.exec_io_cmd(6, 1);//开门
-                                        mSoundPool.play(1, 1, 1, 0, 0, 1);
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
-                                            }
-                                        });
+                            if (LitePalUtil.getList(idData8)!=null) {
+                                opneDoor();
+                            }else {
+                                Map map = new HashMap();
+                                map.put("searchType", "getByCode");
+                                map.put("snCode", idData8);
+                                map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                                final String finalIdData = idData8;
+                                OkHttp.get(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new ConciseStringCallback(DoorService.this, new ConciseCallbackHandler<String>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
                                         try {
-                                            pthread.sleep(1000 * 3);
-                                            mRkctrl.exec_io_cmd(6, 0);//关门
-                                        } catch (InterruptedException e) {
+                                            if (response.has("msg")) {
+                                                BaseUtils.showShortToast(DoorService.this, response.getString("msg"));
+                                            }
+                                            opneDoor();
+                                            JSONObject jobj = (JSONObject) response.get("obj");
+                                            CardBean bean = new CardBean();
+                                            bean.setmDongShuId(SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                                            bean.setmCardId(finalIdData);
+                                            bean.setmCardType(jobj.has("cardType") ? "" : jobj.getString("cardType"));
+                                            bean.setmCardDate(jobj.has("expiryDate") ? "" : jobj.getString("expiryDate"));
+                                            bean.setmPhone(jobj.has("phone") ? "" : jobj.getString("phone"));
+                                            bean.save();
+                                        } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                    } else {
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
-                                            }
-                                        });
                                     }
-                                }
-                            });
+                                }));
+                            }
+
+//                            HttpUtils.doPost(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new Callback() {
+//                                @Override
+//                                public void onFailure(Call call, IOException e) {
+//
+//                                }
+//
+//                                @Override
+//                                public void onResponse(Call call, Response response) throws IOException {
+//                                    final CardResult cardResult = JsonUtils.getGson().fromJson(response.body().string(), CardResult.class);
+//                                    if (cardResult.getStatus().equals("200")) {
+//                                        mRkctrl.exec_io_cmd(6, 1);//开门
+//                                        mSoundPool.play(1, 1, 1, 0, 0, 1);
+//                                        mHandler.post(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
+//                                            }
+//                                        });
+//                                        try {
+//                                            pthread.sleep(1000 * 3);
+//                                            mRkctrl.exec_io_cmd(6, 0);//关门
+//                                        } catch (InterruptedException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    } else {
+//                                        mHandler.post(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                BaseUtils.showShortToast(getApplicationContext(), cardResult.getMsg());
+//                                            }
+//                                        });
+//                                    }
+//                                }
+//                            });
                             cardId = "";
                             idData28 = "";
                             idData8 = "";
@@ -149,6 +183,17 @@ public class DoorService extends Service {
         };
         pthread = new Thread(run);
         pthread.start();
+    }
+    private void opneDoor(){
+        mRkctrl.exec_io_cmd(6, 1);//开门
+        mSoundPool.play(1, 1, 1, 0, 0, 1);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mRkctrl.exec_io_cmd(6, 0);//关门
+            }
+        };
+        mHandler.postDelayed(runnable, 3000);
     }
 
     public void runReadLockStatus() {
