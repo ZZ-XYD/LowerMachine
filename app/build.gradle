@@ -9,7 +9,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 1
-        versionName "2.0117"
+        versionName "2.0208"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -39,7 +40,8 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile files('libs/agora-rtc-sdk.jar')
     compile project(':okhttp')
-    compile files('libs/bugly_crash_release.jar')
     compile files('libs/xUtils-2.6.14.jar')
-//    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile files('libs/mina-core-2.0.16.jar')
+    compile files('libs/slf4j-api-1.7.21.jar')
+    compile files('libs/bugly_crash_release.jar')
 }
