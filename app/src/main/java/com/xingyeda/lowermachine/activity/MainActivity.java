@@ -900,7 +900,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void run() {//呼叫电话
                 ReleasePlayer();
-                getAccount(mContext);
+//                getAccount(mContext);
                 mHandler.sendEmptyMessage(1);
                 phoneCall(1, "start");
             }
