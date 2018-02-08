@@ -12,10 +12,12 @@ import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
 import com.xingyeda.lowermachine.utils.LogUtils;
 
+import org.litepal.LitePalApplication;
+
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
-public class MainApplication extends Application {
+public class MainApplication extends LitePalApplication {
 
     private static Stack<Activity> activityStack;
     private static MainApplication singleton;
