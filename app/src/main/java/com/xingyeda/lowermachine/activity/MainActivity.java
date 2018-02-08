@@ -422,6 +422,7 @@ public class MainActivity extends BaseActivity {
                         bannerLayout.setBackgroundResource(R.mipmap.not_image);
                         banner.setVisibility(View.VISIBLE);
                         ininImage();//图片更新
+                        getWeather(1000);//获取天气
                     }
                 }
             } else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接失败
@@ -571,17 +572,17 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void parameterError(JSONObject response) {
                         if (weatherText != null) {
-                            weatherText.append("/暂无天气");
+                                weatherText.append("/暂无天气");
                         }
-                        getWeather(1000);
+//                        getWeather(5000);
                     }
 
                     @Override
                     public void onFailure() {
                         if (weatherText != null) {
-                            weatherText.append("/暂无天气");
+                                weatherText.append("/暂无天气");
                         }
-                        getWeather(1000);
+//                        getWeather(5000);
                     }
                 }));
 
@@ -607,6 +608,7 @@ public class MainActivity extends BaseActivity {
                     ininImage();
                     getBindMsg();
                     getInform();//获取通告
+                    getWeather(1000);//获取天气
                 }
             } else {
                 if (flag) {
@@ -1035,6 +1037,7 @@ public class MainActivity extends BaseActivity {
                                 @Override
                                 public void run() {
                                     mRkctrl.exec_io_cmd(6, 1);//开门
+                                    promptTone(R.raw.opendoor, false);
                                     try {
                                         sleep(1000 * 3);
                                         mRkctrl.exec_io_cmd(6, 0);//关门
