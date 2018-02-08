@@ -5,6 +5,7 @@ android {
     buildToolsVersion "27.0.0"
     useLibrary  'org.apache.http.legacy'
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.xingyeda.lowermachine"
         minSdkVersion 14
         targetSdkVersion 26
@@ -44,4 +45,5 @@ dependencies {
     compile files('libs/mina-core-2.0.16.jar')
     compile files('libs/slf4j-api-1.7.21.jar')
     compile files('libs/bugly_crash_release.jar')
+    compile files('libs/litepal-1.5.1-src.jar')
 }
