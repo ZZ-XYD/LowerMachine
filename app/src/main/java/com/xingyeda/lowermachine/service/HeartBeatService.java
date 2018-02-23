@@ -1,10 +1,14 @@
 package com.xingyeda.lowermachine.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -44,22 +48,25 @@ public class HeartBeatService extends Service {
 
     private NioSocketConnector connector = null;
     private IoSession session = null;
-    private rkctrl m_rkctrl = null;
+    private rkctrl m_rkctrl = new rkctrl();
     private SoundPool mSoundPool;
     private CopyOnWriteArrayList<Message> listMessage = new CopyOnWriteArrayList<>();
 
     private boolean openDoor = false;
+    private boolean isNet = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        registerReceiver(netReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
         new Thread() {
             @Override
             public void run() {
                 initClientMina();
             }
         }.start();
-        m_rkctrl = new rkctrl();
         initSP();
 
         new Thread() {
@@ -105,7 +112,7 @@ public class HeartBeatService extends Service {
                                     Intent intent = new Intent();
                                     intent.setAction("HeartBeatService.REMOTE_LINSTEN_CLOSE");
                                     HeartBeatService.this.sendBroadcast(intent);
-                                }else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
+                                } else if (str.equals(Commond.MOBILE_ANSWER)) {//手机接通视频通话
                                     Intent intent = new Intent();
                                     intent.setAction("HeartBeatService.MOBILE_ANSWER");
                                     HeartBeatService.this.sendBroadcast(intent);
@@ -143,6 +150,23 @@ public class HeartBeatService extends Service {
 
     }
 
+    private BroadcastReceiver netReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {//网络监视器
+            ConnectivityManager cwjManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cwjManager.getActiveNetworkInfo();
+            if (info != null && info.isAvailable()) {
+            } else {
+                if (session != null) {
+                    session.close(true);
+                }
+                if (connector != null) {
+                    connector.dispose();
+                }
+            }
+        }
+    };
+
     public void iteratorRemove(List<Message> list, Message target) {
 
         for (int i = 0; i < list.size(); i++) {
@@ -164,6 +188,8 @@ public class HeartBeatService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        unregisterReceiver(netReceiver);
 
         Intent intent = new Intent();
         intent.setAction("HeartBeatService.onDestroy");
@@ -190,24 +216,22 @@ public class HeartBeatService extends Service {
     发送消息
      */
     private void sendMessage() throws InterruptedException {
-        while (true) {
-            if (session.isConnected()) {
-                Intent intent = new Intent();
-                intent.setAction("HeartBeatService.SocketConnected");
-                HeartBeatService.this.sendBroadcast(intent);
+        while (isNet == false) {
+            Intent intent = new Intent();
+            intent.setAction("HeartBeatService.SocketConnected");
+            HeartBeatService.this.sendBroadcast(intent);
 
-                Message msg = new Message();
-                msg.setConverType("Object");
-                msg.setContent("KeepLive");
-                msg.setCommond("Commond");
-                msg.setmId(SharedPreUtil.getString(HeartBeatService.this, "Mac", ""));
+            Message msg = new Message();
+            msg.setConverType("Object");
+            msg.setContent("KeepLive");
+            msg.setCommond("Commond");
+            msg.setmId(SharedPreUtil.getString(HeartBeatService.this, "Mac", ""));
 
-                String jsonObject = JsonUtils.getGson().toJson(msg);
+            String jsonObject = JsonUtils.getGson().toJson(msg);
 
-                session.write(new ProtocalPack(jsonObject));
+            session.write(new ProtocalPack(jsonObject));
 
-                Thread.sleep(1000 * 10);
-            }
+            Thread.sleep(1000 * 10);
         }
     }
 
@@ -243,28 +267,41 @@ public class HeartBeatService extends Service {
     }
 
     private void initClientMina() {
-        connector = new NioSocketConnector();
-        //设置链接超时时间
-        connector.setConnectTimeoutMillis(1000 * 30);
-        //添加过滤器
-//        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"), LineDelimiter.WINDOWS.getValue(), LineDelimiter.WINDOWS.getValue())));
-        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CustomProtocalCodecFactory(Charset.forName("UTF-8"))));
-        //添加消息处理
-        connector.setHandler(new ClientHandler());
-        //添加状态监听
-        connector.addListener(new IoListener());
-        try {
-            //创建连接
-            ConnectFuture future = connector.connect(new InetSocketAddress(ConnectPath.HOST, ConnectPath.SOCKET_PORT));
-            //等待连接创建完成
-            future.awaitUninterruptibly();
-            //获得session
-            session = future.getSession();
-            if (session.isConnected()) {
-                sendMessage();
+        while (true) {
+            connector = new NioSocketConnector();
+            //设置链接超时时间
+            connector.setConnectTimeoutMillis(1000 * 30);
+            //添加过滤器
+            connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CustomProtocalCodecFactory(Charset.forName("UTF-8"))));
+            //添加消息处理
+            connector.setHandler(new ClientHandler());
+            //添加状态监听
+            connector.addListener(new IoListener());
+            try {
+                //创建连接
+                ConnectFuture future = connector.connect(new InetSocketAddress(ConnectPath.HOST, ConnectPath.SOCKET_PORT));
+                //等待连接创建完成
+                future.awaitUninterruptibly();
+                //获得session
+                session = future.getSession();
+                if (session.isConnected()) {
+                    isNet = false;
+                    sendMessage();
+                    break;
+                }
+            } catch (Exception e) {
+                if (session != null) {
+                    session.close(true);
+                }
+                if (connector != null) {
+                    connector.dispose();
+                }
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -310,21 +347,20 @@ public class HeartBeatService extends Service {
 
         @Override
         public void sessionDestroyed(IoSession ioSession) throws Exception {
-            while (true) {
-                Intent intent = new Intent();
-                intent.setAction("HeartBeatService.SocketIsNotConnected");
-                HeartBeatService.this.sendBroadcast(intent);
-                try {
-                    ConnectFuture future = connector.connect(new InetSocketAddress(ConnectPath.HOST, ConnectPath.SOCKET_PORT));
-                    future.awaitUninterruptibly();
-                    session = future.getSession();
-                    if (session.isConnected()) {
-                        break;
-                    }
-                } catch (Exception e) {
-                    Thread.sleep(5000);
-                }
+            isNet = true;
+
+            Intent intent = new Intent();
+            intent.setAction("HeartBeatService.SocketIsNotConnected");
+            HeartBeatService.this.sendBroadcast(intent);
+
+            if (session != null) {
+                session.close(true);
             }
+            if (connector != null) {
+                connector.dispose();
+            }
+
+            initClientMina();
         }
     }
 }
