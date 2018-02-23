@@ -38,12 +38,11 @@ import okhttp3.Response;
 
 public class DoorService extends Service {
 
-    private rkctrl mRkctrl = null;
-    private serial mSerial = null;
+    private rkctrl mRkctrl = new rkctrl();
+    private serial mSerial = new serial();
     private String arg = "/dev/ttyS1,9600,N,1,8";
-    private Thread pthread = null;
     private int iRead = 0;
-    private Handler mHandler = null;
+    private Handler mHandler = new Handler();
     private SoundPool mSoundPool;
 
     public DoorService() {
@@ -52,14 +51,9 @@ public class DoorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mRkctrl = new rkctrl();
-        mSerial = new serial();
-        mHandler = new Handler();
         initSP();
-        if (android.os.Build.MODEL.equals("rk3168")) {
-            initSerial();
-            runReadLockStatus();
-        }
+        initSerial();
+        runReadLockStatus();
     }
 
     @Override
@@ -83,61 +77,76 @@ public class DoorService extends Service {
     }
 
     private void initSerial() {
-        int iret = mSerial.open(arg);
-        if (iret > 0) {
-            iRead = iret;
-            runReadSerial(iRead);
+        while (true) {
+            int iret = mSerial.open(arg);
+            if (iret > 0) {
+                iRead = iret;
+                new Thread() {
+                    @Override
+                    public void run() {
+                        runReadSerial(iRead);
+                    }
+                }.start();
+                break;
+            }
         }
+
+//        if (iret > 0) {
+//            iRead = iret;
+//        runReadSerial(iret);
+//        }
     }
 
     // 读取串口数据线程
     public void runReadSerial(final int fd) {
-        Runnable run = new Runnable() {
-            public void run() {
-                String cardId = "";
-                String idData28 = "";
-                String idData8 = "";
-                while (true) {
+//        Runnable run = new Runnable() {
+//            public void run() {
+        String cardId = "";
+        String idData28 = "";
+        String idData8 = "";
+        while (true) {
 //                    int r = mSerial.select(fd, 1, 0);
 //                    if (r == 1) {
-                    byte[] buf = new byte[50];
-                    buf = mSerial.read(fd, 100);
-                    if (buf != null && buf.length > 0) {
-                        cardId += byte2HexString(buf);
-                        if (cardId.length() >= 28) {
-                            idData28 = cardId.substring(0, 28);
-                            idData8 = idData28.substring(16, 24);
-
-                            if (LitePalUtil.getList(idData8)!=null) {
-                                opneDoor();
-                            }else {
-                                Map map = new HashMap();
-                                map.put("searchType", "getByCode");
-                                map.put("snCode", idData8);
-                                map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
-                                final String finalIdData = idData8;
-                                OkHttp.get(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new ConciseStringCallback(DoorService.this, new ConciseCallbackHandler<String>() {
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-                                        try {
-                                            if (response.has("msg")) {
-                                                BaseUtils.showShortToast(DoorService.this, response.getString("msg"));
-                                            }
-                                            opneDoor();
-                                            JSONObject jobj = (JSONObject) response.get("obj");
-                                            CardBean bean = new CardBean();
-                                            bean.setmDongShuId(SharedPreUtil.getString(DoorService.this, "DongShuId"));
-                                            bean.setmCardId(finalIdData);
-                                            bean.setmCardType(jobj.has("cardType") ? "" : jobj.getString("cardType"));
-                                            bean.setmCardDate(jobj.has("expiryDate") ? "" : jobj.getString("expiryDate"));
-                                            bean.setmPhone(jobj.has("phone") ? "" : jobj.getString("phone"));
-                                            bean.save();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+            byte[] buf = new byte[1024];
+            buf = mSerial.read(fd, 100);
+            if (buf.length > 0) {
+                cardId += byte2HexString(buf);
+                if (cardId.length() >= 28) {
+                    idData28 = cardId.substring(0, 28);
+                    idData8 = idData28.substring(16, 24);
+                    mSoundPool.play(2, 1, 1, 0, 0, 1);
+                    if (LitePalUtil.getList(idData8) != null) {
+                        opneDoor();
+                    } else {
+                        Map map = new HashMap();
+                        map.put("searchType", "getByCode");
+                        map.put("snCode", idData8);
+                        map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                        final String finalIdData = idData8;
+                        OkHttp.get(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new ConciseStringCallback(DoorService.this, new ConciseCallbackHandler<String>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    if (response.has("msg")) {
+                                        BaseUtils.showShortToast(DoorService.this, response.getString("msg"));
                                     }
-                                }));
+                                    opneDoor();
+                                    JSONObject jobj = (JSONObject) response.get("obj");
+                                    CardBean bean = new CardBean();
+                                    bean.setmDongShuId(SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                                    bean.setmCardId(finalIdData);
+                                    bean.setmCardType(jobj.has("cardType") ? "" : jobj.getString("cardType"));
+                                    bean.setmCardDate(jobj.has("expiryDate") ? "" : jobj.getString("expiryDate"));
+                                    bean.setmPhone(jobj.has("phone") ? "" : jobj.getString("phone"));
+                                    bean.save();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
+
+
+                        }));
+                    }
 
 //                            HttpUtils.doPost(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new Callback() {
 //                                @Override
@@ -173,18 +182,20 @@ public class DoorService extends Service {
 //                                    }
 //                                }
 //                            });
-                            cardId = "";
-                            idData28 = "";
-                            idData8 = "";
-                        }
-                    }
+                    cardId = "";
+                    idData28 = "";
+                    idData8 = "";
                 }
+//            }
             }
-        };
-        pthread = new Thread(run);
-        pthread.start();
+        }
+//            }
+//        };
+//        pthread = new Thread(run);
+//        pthread.start();
     }
-    private void opneDoor(){
+
+    private void opneDoor() {
         mRkctrl.exec_io_cmd(6, 1);//开门
         mSoundPool.play(1, 1, 1, 0, 0, 1);
         Runnable runnable = new Runnable() {
@@ -239,10 +250,9 @@ public class DoorService extends Service {
 
     private void initSP() {
         if (mSoundPool == null) {
-            mSoundPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 5);
+            mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 5);
             mSoundPool.load(DoorService.this, R.raw.opendoor, 1);
-            mSoundPool.load(DoorService.this, R.raw.bujie, 1);
-            mSoundPool.load(DoorService.this, R.raw.busy, 1);
+            mSoundPool.load(DoorService.this, R.raw.di, 1);
         }
     }
 }
