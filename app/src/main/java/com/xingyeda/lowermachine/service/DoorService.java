@@ -109,44 +109,45 @@ public class DoorService extends Service {
 //                    if (r == 1) {
             byte[] buf = new byte[1024];
             buf = mSerial.read(fd, 100);
-            if (buf.length > 0) {
-                cardId += byte2HexString(buf);
-                if (cardId.length() >= 28) {
-                    idData28 = cardId.substring(0, 28);
-                    idData8 = idData28.substring(16, 24);
-                    mSoundPool.play(2, 1, 1, 0, 0, 1);
-                    if (LitePalUtil.getList(idData8) != null) {
-                        opneDoor();
-                    } else {
-                        Map map = new HashMap();
-                        map.put("searchType", "getByCode");
-                        map.put("snCode", idData8);
-                        map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
-                        final String finalIdData = idData8;
-                        OkHttp.get(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new ConciseStringCallback(DoorService.this, new ConciseCallbackHandler<String>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    if (response.has("msg")) {
-                                        BaseUtils.showShortToast(DoorService.this, response.getString("msg"));
+            if (buf != null) {
+                if (buf.length > 0) {
+                    cardId += byte2HexString(buf);
+                    if (cardId.length() >= 28) {
+                        idData28 = cardId.substring(0, 28);
+                        idData8 = idData28.substring(16, 24);
+                        mSoundPool.play(2, 1, 1, 0, 0, 1);
+                        if (LitePalUtil.getList(idData8) != null) {
+                            opneDoor();
+                        } else {
+                            Map map = new HashMap();
+                            map.put("searchType", "getByCode");
+                            map.put("snCode", idData8);
+                            map.put("dongshu", SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                            final String finalIdData = idData8;
+                            OkHttp.get(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new ConciseStringCallback(DoorService.this, new ConciseCallbackHandler<String>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    try {
+                                        if (response.has("msg")) {
+                                            BaseUtils.showShortToast(DoorService.this, response.getString("msg"));
+                                        }
+                                        opneDoor();
+                                        JSONObject jobj = (JSONObject) response.get("obj");
+                                        CardBean bean = new CardBean();
+                                        bean.setmDongShuId(SharedPreUtil.getString(DoorService.this, "DongShuId"));
+                                        bean.setmCardId(finalIdData);
+                                        bean.setmCardType(jobj.has("cardType") ? "" : jobj.getString("cardType"));
+                                        bean.setmCardDate(jobj.has("expiryDate") ? "" : jobj.getString("expiryDate"));
+                                        bean.setmPhone(jobj.has("phone") ? "" : jobj.getString("phone"));
+                                        bean.save();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                    opneDoor();
-                                    JSONObject jobj = (JSONObject) response.get("obj");
-                                    CardBean bean = new CardBean();
-                                    bean.setmDongShuId(SharedPreUtil.getString(DoorService.this, "DongShuId"));
-                                    bean.setmCardId(finalIdData);
-                                    bean.setmCardType(jobj.has("cardType") ? "" : jobj.getString("cardType"));
-                                    bean.setmCardDate(jobj.has("expiryDate") ? "" : jobj.getString("expiryDate"));
-                                    bean.setmPhone(jobj.has("phone") ? "" : jobj.getString("phone"));
-                                    bean.save();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
-                            }
 
 
-                        }));
-                    }
+                            }));
+                        }
 
 //                            HttpUtils.doPost(ConnectPath.getPath(DoorService.this, ConnectPath.CARD), map, new Callback() {
 //                                @Override
@@ -182,11 +183,12 @@ public class DoorService extends Service {
 //                                    }
 //                                }
 //                            });
-                    cardId = "";
-                    idData28 = "";
-                    idData8 = "";
-                }
+                        cardId = "";
+                        idData28 = "";
+                        idData8 = "";
+                    }
 //            }
+                }
             }
         }
 //            }
