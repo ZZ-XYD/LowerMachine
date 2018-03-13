@@ -51,9 +51,9 @@ public class DoorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-//        initSP();
-//        initSerial();
-//        runReadLockStatus();
+        initSP();
+        initSerial();
+        runReadLockStatus();
     }
 
     @Override
