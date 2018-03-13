@@ -51,9 +51,9 @@ public class DoorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        initSP();
-        initSerial();
-        runReadLockStatus();
+//        initSP();
+//        initSerial();
+//        runReadLockStatus();
     }
 
     @Override
@@ -253,7 +253,6 @@ public class DoorService extends Service {
     private void initSP() {
         if (mSoundPool == null) {
             mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 5);
-            mSoundPool.load(DoorService.this, R.raw.opendoor, 1);
             mSoundPool.load(DoorService.this, R.raw.di, 1);
         }
     }

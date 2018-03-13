@@ -8,6 +8,7 @@ import com.ldl.okhttp.OkHttpUtils;
 import com.ldl.okhttp.callback.Callback;
 import com.ldl.okhttp.callback.StringCallback;
 import com.xingyeda.lowermachine.utils.BaseUtils;
+import com.xingyeda.lowermachine.utils.MyLog;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void get(String url, Callback callback) {
+			MyLog.d("OkHttp:"+url);
 			OkHttpUtils.post().url(url).build().execute(callback);
 	}
 	/**
@@ -35,6 +37,7 @@ public class OkHttp {
 	 * @param
 	 */
 	public static void get(String url,Map params) {
+		MyLog.d("OkHttp:"+url+params);
 		OkHttpUtils.post().url(url).params(params).build().execute(new StringCallback() {
 			@Override
 			public void onError(Call call, Exception e, int id) {
@@ -55,6 +58,7 @@ public class OkHttp {
 	 * @param params
 	 */
 	public static void get(String url, Map params, Callback callback) {
+		MyLog.d("OkHttp:"+url+params);
 			OkHttpUtils.post().url(url).params(params).build().execute(callback);
 	}
 
@@ -65,6 +69,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void get(String url, BaseStringCallback callback) {
+		MyLog.d("OkHttp:"+url);
 			OkHttpUtils.post().url(url).build().execute(callback);
 	}
 
@@ -75,6 +80,7 @@ public class OkHttp {
 	 * @param params
 	 */
 	public static void get(String url, Map params, BaseStringCallback callback) {
+		MyLog.d("OkHttp:"+url+params);
 			OkHttpUtils.post().url(url).params(params).build().execute(callback);
 	}
 
@@ -85,6 +91,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void getJson(String url, JsonCallback callback) {
+		MyLog.d("OkHttp:"+url);
 			OkHttpUtils.post().url(url).build().execute(callback);
 	}
 
@@ -96,6 +103,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void getJson(String url, Map params, JsonCallback callback) {
+		MyLog.d("OkHttp:"+url+params);
 			OkHttpUtils.post().url(url).params(params).build().execute(callback);
 	}
 
@@ -106,6 +114,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void getObjects(String url, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url);
 			OkHttpUtils.post().url(url).build().execute(callback);
 	}
 
@@ -117,6 +126,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void getObjects(String url, Map params, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url+params);
 			OkHttpUtils.post().url(url).params(params).build().execute(callback);
 	}
 
@@ -129,6 +139,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void postString(String url, Object obj, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url);
 			OkHttpUtils.postString().url(url).content(new Gson().toJson(obj))
 					.build().execute(callback);
 	}
@@ -143,6 +154,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void postFile(Context context, String url, File file, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url);
 			if (!file.exists()) {
 				Toast.makeText(context, "文件不存在，请修改文件路径", Toast.LENGTH_SHORT).show();
 				return;
@@ -163,6 +175,7 @@ public class OkHttp {
 	 */
 	public static void uploadFile(Context context, String url, String name,
 								  String fileName, File file, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url);
 			if (!file.exists()) {
 				Toast.makeText(context, "文件不存在，请修改文件路径", Toast.LENGTH_SHORT).show();
 				return;
@@ -182,6 +195,7 @@ public class OkHttp {
 	 */
 	public static void uploadFile(Context context, String url, String name,
 								  String fileName, Map params, File file, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url+params);
 			if (!file.exists()) {
 				Toast.makeText(context, "文件不存在，请修改文件路径", Toast.LENGTH_SHORT).show();
 				return;
@@ -197,6 +211,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void downloadFile(Context context, String url, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url);
 			OkHttpUtils.post().url(url).build().execute(callback);
 	}
 
@@ -208,6 +223,7 @@ public class OkHttp {
 	 * @param callback
 	 */
 	public static void downloadFile(String url, Map params, Callback<?> callback) {
+		MyLog.d("OkHttp:"+url+params);
 			OkHttpUtils.post().url(url).params(params).build().execute(callback);
 	}
 

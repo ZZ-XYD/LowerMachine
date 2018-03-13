@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.ldl.okhttp.callback.StringCallback;
 import com.xingyeda.lowermachine.utils.BaseUtils;
+import com.xingyeda.lowermachine.utils.MyLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,11 +25,11 @@ public class ConciseStringCallback extends StringCallback {
     @Override
     public void onError(Call call, Exception e,int id) {
         BaseUtils.showShortToast(mContext, "连接超时");
-//		MyLog.i("连接超时");
+		MyLog.i("连接超时");
     }
     @Override
     public void onResponse(String response,int id) {
-//		MyLog.i("返回数据："+response);
+		MyLog.i("返回数据："+response);
 		if (response!=null) {
 
 	try {

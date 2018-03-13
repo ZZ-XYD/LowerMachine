@@ -27,7 +27,8 @@ public class ConnectPath {
     /*
     SIP地址
      */
-    public static final String SIP_HOST = "393818.2d09f8.sip.newrocktech.com:5090";
+    public static final String SIP_HOST = "393818.2d09f8.sip.newrocktech.com:5090";//sip服务器
+    public static final String SIP_REMARK = "393818.2d09f8.sip.newrocktech.com:5090";//sip备用服务器
 
     //SIP默认账号
     public static final String SIP_NAME = "215";
@@ -66,6 +67,8 @@ public class ConnectPath {
     public static final String GETACCOUNT = HOST_PATH + "getAccount";
     //释放SIP账户
     public static final String RELEASEACCOUNT = HOST_PATH + "releaseAccount";
+    //更新反馈
+    public static final String ACCEPTCOMMOND = HOST_PATH + "acceptCommond";
 
     //获取地址
     public static String getPath(Context context, String url) {

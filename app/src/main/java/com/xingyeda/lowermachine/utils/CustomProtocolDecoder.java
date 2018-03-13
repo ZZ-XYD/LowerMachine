@@ -1,5 +1,11 @@
 package com.xingyeda.lowermachine.utils;
 
+import android.content.Intent;
+import android.os.Looper;
+
+import com.xingyeda.lowermachine.base.MainApplication;
+import com.xingyeda.lowermachine.service.HeartBeatService;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
@@ -10,7 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 public class CustomProtocolDecoder implements ProtocolDecoder {
-	
+
 	private final AttributeKey CONTEXT = new AttributeKey(getClass(), "context");
 	
 	private final Charset charset;
@@ -62,6 +68,7 @@ public class CustomProtocolDecoder implements ProtocolDecoder {
 			buf.mark();
 			// 读取消息头部分
 			int length = buf.getInt();
+			MyLog.d(length);
 			// 检查读取的包头是否正常，不正常的话清空buffer
 			if (length < 0 || length > maxPackLength) {
 				buf.clear();
@@ -71,12 +78,15 @@ public class CustomProtocolDecoder implements ProtocolDecoder {
 			else if (length >= packHeadLength
 					&& length - packHeadLength <= buf.remaining()) {
 				int oldLimit2 = buf.limit();
-				buf.limit(buf.position() + length);
+				buf.limit(length);
+//				buf.limit(buf.position() + length);
 				String content = buf.getString(ctx.getDecoder());
+				MyLog.d(content);
 				buf.limit(oldLimit2);
 				ProtocalPack pack = new ProtocalPack(content);
 				out.write(pack);
 			} else {
+				MyLog.d("length : "+length);
 				// 如果消息包不完整
 				// 将指针重新移动消息头的起始位置
 				buf.reset();
@@ -154,5 +164,24 @@ public class CustomProtocolDecoder implements ProtocolDecoder {
 
 		}
 
+	}
+
+	public static String ioBufferToString(Object message)
+	{
+		if (!(message instanceof IoBuffer))
+		{
+			return "";
+		}
+		IoBuffer ioBuffer = (IoBuffer) message;
+		byte[] b = new byte [ioBuffer.limit()];
+		ioBuffer.get(b);
+		StringBuffer stringBuffer = new StringBuffer();
+
+		for (int i = 0; i < b.length; i++)
+		{
+
+			stringBuffer.append((char) b [i]);
+		}
+		return stringBuffer.toString();
 	}
 }

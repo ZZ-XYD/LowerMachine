@@ -1,16 +1,14 @@
 package com.xingyeda.lowermachine.base;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.ldl.okhttp.OkHttpUtils;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.xingyeda.lowermachine.service.DoorService;
 import com.xingyeda.lowermachine.service.HeartBeatService;
-import com.xingyeda.lowermachine.utils.LogUtils;
+import com.xingyeda.lowermachine.utils.MyLog;
 
 import org.litepal.LitePalApplication;
 
@@ -22,6 +20,7 @@ public class MainApplication extends LitePalApplication {
     private static Stack<Activity> activityStack;
     private static MainApplication singleton;
     private static Context mContext;
+    private String mTest;
 
     @Override
     public void onCreate() {
@@ -32,8 +31,17 @@ public class MainApplication extends LitePalApplication {
         CrashReport.initCrashReport(getApplicationContext(), "6e8ad93526", true);
         OkHttpUtils.getInstance().setConnectTimeout(100000, TimeUnit.MILLISECONDS);
 
-        initDoorService();
         initHeartBeatService();
+        initDoorService();
+        MyLog.getInstance(this).delFile();
+    }
+
+    public String getmTest() {
+        return mTest;
+    }
+
+    public void setmTest(String mTest) {
+        this.mTest = mTest;
     }
 
     public static Context getmContext() {

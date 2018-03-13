@@ -13,14 +13,14 @@ import android.os.IBinder;
 import android.os.PowerManager;
 
 import com.hurray.plugins.rkctrl;
+import com.lidroid.xutils.util.LogUtils;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.Message;
-import com.xingyeda.lowermachine.socket.SocketUtils;
 import com.xingyeda.lowermachine.utils.CustomProtocalCodecFactory;
 import com.xingyeda.lowermachine.utils.JsonUtils;
-import com.xingyeda.lowermachine.utils.LogUtils;
+import com.xingyeda.lowermachine.utils.MyLog;
 import com.xingyeda.lowermachine.utils.ProtocalPack;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 
@@ -31,15 +31,9 @@ import org.apache.mina.core.service.IoServiceListener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.textline.LineDelimiter;
-import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -77,7 +71,7 @@ public class HeartBeatService extends Service {
                         for (Message message : listMessage) {
                             if (message != null) {
                                 String str = message.getCommond().split(",")[0];
-                                LogUtils.d("str : " + str);
+                                MyLog.d("str : " + str);
                                 if (str.equals(Commond.REMOTE_OPEN)) {//开门
                                     new Thread() {
                                         @Override
@@ -309,6 +303,7 @@ public class HeartBeatService extends Service {
 
         @Override
         public void messageReceived(IoSession session, Object message) throws Exception {
+
             ProtocalPack pk = (ProtocalPack) message;
             Message msg = JsonUtils.getGson().fromJson(pk.getContent(), Message.class);
             listMessage.add(msg);
