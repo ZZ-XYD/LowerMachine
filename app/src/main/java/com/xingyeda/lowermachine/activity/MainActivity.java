@@ -1,7 +1,7 @@
 package com.xingyeda.lowermachine.activity;
 
 import android.Manifest;
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,9 +32,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hurray.plugins.rkctrl;
+import com.lidroid.xutils.util.LogUtils;
+import com.vvsip.ansip.IVvsipService;
+import com.vvsip.ansip.IVvsipServiceListener;
+import com.vvsip.ansip.VvsipCall;
+import com.vvsip.ansip.VvsipDTMF;
+import com.vvsip.ansip.VvsipService;
+import com.vvsip.ansip.VvsipTask;
 import com.xingyeda.lowermachine.R;
 import com.xingyeda.lowermachine.adapter.GlideImageLoader;
 import com.xingyeda.lowermachine.base.BaseActivity;
+import com.xingyeda.lowermachine.base.Commond;
 import com.xingyeda.lowermachine.base.ConnectPath;
 import com.xingyeda.lowermachine.bean.NotificationBean;
 import com.xingyeda.lowermachine.bean.SipResult;
@@ -42,12 +52,11 @@ import com.xingyeda.lowermachine.http.CallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseCallbackHandler;
 import com.xingyeda.lowermachine.http.ConciseStringCallback;
 import com.xingyeda.lowermachine.http.OkHttp;
-import com.xingyeda.lowermachine.service.DoorService;
-import com.xingyeda.lowermachine.service.HeartBeatService;
+import com.xingyeda.lowermachine.utils.AppUtils;
 import com.xingyeda.lowermachine.utils.BaseUtils;
 import com.xingyeda.lowermachine.utils.HttpUtils;
 import com.xingyeda.lowermachine.utils.JsonUtils;
-import com.xingyeda.lowermachine.utils.LogUtils;
+import com.xingyeda.lowermachine.utils.MyLog;
 import com.xingyeda.lowermachine.utils.SharedPreUtil;
 import com.xingyeda.lowermachine.view.layout.PercentLinearLayout;
 import com.youth.banner.Banner;
@@ -82,10 +91,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
-import static com.tencent.bugly.crashreport.crash.c.i;
-
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements IVvsipServiceListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -183,11 +189,11 @@ public class MainActivity extends BaseActivity {
 
         setEquipmentName();
 
-        if (flag) {
-            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-                initAgoraEngineAndJoinChannel();
-            }
-        }
+//        if (flag) {
+//            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+//                initAgoraEngineAndJoinChannel();
+//            }
+//        }
 
     }
 
@@ -261,6 +267,7 @@ public class MainActivity extends BaseActivity {
     private void ininImage() {
         Map<String, String> params = new HashMap<>();
         params.put("xiaoId", MainBusiness.getMacAddress(mContext));
+        params.put("type", "1");
         OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.IMAGE_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -309,13 +316,11 @@ public class MainActivity extends BaseActivity {
     private void getInform() {//通告
         final Map<String, String> params = new HashMap<>();
         params.put("eid", MainBusiness.getMacAddress(mContext));
-        LogUtils.d("OkHttp:" + ConnectPath.getPath(mContext, ConnectPath.INFORM_PATH) + params);
         OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.INFORM_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.has("obj")) {
                     try {
-                        LogUtils.d("response" + response.toString());
                         JSONArray jobj = (JSONArray) response.get("obj");
                         notificationList.clear();
                         if (jobj != null && jobj.length() != 0) {
@@ -341,12 +346,12 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void parameterError(JSONObject response) {
-                LogUtils.d(response.toString());
+                MyLog.d(response.toString());
             }
 
             @Override
             public void onFailure() {
-                LogUtils.d("超时");
+                MyLog.d("超时");
 
             }
         }));
@@ -358,7 +363,7 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 if (notificationText != null) {
                     if (notificationList != null && !notificationList.isEmpty()) {
-                        LogUtils.d("list:" + notificationList.toString());
+                        MyLog.d("list:" + notificationList.toString());
                         if (notification <= notificationList.size()) {
                             notificationText.setVisibility(View.VISIBLE);
                             notificationTime.setVisibility(View.VISIBLE);
@@ -397,6 +402,9 @@ public class MainActivity extends BaseActivity {
         intent.addAction("HeartBeatService.MOBILE_ANSWER");//手机接通视频通话
         intent.addAction("HeartBeatService.MOBILE_RECEIVE");//手机收到呼入
         intent.addAction("HeartBeatService.UPDATE_DEVICE");//更新设备
+        intent.addAction("HeartBeatService.REMOTE_LINSTEN_OPEN");//远程监控开启
+        intent.addAction("HeartBeatService.REMOTE_LINSTEN_CLOSE");//远程监控关闭
+        intent.addAction("VvsipDTMF.DTMF");//开门
 
         // 注册广播
         mContext.registerReceiver(mBroadcastReceiver, intent);
@@ -410,10 +418,11 @@ public class MainActivity extends BaseActivity {
             if (action.equals("HeartBeatService.RELOADIMG")) {//更新广告
                 ininImage();//图片更新
                 getBindMsg();
-                LogUtils.d("更新广告");
+                MyLog.d("更新广告");
                 getInform();//获取通告
             } else if (action.equals("HeartBeatService.SocketConnected")) {//socket连接成功
-                LogUtils.d("socket连接成功");
+                MyLog.d("socket连接成功");
+                MyLog.getInstance(mContext).delFile();
                 if (!mIsSocket) {
                     mIsSocket = true;
                     if (snText != null) {
@@ -426,7 +435,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             } else if (action.equals("HeartBeatService.SocketIsNotConnected")) {//socket连接失败
-                LogUtils.d("socket连接失败");
+                MyLog.d("socket连接失败");
                 if (mIsSocket) {
                     mIsSocket = false;
                     if (snText != null) {
@@ -438,16 +447,18 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             } else if (action.equals("HeartBeatService.HANG_UP")) {//手机直接挂断
-                LogUtils.d("手机直接挂断");
+                MyLog.d("手机直接挂断");
                 ReleasePlayer();
                 promptTone(R.raw.wurenjieting, false);//正忙
                 clearAll();
+                leaveChannel();
             } else if (action.equals("HeartBeatService.REMOTE_RELEASE")) {//手机接通后挂断
-                LogUtils.d("手机接通后挂断");
+                MyLog.d("手机接通后挂断");
                 ReleasePlayer();
                 clearAll();
+                leaveChannel();
             } else if (action.equals("HeartBeatService.MOBILE_ANSWER")) {//手机接通视频通话
-                LogUtils.d("手机接通视频通话");
+                MyLog.d("手机接通视频通话");
                 i++;
                 if (!mIsTime) {
                     mIsTime = true;
@@ -460,18 +471,60 @@ public class MainActivity extends BaseActivity {
                 }
                 connectTime(60);
             } else if (action.equals("HeartBeatService.MOBILE_RECEIVE")) {//手机收到呼入
-                LogUtils.d("手机收到呼入");
-                i1++;
+                MyLog.d("手机收到呼入");
+//                BaseUtils.showShortToast(mContext,"手机收到呼入");
+                   i1++;
                 if (mCallTimer != null) {
                     mCallTimer.cancel();
                 }
                 overtimeTimer(30);
             } else if (action.equals("HeartBeatService.UPDATE_DEVICE")) {
                 MainBusiness.getVersion(mContext);
+                notificationBack();
+            }else if (action.equals("HeartBeatService.REMOTE_LINSTEN_OPEN")) {//监控开启
+                MyLog.d("监控开启");
+//                BaseUtils.showShortToast(mContext,"监控开启");
+                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+                    initAgoraEngineAndJoinChannel();
+                }
+            }else if (action.equals("HeartBeatService.REMOTE_LINSTEN_CLOSE")) {//监控关闭
+                if (!mIsCall) {
+                    MyLog.d("监控关闭");
+//                    BaseUtils.showShortToast(mContext,"监控关闭");
+                    leaveChannel();
+                }
+            }else if (action.equals("VvsipDTMF.DTMF")) {//开门
+                BaseUtils.showShortToast(mContext,"开门成功");
+                MyLog.d("开门");
+                 new Thread() {
+                    @Override
+                    public void run() {
+                        mRkctrl.exec_io_cmd(6, 1);//开门
+//                        promptTone(R.raw.opendoor, false);
+                        try {
+                            sleep(1000 * 3);
+                            mRkctrl.exec_io_cmd(6, 0);//关门
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
             }
         }
 
     };
+    private void notificationBack(){
+        Map<String,String> params = new HashMap<>();
+        params.put("eid",MainBusiness.getMacAddress(mContext));
+        params.put("parameter", AppUtils.getVersionName(mContext));
+        params.put("commond", Commond.UPDATE_DEVICE);
+        OkHttp.get(ConnectPath.getPath(mContext,ConnectPath.ACCEPTCOMMOND),params,new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+            }
+        }));
+    }
 
     private int i = 0;
     private int i1 = 0;
@@ -572,7 +625,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void parameterError(JSONObject response) {
                         if (weatherText != null) {
-                                weatherText.append("/暂无天气");
+                            weatherText.append("/暂无天气");
                         }
 //                        getWeather(5000);
                     }
@@ -580,7 +633,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onFailure() {
                         if (weatherText != null) {
-                                weatherText.append("/暂无天气");
+                            weatherText.append("/暂无天气");
                         }
 //                        getWeather(5000);
                     }
@@ -626,17 +679,21 @@ public class MainActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.qr_code:
-                callOut("8888");
+//                callOut("8888");
+                sipInit(ConnectPath.SIP_HOST);
                 break;
             case R.id.door_number:
-                BaseUtils.startActivity(mContext, SetActivity.class);
+//                BaseUtils.startActivity(mContext, SetActivity.class);
+                sipHangup();
                 break;
             case R.id.equipment_id:
-                BaseUtils.showLongToast(mContext, "接通视频通话 : " + i + "  收到呼叫 ： " + i1);
+//                BaseUtils.showLongToast(mContext, "接通视频通话 : " + i + "  收到呼叫 ： " + i1);
+                sipCall("18711018824");
                 break;
             case R.id.main_time:
-                i = 0;
-                i1 = 0;
+//                i = 0;
+//                i1 = 0;
+                callOut("1111");
                 break;
         }
     }
@@ -660,6 +717,10 @@ public class MainActivity extends BaseActivity {
 
 
     private void callOut(String callinfo) {
+        mIsCall = true;
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+            initAgoraEngineAndJoinChannel();
+        }
         while (callinfo.length() < 4) {
             callinfo = "0" + callinfo;
         }
@@ -667,7 +728,6 @@ public class MainActivity extends BaseActivity {
             callTimer.setText("呼叫中");
         }
         promptTone(R.raw.ringback, true);
-        mIsCall = true;
         mDoorNumber = "";
         mHousenum = callinfo;
         Map<String, String> params = new HashMap<>();
@@ -677,7 +737,6 @@ public class MainActivity extends BaseActivity {
         params.put("block", "00");
         params.put("isxiaoqu", SharedPreUtil.getString(mContext, "isxiaoqu"));
         params.put("paizhao", "false");
-        LogUtils.d("test : " + ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH) + params);
         OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.CALLUSER_PATH), params, new BaseStringCallback(mContext, new CallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {//成功
@@ -685,7 +744,8 @@ public class MainActivity extends BaseActivity {
                     callTime(getTimerTime(mContext));
                     mUserId = response.has("userId") ? response.getString("userId") : "";
                     mPhone = response.has("phone") ? response.getString("phone") : "";
-                    mCallId = response.has("callId") ? response.getString("callId ") : "";
+                    mCallId = response.has("callId") ? response.getString("callId") : "";
+                   mHandler.sendEmptyMessage(5);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -694,7 +754,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void parameterError(JSONObject response) {//失败
                 promptTone(R.raw.calltips, false);
-                callTime(getTimerTime(mContext));
+                callTime(3);
                 mIsCall = false;
                 mDoorNumber = "";
                 if (doorNumber != null) {
@@ -710,7 +770,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onFailure() {//接口问题
                 promptTone(R.raw.calltips, false);
-                callTime(getTimerTime(mContext));
+                callTime(3);
                 mIsCall = false;
                 mDoorNumber = "";
                 if (doorNumber != null) {
@@ -769,7 +829,7 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void parameterError(JSONObject response) {//外地
-
+                mPhone = "0"+mPhone;
             }
 
             @Override
@@ -810,8 +870,9 @@ public class MainActivity extends BaseActivity {
         mUserId = "";
         mCallId = "";
         mHousenum = "";
-        mPhone = "";
+//        mPhone = "";
         mIsCall = false;
+        mDoorNumber = "";
         if (mTimer != null) {
             mTimer.cancel();
         }
@@ -821,19 +882,20 @@ public class MainActivity extends BaseActivity {
         if (mOvertimeTimer != null) {
             mOvertimeTimer.cancel();
         }
-        if (mCallTimer != null) {
-            mCallTimer.cancel();
-        }
-        if (doorNumber != null) {
-            mDoorNumber = "";
-            doorNumber.setText("");
-        }
-        if (callTimer != null) {
-            callTimer.setText("");
-        }
 
+            if (mCallTimer != null) {
+                mCallTimer.cancel();
+            }
 
-    }
+        if (!mAudioCall) {
+            if (doorNumber != null) {
+                doorNumber.setText("");
+            }
+            if (callTimer != null) {
+                callTimer.setText("");
+            }
+        }
+     }
 
     private Handler mHandler = new Handler() {
         @Override
@@ -841,9 +903,30 @@ public class MainActivity extends BaseActivity {
             switch (msg.what) {
                 case 0:
                     cancels();
+                    ReleasePlayer();
                     break;
                 case 1:
                     clearAll();
+                    break;
+                case 2:
+                    sipHangup();
+                    break;
+                case 3:
+                    if (callTimer != null) {
+                        callTimer.setText("电话呼叫中");
+                    }
+                    break;
+                case 4:
+                    leaveChannel();
+                    ReleasePlayer();
+                    getAccount(mContext);
+                    cancels();
+                    phoneCall(1, "start");
+                    break;
+                case 5:
+                    if (mPhone!=null&&!"".equals(mPhone)) {
+                        checkPhone(mPhone);
+                    }
                     break;
             }
             super.handleMessage(msg);
@@ -862,8 +945,8 @@ public class MainActivity extends BaseActivity {
                 mHandler.sendEmptyMessage(1);
             }
         }, time * 1000);
-    }    //呼叫超时未接通
-
+    }
+    //呼叫超时未接通
     private void overtimeTimer(int time) {
         if (mOvertimeTimer != null) {
             mOvertimeTimer.cancel();
@@ -901,10 +984,7 @@ public class MainActivity extends BaseActivity {
         mCallTimer.schedule(new TimerTask() {
             @Override
             public void run() {//呼叫电话
-                ReleasePlayer();
-//                getAccount(mContext);
-                mHandler.sendEmptyMessage(1);
-                phoneCall(1, "start");
+                mHandler.sendEmptyMessage(4);
             }
         }, time * 1000);
     }
@@ -922,7 +1002,7 @@ public class MainActivity extends BaseActivity {
                 params.put("id", mCallId);
                 break;
         }
-        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.PHONECALL_PATH), new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
+        OkHttp.get(ConnectPath.getPath(mContext, ConnectPath.PHONECALL_PATH),params, new ConciseStringCallback(mContext, new ConciseCallbackHandler<String>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -936,9 +1016,12 @@ public class MainActivity extends BaseActivity {
             if (keyCode == KeyEvent.KEYCODE_STAR) {//*
                 ReleasePlayer();
                 cancels();
+                leaveChannel();
                 return false;
             }
-        } else {
+        } else if(mAudioCall){
+            sipHangup();
+        }else {
             if (mDoorNumber.length() >= 11) {
 //                return false;
             } else {
@@ -1132,13 +1215,17 @@ public class MainActivity extends BaseActivity {
         return SharedPreUtil.getInt(context, "timerTime");
     }
 
+    private boolean mIsAgora = false;
 
     //初始化声网引擎和加入频道
     private void initAgoraEngineAndJoinChannel() {
-        initializeAgoraEngine();     //  教程步骤 1
-        setupVideoProfile();         //  教程步骤 2
-        setupLocalVideo();           //  教程步骤 3
-        joinChannel();               //  教程步骤 4
+        if (!mIsAgora) {
+            mIsAgora = true;
+            initializeAgoraEngine();     //  教程步骤 1
+            setupVideoProfile();         //  教程步骤 2
+            setupLocalVideo();           //  教程步骤 3
+            joinChannel();               //  教程步骤 4
+        }
     }
 
     //自我检查权限
@@ -1197,9 +1284,11 @@ public class MainActivity extends BaseActivity {
         ReleasePlayer();
 
 
-        leaveChannel();
-        RtcEngine.destroy();//销毁引擎实例
-        mRtcEngine = null;
+        if (mRtcEngine!=null) {
+            leaveChannel();
+            RtcEngine.destroy();//销毁引擎实例
+            mRtcEngine = null;
+        }
     }
 
 
@@ -1329,7 +1418,12 @@ public class MainActivity extends BaseActivity {
 
     //  教程步骤 6  离开频道
     private void leaveChannel() {
-        mRtcEngine.leaveChannel();//离开频道
+        if (mRtcEngine!=null) {
+            if (mIsAgora) {
+                mIsAgora = false;
+                mRtcEngine.leaveChannel();//离开频道
+            }
+        }
     }
 
     //  教程步骤 7  远程用户离开  （挂断）
@@ -1339,6 +1433,7 @@ public class MainActivity extends BaseActivity {
 //
 //        View tipMsg = findViewById(R.id.quick_tips_when_use_agora_sdk); // 可选的界面
 //        tipMsg.setVisibility(View.VISIBLE);
+//        leaveChannel();
     }
 
     //  教程步骤 10   远程用户已停发/已重发视频流
@@ -1357,6 +1452,7 @@ public class MainActivity extends BaseActivity {
 获取SIP账号
  */
     private void getAccount(Context context) {
+        mAudioCall = true;
         HttpUtils.doGet(ConnectPath.getPath(context, ConnectPath.GETACCOUNT), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -1373,13 +1469,272 @@ public class MainActivity extends BaseActivity {
                     userName = ConnectPath.SIP_NAME;
                     userPwd = ConnectPath.SIP_PWD;
                 }
-                Bundle bundle = new Bundle();
-                bundle.putString("mPhone", mPhone);
-                bundle.putString("userName", userName);
-                bundle.putString("userPwd", userPwd);
-                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
-                finish();
+//                Bundle bundle = new Bundle();
+//                bundle.putString("mPhone", mPhone);
+//                bundle.putString("userName", userName);
+//                bundle.putString("userPwd", userPwd);
+//                BaseUtils.startActivities(mContext, CallActivity.class, bundle);
+//                finish();
+                sipInit(ConnectPath.SIP_HOST);
+
             }
         });
     }
+
+    private List<VvsipCall> mVvsipCalls = null;
+    private boolean mAudioCall = false;
+    private Timer mCalloutTimer;//电话呼叫计时器
+    private Timer mTalkbackTimer;//通话计时器
+
+    private void talkbackTimer(int time) {//通话计时
+        if (mTalkbackTimer != null) {
+            mTalkbackTimer.cancel();
+        }
+        mTalkbackTimer = new Timer();
+        mTalkbackTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mHandler.sendEmptyMessage(2);
+            }
+        }, time * 1000);
+    }
+    private void calloutTimer(int time) {//电话呼叫计时
+        if (mCalloutTimer != null) {
+            mCalloutTimer.cancel();
+        }
+        mCalloutTimer = new Timer();
+        mCalloutTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mHandler.sendEmptyMessage(2);
+            }
+        }, time * 1000);
+    }
+    private void closeCalloutTimer(){
+        if (mCalloutTimer != null) {
+            mCalloutTimer.cancel();
+        }
+        if (mTalkbackTimer != null) {
+            mTalkbackTimer.cancel();
+        }
+    }
+
+    /**
+     * sip初始化
+     */
+    private void sipInit(final String sipSite){
+        mHandler.sendEmptyMessage(3);
+        mAudioCall = true;
+        IVvsipService _service = VvsipService.getService();
+        if (_service != null) {
+            _service.addListener(this);
+            _service.setMessageHandler(messageHandler);
+            VvsipDTMF.getVvsipDTMF().setHandler(messageHandler);
+        } else {
+        }
+
+        if (mVvsipCalls == null) {
+            mVvsipCalls = new ArrayList<VvsipCall>();
+        }
+
+
+        //注册
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                IVvsipService _service = VvsipService.getService();
+                if (_service != null) {
+                    _service.register(sipSite, userName, userPwd);
+//                    _service.register("393818.2d09f8.sip.newrocktech.com:5090", "215", "467464");
+                }
+            }
+        });
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sipCall(mPhone);
+            }
+        }, 3 * 1000);
+
+    }
+
+    /**
+     * sip呼叫
+     * @param number 电话号码
+     */
+    private void sipCall(final String number){
+        MyLog.d("呼叫号码 ： "+number);
+        calloutTimer(10);
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                IVvsipService _service = VvsipService.getService();
+                if (_service == null)
+                    return;
+                _service.initiateOutgoingCall(number);
+            }
+        });
+    }
+
+    /**
+     * sip挂断
+     */
+    private void sipHangup(){
+        if (mAudioCall) {
+            mAudioCall = false;
+        closeCalloutTimer();
+        if (doorNumber != null) {
+            doorNumber.setText("");
+        }
+            if (callTimer != null) {
+                callTimer.setText("");
+            }
+        VvsipCall pCall = null;
+        for (VvsipCall _pCall : mVvsipCalls) {
+            if(_pCall.cid > 0)
+                if (_pCall.cid > 0 && _pCall.mState <= 2) {
+                    pCall = _pCall;
+                    break;
+                }
+        }
+        if (pCall == null)
+            return;
+        IVvsipService _service = VvsipService.getService();
+        if (_service == null)
+            return;
+        VvsipTask _vvsipTask = _service.getVvsipTask();
+        if (_vvsipTask == null)
+            return;
+        pCall.stop();
+        _service.setSpeakerModeOff();
+        _service.stopPlayer();  //主叫挂断，声音停止;理论上在Closed，Released状态中会调用这个方法的。
+        //但是HDL那边没有效果，这里主动调用一次 ,By 20160822
+        _service.setAudioNormalMode();
+        }
+    }
+
+    @Override
+    public void onNewVvsipCallEvent(final VvsipCall call) {
+
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    if (call == null) {
+                        return;
+                    }
+
+                    if (mVvsipCalls == null)
+                        return;
+                    mVvsipCalls.add(call);
+
+                    if (Build.VERSION.SDK_INT >= 5) {
+                        getWindow()
+                                .addFlags( // WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                                        // |
+                                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                                                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                                                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    }
+
+                } catch (Exception e) {
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStatusVvsipCallEvent(VvsipCall call) {
+        Log.d("SIPTES","call :"+call.mState);
+    }
+
+    @Override
+    public void onRemoveVvsipCallEvent(final VvsipCall call) {
+
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    if (call == null) {
+                        return;
+                    }
+
+                    // 使用mvvsipcall =NULL，在这里检测到4.0.9的崩溃。
+                    if (mVvsipCalls == null)
+                        return;
+                    mVvsipCalls.remove(call);
+
+                    if (mVvsipCalls.size() == 0) {
+                        if (Build.VERSION.SDK_INT >= 5) {
+                            getWindow()
+                                    .clearFlags( // WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                                            // |
+                                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                                                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                                                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRegistrationEvent(final int rid, final String remoteUri,
+                                    final int code, String reason) {
+
+    }
+
+    @SuppressLint("HandlerLeak")
+    private Handler messageHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            MyLog.d("监听值 ："+msg.obj);
+            if (!msg.obj.toString().contains("CALL")) {
+                if (msg.obj.toString().contains("200 OK")) {//注册成功
+                    MyLog.d("监听返回 ：注册成功");
+                }
+            }else if(msg.obj.toString().contains("Timeout")){
+                MyLog.d("监听返回 ：sip请求超时");
+                BaseUtils.showShortToast(mContext,"sip请求超时");
+                sipInit(ConnectPath.SIP_REMARK);//sip备用服务器的注册
+            }else{
+                if (msg.obj.toString().contains("200 OK")) {//呼叫接通
+                    MyLog.d("监听返回 ：呼叫接通");
+                    if (mCalloutTimer!=null) {
+                        mCalloutTimer.cancel();
+                    }
+                    talkbackTimer(60);
+                }else if(msg.obj.toString().contains("CLOSED")||msg.obj.toString().contains("RELEASED")){ //结束呼叫
+                    mAudioCall = false;
+                    closeCalloutTimer();
+                    MyLog.d("监听返回 ：结束呼叫");
+                    if (doorNumber != null) {
+                        doorNumber.setText("");
+                    }
+                    if (callTimer != null) {
+                        callTimer.setText("");
+                    }
+                    VvsipCall pCall = null;
+                    for (VvsipCall _pCall : mVvsipCalls) {
+                        if(_pCall.cid > 0)
+                            if (_pCall.cid > 0 && _pCall.mState <= 2) {
+                                pCall = _pCall;
+                                break;
+                            }
+                    }
+                    if (pCall == null)
+                        return;
+                    IVvsipService _service = VvsipService.getService();
+                    if (_service == null)
+                        return;
+                    VvsipTask _vvsipTask = _service.getVvsipTask();
+                    if (_vvsipTask == null)
+                        return;
+                    pCall.stop();
+                    _service.setSpeakerModeOff();
+                }
+            }
+        }
+    };
 }
